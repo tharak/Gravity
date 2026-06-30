@@ -1,6 +1,7 @@
 import { Component } from "../ecs/components.js";
 import { applyGravity } from "../systems/gravitySystem.js";
 import { integrateMotion } from "../systems/integrationSystem.js";
+import { applyPlayerInput } from "../systems/playerInputSystem.js";
 import { recordTrails } from "../systems/trailSystem.js";
 
 export const defaultSimulationConfig = Object.freeze({
@@ -12,6 +13,7 @@ export const defaultSimulationConfig = Object.freeze({
 
 export function createSimulation(world, config = {}) {
   const settings = { ...defaultSimulationConfig, ...config };
+  const inputById = settings.inputById ?? {};
   let accumulator = 0;
 
   return {
@@ -20,6 +22,7 @@ export function createSimulation(world, config = {}) {
       accumulator += Math.min(deltaSeconds, 0.25);
       while (accumulator >= settings.fixedDeltaSeconds) {
         applyGravity(world, settings);
+        applyPlayerInput(world, inputById);
         integrateMotion(world, settings.fixedDeltaSeconds);
         recordTrails(world, settings.maxTrailLength);
         accumulator -= settings.fixedDeltaSeconds;

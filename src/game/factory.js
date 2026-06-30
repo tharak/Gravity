@@ -11,6 +11,14 @@ export function createBody(world, body) {
   addComponent(world, entity, Component.Radius, { value: body.radius });
   addComponent(world, entity, Component.OrbitTrail, { points: [] });
 
+  if (body.playerControlled) {
+    addComponent(world, entity, Component.PlayerControlled, { inputId: body.playerControlled });
+  }
+
+  if (body.thrust) {
+    addComponent(world, entity, Component.Thrust, { acceleration: body.thrust.acceleration });
+  }
+
   if (body.resources) {
     addComponent(world, entity, Component.Resource, { ...body.resources });
   }
@@ -55,7 +63,9 @@ export function seedStarterSystem(world) {
     vx: 45,
     vy: 0,
     mass: 2,
-    radius: 6
+    radius: 7,
+    playerControlled: "player-one",
+    thrust: { acceleration: 96 }
   });
 
   createBody(world, {

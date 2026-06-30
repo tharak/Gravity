@@ -64,11 +64,20 @@ function drawBodies(context, canvas, world, camera) {
     const position = getComponent(world, entity, Component.Position);
     const radius = getComponent(world, entity, Component.Radius).value * camera.zoom;
     const screen = worldToScreen(camera, canvas, position);
+    const isPlayer = getComponent(world, entity, Component.PlayerControlled) !== undefined;
 
     context.fillStyle = bodyColors[kind];
     context.beginPath();
     context.arc(screen.x, screen.y, Math.max(radius, 3), 0, Math.PI * 2);
     context.fill();
+
+    if (isPlayer) {
+      context.strokeStyle = "#ffffff";
+      context.lineWidth = 2;
+      context.beginPath();
+      context.arc(screen.x, screen.y, Math.max(radius + 5, 8), 0, Math.PI * 2);
+      context.stroke();
+    }
   }
   context.restore();
 }

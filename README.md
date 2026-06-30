@@ -9,6 +9,8 @@ The current milestone is a dependency-free ECS-style gravity simulation rendered
 - Green: resource planet
 - Red: ship
 
+The player ship has a white outline. Drag the on-screen joystick on mobile or desktop to apply thrust.
+
 ## Run Locally
 
 Open `index.html` directly, or serve the folder:

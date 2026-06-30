@@ -3,9 +3,11 @@ export const Component = Object.freeze({
   BodyKind: "bodyKind",
   Mass: "mass",
   OrbitTrail: "orbitTrail",
+  PlayerControlled: "playerControlled",
   Position: "position",
   Radius: "radius",
   Resource: "resource",
+  Thrust: "thrust",
   Velocity: "velocity"
 });
 
