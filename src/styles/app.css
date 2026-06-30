@@ -106,6 +106,10 @@ body {
   background: #ff667a;
 }
 
+.legend-station {
+  background: #b8c2d6;
+}
+
 .touch-joystick {
   position: absolute;
   left: max(18px, env(safe-area-inset-left));

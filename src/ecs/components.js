@@ -7,6 +7,7 @@ export const Component = Object.freeze({
   Position: "position",
   Radius: "radius",
   Resource: "resource",
+  StaticBody: "staticBody",
   Thrust: "thrust",
   Velocity: "velocity"
 });
@@ -15,5 +16,6 @@ export const BodyKind = Object.freeze({
   Planet: "planet",
   ResourcePlanet: "resourcePlanet",
   Ship: "ship",
-  Star: "star"
+  Star: "star",
+  Station: "station"
 });

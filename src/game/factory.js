@@ -5,11 +5,16 @@ export function createBody(world, body) {
   const entity = createEntity(world);
   addComponent(world, entity, Component.BodyKind, { value: body.kind });
   addComponent(world, entity, Component.Position, { x: body.x, y: body.y });
-  addComponent(world, entity, Component.Velocity, { x: body.vx ?? 0, y: body.vy ?? 0 });
-  addComponent(world, entity, Component.Acceleration, { x: 0, y: 0 });
   addComponent(world, entity, Component.Mass, { value: body.mass });
   addComponent(world, entity, Component.Radius, { value: body.radius });
-  addComponent(world, entity, Component.OrbitTrail, { points: [] });
+
+  if (body.static) {
+    addComponent(world, entity, Component.StaticBody, { value: true });
+  } else {
+    addComponent(world, entity, Component.Velocity, { x: body.vx ?? 0, y: body.vy ?? 0 });
+    addComponent(world, entity, Component.Acceleration, { x: 0, y: 0 });
+    addComponent(world, entity, Component.OrbitTrail, { points: [] });
+  }
 
   if (body.playerControlled) {
     addComponent(world, entity, Component.PlayerControlled, { inputId: body.playerControlled });
@@ -29,51 +34,59 @@ export function createBody(world, body) {
 export function seedStarterSystem(world) {
   createBody(world, {
     kind: BodyKind.Star,
-    x: 0,
-    y: 0,
-    mass: 9000,
-    radius: 22
+    x: -3600,
+    y: -2600,
+    mass: 260000,
+    radius: 58,
+    static: true
   });
 
   createBody(world, {
     kind: BodyKind.Planet,
-    x: 210,
-    y: 0,
-    vx: 0,
-    vy: 55,
-    mass: 28,
-    radius: 10
+    x: 320,
+    y: 140,
+    mass: 18000,
+    radius: 24,
+    static: true
   });
 
   createBody(world, {
     kind: BodyKind.ResourcePlanet,
-    x: -330,
-    y: 0,
-    vx: 0,
-    vy: -44,
-    mass: 46,
-    radius: 13,
+    x: -280,
+    y: 80,
+    mass: 22000,
+    radius: 29,
+    static: true,
     resources: { minerals: 180, fuel: 95 }
   });
 
   createBody(world, {
-    kind: BodyKind.Ship,
-    x: 0,
-    y: -285,
-    vx: 45,
-    vy: 0,
-    mass: 2,
-    radius: 7,
-    playerControlled: "player-one",
-    thrust: { acceleration: 96 }
+    kind: BodyKind.Station,
+    x: -80,
+    y: 310,
+    mass: 4000,
+    radius: 16,
+    static: true
   });
 
   createBody(world, {
     kind: BodyKind.Ship,
-    x: 0,
-    y: 360,
-    vx: -39,
+    x: 80,
+    y: -210,
+    vx: 10,
     vy: 0,
+    mass: 2,
+    radius: 7,
+    playerControlled: "player-one",
+    thrust: { acceleration: 140 }
+  });
+
+  createBody(world, {
+    kind: BodyKind.Ship,
+    x: 245,
+    y: -180,
+    vx: -8,
+    vy: 6,
     mass: 2,
     radius: 6
   });

@@ -66,3 +66,46 @@ test("a seeded two-body orbit remains bounded over short simulation windows", ()
   assert.ok(distance > 120);
   assert.ok(distance < 320);
 });
+
+
+test("static gravity sources pull ships without moving themselves", () => {
+  const world = createWorld();
+  const planet = createBody(world, {
+    kind: "planet",
+    x: 100,
+    y: 0,
+    mass: 500,
+    radius: 10,
+    static: true
+  });
+  const ship = createBody(world, { kind: "ship", x: 0, y: 0, mass: 1, radius: 2 });
+
+  applyGravity(world, { gravitationalConstant: 20, softening: 0 });
+  integrateMotion(world, 1);
+
+  const planetPosition = getComponent(world, planet, Component.Position);
+  const shipPosition = getComponent(world, ship, Component.Position);
+  const shipVelocity = getComponent(world, ship, Component.Velocity);
+
+  assert.deepEqual(planetPosition, { x: 100, y: 0 });
+  assert.ok(shipVelocity.x > 0);
+  assert.ok(shipPosition.x > 0);
+});
+
+test("static bodies are not dynamic acceleration targets", () => {
+  const world = createWorld();
+  const planet = createBody(world, {
+    kind: "planet",
+    x: 0,
+    y: 0,
+    mass: 500,
+    radius: 10,
+    static: true
+  });
+  createBody(world, { kind: "ship", x: 100, y: 0, mass: 1, radius: 2 });
+
+  applyGravity(world, { gravitationalConstant: 20, softening: 0 });
+
+  assert.equal(getComponent(world, planet, Component.Acceleration), undefined);
+  assert.equal(getComponent(world, planet, Component.Velocity), undefined);
+});

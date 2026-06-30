@@ -6,7 +6,7 @@ export function integrateMotion(world, deltaSeconds) {
     Component.Position,
     Component.Velocity,
     Component.Acceleration
-  ]);
+  ]).filter((entity) => getComponent(world, entity, Component.StaticBody) === undefined);
 
   for (const entity of movingEntities) {
     const position = getComponent(world, entity, Component.Position);

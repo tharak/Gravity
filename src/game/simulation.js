@@ -6,9 +6,9 @@ import { recordTrails } from "../systems/trailSystem.js";
 
 export const defaultSimulationConfig = Object.freeze({
   fixedDeltaSeconds: 1 / 60,
-  gravitationalConstant: 72,
-  maxTrailLength: 220,
-  softening: 16
+  gravitationalConstant: 36,
+  maxTrailLength: 260,
+  softening: 42
 });
 
 export function createSimulation(world, config = {}) {

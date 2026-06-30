@@ -8,8 +8,9 @@ The current milestone is a dependency-free ECS-style gravity simulation rendered
 - Blue: planet
 - Green: resource planet
 - Red: ship
+- Gray: abandoned station
 
-The player ship has a white outline. Drag the on-screen joystick on mobile or desktop to apply thrust.
+Planets, the sun, and stations are static gravity sources. Ships are dynamic bodies affected by those gravity sources and by player thrust. The player ship has a white outline. Drag the on-screen joystick on mobile or desktop to apply thrust.
 
 ## Run Locally
 
