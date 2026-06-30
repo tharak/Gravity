@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Gravity</title>
+    <link rel="stylesheet" href="./src/styles/app.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <section class="sim-panel" aria-label="Gravity simulator">
+        <canvas id="gravity-canvas" width="1280" height="720"></canvas>
+      </section>
+      <aside class="hud" aria-label="Simulator data">
+        <h1>Gravity</h1>
+        <dl>
+          <div>
+            <dt>Time</dt>
+            <dd id="hud-time">0.0s</dd>
+          </div>
+          <div>
+            <dt>Entities</dt>
+            <dd id="hud-entities">0</dd>
+          </div>
+          <div>
+            <dt>Status</dt>
+            <dd id="hud-status">Running</dd>
+          </div>
+        </dl>
+        <div class="legend" aria-label="Entity colors">
+          <span><i class="legend-star"></i>Star</span>
+          <span><i class="legend-planet"></i>Planet</span>
+          <span><i class="legend-resource"></i>Resource</span>
+          <span><i class="legend-ship"></i>Ship</span>
+        </div>
+      </aside>
+    </main>
+    <script type="module" src="./src/main.js"></script>
+  </body>
+</html>
