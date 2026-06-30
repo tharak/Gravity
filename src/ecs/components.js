@@ -16,6 +16,5 @@ export const BodyKind = Object.freeze({
   Planet: "planet",
   ResourcePlanet: "resourcePlanet",
   Ship: "ship",
-  Star: "star",
   Station: "station"
 });

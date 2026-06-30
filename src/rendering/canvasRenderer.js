@@ -1,22 +1,22 @@
-import { Component } from "../ecs/components.js";
+import { BodyKind, Component } from "../ecs/components.js";
 import { getComponent, queryEntities } from "../ecs/world.js";
 import { bodyColors } from "./colors.js";
 import { worldToScreen } from "./camera.js";
 
-export function renderWorld(context, canvas, world, camera) {
+export function renderWorld(context, canvas, world, camera, options = {}) {
   context.clearRect(0, 0, canvas.width, canvas.height);
   drawGrid(context, canvas, camera);
   drawTrails(context, canvas, world, camera);
-  drawBodies(context, canvas, world, camera);
+  drawBodies(context, canvas, world, camera, options.lightPosition);
 }
 
 function drawGrid(context, canvas, camera) {
   context.save();
   context.strokeStyle = "rgba(139, 159, 190, 0.12)";
   context.lineWidth = 1;
-  const spacing = 80 * camera.zoom;
-  const offsetX = canvas.width / 2 - camera.x * camera.zoom;
-  const offsetY = canvas.height / 2 - camera.y * camera.zoom;
+  const spacing = 80 * camera.scale;
+  const offsetX = canvas.width / 2 - camera.x * camera.scale;
+  const offsetY = canvas.height / 2 - camera.y * camera.scale;
 
   for (let x = offsetX % spacing; x < canvas.width; x += spacing) {
     context.beginPath();
@@ -57,19 +57,16 @@ function drawTrails(context, canvas, world, camera) {
   context.restore();
 }
 
-function drawBodies(context, canvas, world, camera) {
+function drawBodies(context, canvas, world, camera, lightPosition) {
   context.save();
   for (const entity of queryEntities(world, [Component.BodyKind, Component.Position, Component.Radius])) {
     const kind = getComponent(world, entity, Component.BodyKind).value;
     const position = getComponent(world, entity, Component.Position);
-    const radius = getComponent(world, entity, Component.Radius).value * camera.zoom;
+    const radius = getComponent(world, entity, Component.Radius).value * camera.scale;
     const screen = worldToScreen(camera, canvas, position);
     const isPlayer = getComponent(world, entity, Component.PlayerControlled) !== undefined;
 
-    context.fillStyle = bodyColors[kind];
-    context.beginPath();
-    context.arc(screen.x, screen.y, Math.max(radius, 3), 0, Math.PI * 2);
-    context.fill();
+    drawBodyCircle(context, screen, Math.max(radius, 3), bodyColors[kind], kind, position, lightPosition);
 
     if (isPlayer) {
       context.strokeStyle = "#ffffff";
@@ -80,4 +77,39 @@ function drawBodies(context, canvas, world, camera) {
     }
   }
   context.restore();
+}
+
+function drawBodyCircle(context, screen, radius, color, kind, position, lightPosition) {
+  context.fillStyle = color;
+  context.beginPath();
+  context.arc(screen.x, screen.y, radius, 0, Math.PI * 2);
+  context.fill();
+
+  if (!lightPosition || !isShadedKind(kind)) {
+    return;
+  }
+
+  const dx = position.x - lightPosition.x;
+  const dy = position.y - lightPosition.y;
+  const distance = Math.hypot(dx, dy) || 1;
+  const lightX = -dx / distance;
+  const lightY = -dy / distance;
+  const litX = screen.x + lightX * radius;
+  const litY = screen.y + lightY * radius;
+  const darkX = screen.x - lightX * radius;
+  const darkY = screen.y - lightY * radius;
+  const shadow = context.createLinearGradient(litX, litY, darkX, darkY);
+
+  shadow.addColorStop(0, "rgba(255, 255, 255, 0.20)");
+  shadow.addColorStop(0.42, "rgba(255, 255, 255, 0.02)");
+  shadow.addColorStop(1, "rgba(0, 0, 0, 0.48)");
+
+  context.fillStyle = shadow;
+  context.beginPath();
+  context.arc(screen.x, screen.y, radius, 0, Math.PI * 2);
+  context.fill();
+}
+
+function isShadedKind(kind) {
+  return kind === BodyKind.Planet || kind === BodyKind.ResourcePlanet;
 }

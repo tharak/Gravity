@@ -33,15 +33,6 @@ export function createBody(world, body) {
 
 export function seedStarterSystem(world) {
   createBody(world, {
-    kind: BodyKind.Star,
-    x: -3600,
-    y: -2600,
-    mass: 260000,
-    radius: 58,
-    static: true
-  });
-
-  createBody(world, {
     kind: BodyKind.Planet,
     x: 320,
     y: 140,

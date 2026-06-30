@@ -1,9 +1,8 @@
-import { Component } from "./ecs/components.js";
-import { getComponent, queryEntities } from "./ecs/world.js";
 import { createSimulation } from "./game/simulation.js";
+import { sunlight } from "./game/lighting.js";
 import { createPlayerInput, bindTouchJoystick } from "./input/playerInput.js";
 import { createStarterScene } from "./scenes/starterScene.js";
-import { createCamera } from "./rendering/camera.js";
+import { createCamera, fitCameraToWorld } from "./rendering/camera.js";
 import { renderWorld } from "./rendering/canvasRenderer.js";
 
 const canvas = document.querySelector("#gravity-canvas");
@@ -16,7 +15,7 @@ const joystick = document.querySelector("#touch-joystick");
 const world = createStarterScene();
 const playerInput = createPlayerInput();
 const simulation = createSimulation(world, { inputById: { "player-one": playerInput } });
-const camera = createCamera(canvas);
+const camera = createCamera();
 
 let previousTimestamp = performance.now();
 
@@ -26,6 +25,7 @@ function resizeCanvas() {
   canvas.width = Math.max(1, Math.floor(bounds.width * pixelRatio));
   canvas.height = Math.max(1, Math.floor(bounds.height * pixelRatio));
   context.setTransform(1, 0, 0, 1, 0, 0);
+  fitCameraToWorld(camera, canvas, world);
 }
 
 function tick(timestamp) {
@@ -33,21 +33,9 @@ function tick(timestamp) {
   previousTimestamp = timestamp;
 
   simulation.step(deltaSeconds);
-  updateCamera();
-  renderWorld(context, canvas, world, camera);
+  renderWorld(context, canvas, world, camera, { lightPosition: sunlight });
   updateHud();
   requestAnimationFrame(tick);
-}
-
-function updateCamera() {
-  const player = queryEntities(world, [Component.PlayerControlled, Component.Position])[0];
-  if (player === undefined) {
-    return;
-  }
-
-  const position = getComponent(world, player, Component.Position);
-  camera.x = position.x;
-  camera.y = position.y;
 }
 
 function updateHud() {
