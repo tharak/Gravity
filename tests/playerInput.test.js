@@ -163,6 +163,34 @@ test("stop speed stabilizes angular movement", () => {
   assert.equal(getComponent(world, ship, Component.AngularAcceleration).value < 0, true);
 });
 
+test("manual stop does not align with world north when already stable", () => {
+  const world = createWorld();
+  const ship = createShip(world, { x: 0, y: 0, rotation: 0, playerControlled: "player-one", thrusterAcceleration: 100 });
+  const input = createPlayerInput();
+  setSpeedOrder(input, SpeedOrder.Stop);
+
+  applyPlayerInput(world, { "player-one": input }, 1);
+
+  assertAllThrustersOff(world);
+  assert.equal(getComponent(world, ship, Component.AngularAcceleration).value, 0);
+  assert.equal(getComponent(world, ship, Component.Battery).outputRate, 0);
+});
+
+test("automatic stop stabilizes ship heading to selected direction", () => {
+  const world = createWorld();
+  const ship = createShip(world, { x: 0, y: 0, playerControlled: "player-one", thrusterAcceleration: 100 });
+  const input = createPlayerInput();
+  setControllerMode(input, ControllerMode.Automatic);
+  setAutomaticDirection(input, DirectionOrder.East);
+  setSpeedOrder(input, SpeedOrder.Stop);
+
+  applyPlayerInput(world, { "player-one": input }, 1);
+
+  assert.equal(getThruster(world, ThrusterSlot.TopRight).power > 0, true);
+  assert.equal(getThruster(world, ThrusterSlot.BottomLeft).power > 0, true);
+  assert.equal(getComponent(world, ship, Component.AngularAcceleration).value > 0, true);
+});
+
 test("each thruster uses one shared unique color", () => {
   const world = createWorld();
   createShip(world, { x: 0, y: 0 });

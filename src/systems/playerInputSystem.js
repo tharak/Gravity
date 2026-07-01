@@ -23,7 +23,7 @@ function createPilotThrusterCommand(world, ship, input, deltaSeconds) {
   rechargeBattery(battery, deltaSeconds);
 
   const command = input?.speedOrder === SpeedOrder.Stop
-    ? createStopThrusterCommand(world, ship)
+    ? createStopThrusterCommand(world, ship, input)
     : input?.controllerMode === ControllerMode.Automatic
       ? createAutomaticThrusterCommand(world, ship, input)
       : createManualThrusterCommand(input);
@@ -47,12 +47,13 @@ function createManualThrusterCommand(input) {
   return createThrusterCommand(powerBySlot, false);
 }
 
-function createStopThrusterCommand(world, ship) {
+function createStopThrusterCommand(world, ship, input) {
   const powerBySlot = new Map();
   const rotation = getComponent(world, ship, Component.Rotation)?.angle ?? SHIP_FACING_UP;
   const velocity = getComponent(world, ship, Component.Velocity) ?? { x: 0, y: 0 };
   const angularVelocity = getComponent(world, ship, Component.AngularVelocity)?.value ?? 0;
   const speed = Math.hypot(velocity.x, velocity.y);
+  const hasTargetHeading = input?.controllerMode === ControllerMode.Automatic && Number.isFinite(input?.targetAngle);
 
   if (speed > 1) {
     const desired = { x: -velocity.x / speed, y: -velocity.y / speed };
@@ -66,14 +67,10 @@ function createStopThrusterCommand(world, ship) {
     }
   }
 
-  if (Math.abs(angularVelocity) > 0.02) {
-    const angularPower = clamp01(Math.abs(angularVelocity) * 0.8);
-    const slots = angularVelocity > 0
-      ? [ThrusterSlot.TopLeft, ThrusterSlot.BottomRight]
-      : [ThrusterSlot.TopRight, ThrusterSlot.BottomLeft];
-    for (const slot of slots) {
-      setSlotPower(powerBySlot, slot, angularPower);
-    }
+  if (hasTargetHeading) {
+    addTurnStabilization(powerBySlot, input.targetAngle, rotation, angularVelocity);
+  } else {
+    addAngularDamping(powerBySlot, angularVelocity);
   }
 
   return createThrusterCommand(powerBySlot, true);
@@ -86,23 +83,45 @@ function createAutomaticThrusterCommand(world, ship, input) {
   const angularVelocity = getComponent(world, ship, Component.AngularVelocity)?.value ?? 0;
   const targetAngle = Number.isFinite(input?.targetAngle) ? input.targetAngle : SHIP_FACING_UP;
   const angleError = normalizeAngle(targetAngle - rotation);
-  const turnSignal = angleError * 1.45 - angularVelocity * 0.35;
+  const turnSignal = getTurnSignal(angleError, angularVelocity);
   const turnPower = clamp01(Math.abs(turnSignal));
   const alignment = Math.max(0, Math.cos(angleError));
   const mainPower = requestedSpeed * alignment;
 
-  if (turnPower > 0.04) {
-    const slots = turnSignal > 0 ? [ThrusterSlot.TopRight, ThrusterSlot.BottomLeft] : [ThrusterSlot.TopLeft, ThrusterSlot.BottomRight];
-    for (const slot of slots) {
-      powerBySlot.set(slot, turnPower);
-    }
-  }
+  applyTurnSignal(powerBySlot, turnSignal);
 
   if (mainPower > 0.02) {
     powerBySlot.set(ThrusterSlot.MainBack, mainPower);
   }
 
   return createThrusterCommand(powerBySlot, true);
+}
+
+function addTurnStabilization(powerBySlot, targetAngle, rotation, angularVelocity) {
+  const angleError = normalizeAngle(targetAngle - rotation);
+  applyTurnSignal(powerBySlot, getTurnSignal(angleError, angularVelocity));
+}
+
+function addAngularDamping(powerBySlot, angularVelocity) {
+  applyTurnSignal(powerBySlot, -angularVelocity * 0.8);
+}
+
+function getTurnSignal(angleError, angularVelocity) {
+  return angleError * 1.45 - angularVelocity * 0.35;
+}
+
+function applyTurnSignal(powerBySlot, turnSignal) {
+  const turnPower = clamp01(Math.abs(turnSignal));
+  if (turnPower <= 0.04) {
+    return;
+  }
+
+  const slots = turnSignal > 0
+    ? [ThrusterSlot.TopRight, ThrusterSlot.BottomLeft]
+    : [ThrusterSlot.TopLeft, ThrusterSlot.BottomRight];
+  for (const slot of slots) {
+    setSlotPower(powerBySlot, slot, turnPower);
+  }
 }
 
 function applyBatteryLimitToCommand(battery, thrusters, command, deltaSeconds) {
