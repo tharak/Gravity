@@ -17,11 +17,17 @@ test("directional input helpers set and clear held button thrust", () => {
   assert.deepEqual(input, { active: false, x: 0, y: 0, strength: 0 });
 });
 
-test("vertical control buttons swap front and back thrusters", () => {
+test("control buttons show their mapped thruster numbers", () => {
   const html = readIndexHtml();
 
-  assert.ok(html.includes('data-thrust-y="1" aria-label="Front reverse thrusters">↑</button>'));
-  assert.ok(html.includes('data-thrust-y="-1" aria-label="Main back thruster">↓</button>'));
+  assert.ok(html.includes('aria-label="Front reverse thrusters 2 and 3"><span class="thruster-button__arrow">↑</span><span class="thruster-button__label">2+3</span></button>'));
+  assert.ok(html.includes('aria-label="Main back thruster 1"><span class="thruster-button__arrow">↓</span><span class="thruster-button__label">1</span></button>'));
+  assert.ok(html.includes('aria-label="Left thrusters 4 and 5"><span class="thruster-button__arrow">←</span><span class="thruster-button__label">4+5</span></button>'));
+  assert.ok(html.includes('aria-label="Right thrusters 6 and 7"><span class="thruster-button__arrow">→</span><span class="thruster-button__label">6+7</span></button>'));
+  assert.ok(html.includes('aria-label="Up left thruster 5"><span class="thruster-button__arrow">↖</span><span class="thruster-button__label">5</span></button>'));
+  assert.ok(html.includes('aria-label="Up right thruster 7"><span class="thruster-button__arrow">↗</span><span class="thruster-button__label">7</span></button>'));
+  assert.ok(html.includes('aria-label="Down left thruster 4"><span class="thruster-button__arrow">↙</span><span class="thruster-button__label">4</span></button>'));
+  assert.ok(html.includes('aria-label="Down right thruster 6"><span class="thruster-button__arrow">↘</span><span class="thruster-button__label">6</span></button>'));
 });
 
 test("main back input sector activates the main back thruster on an upward-facing ship", () => {

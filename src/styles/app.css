@@ -125,7 +125,9 @@ body {
 
 .thruster-button {
   display: grid;
+  grid-template-rows: 1fr auto;
   place-items: center;
+  padding: 7px 4px 6px;
   border: 1px solid rgba(233, 238, 248, 0.34);
   border-radius: 8px;
   background: rgba(16, 23, 37, 0.78);
@@ -133,6 +135,7 @@ body {
   font-family: inherit;
   font-weight: 800;
   line-height: 1;
+  text-align: center;
   box-shadow: 0 8px 22px rgba(0, 0, 0, 0.28);
   touch-action: none;
 }
@@ -140,13 +143,28 @@ body {
 .thruster-button--cardinal {
   width: 68px;
   height: 68px;
-  font-size: 28px;
 }
 
 .thruster-button--diagonal {
   width: 46px;
   height: 46px;
-  font-size: 20px;
+}
+
+.thruster-button__arrow {
+  font-size: 24px;
+}
+
+.thruster-button__label {
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+
+.thruster-button--diagonal .thruster-button__arrow {
+  font-size: 18px;
+}
+
+.thruster-button--diagonal .thruster-button__label {
+  font-size: 11px;
 }
 
 .thruster-button:active,
