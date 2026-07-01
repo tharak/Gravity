@@ -18,37 +18,83 @@ export function applyPlayerInput(world, inputById, deltaSeconds = 0) {
 
 function createPilotThrusterCommand(world, ship, input, deltaSeconds) {
   const battery = getComponent(world, ship, Component.Battery);
-  const powerBySlot = new Map();
-  const requestedSpeed = input?.controllerMode === ControllerMode.Automatic ? 0 : clampSpeed(input?.speedLevel ?? 0);
-  const activeSlots = input?.activeSlots ?? new Set();
   const thrusters = getShipThrusters(world, ship);
 
   rechargeBattery(battery, deltaSeconds);
 
+  const command = input?.controllerMode === ControllerMode.Automatic
+    ? createAutomaticThrusterCommand(world, ship, input)
+    : createManualThrusterCommand(input);
+
+  return applyBatteryLimitToCommand(battery, thrusters, command, deltaSeconds);
+}
+
+function createManualThrusterCommand(input) {
+  const powerBySlot = new Map();
+  const requestedSpeed = clampSpeed(input?.speedLevel ?? 0);
+  const activeSlots = input?.activeSlots ?? new Set();
+
   if (activeSlots.size === 0 || requestedSpeed <= 0) {
-    setBatteryOutput(battery, 0);
     return createThrusterCommand(powerBySlot, false);
   }
 
-  const selectedThrusters = thrusters.filter((thruster) => activeSlots.has(thruster.slot));
-  const requestedEnergyPerSecond = selectedThrusters.reduce(
-    (total, thruster) => total + thruster.energyUsePerSecond * requestedSpeed,
-    0
-  );
-  const availableScale = getBatteryPowerScale(battery, requestedEnergyPerSecond, deltaSeconds);
-  const actualSpeed = requestedSpeed * availableScale;
-
-  drainBattery(battery, requestedEnergyPerSecond * availableScale, deltaSeconds);
-
-  if (actualSpeed <= 0) {
-    return createThrusterCommand(powerBySlot, false);
-  }
-
-  for (const thruster of selectedThrusters) {
-    powerBySlot.set(thruster.slot, actualSpeed);
+  for (const slot of activeSlots) {
+    powerBySlot.set(slot, requestedSpeed);
   }
 
   return createThrusterCommand(powerBySlot, false);
+}
+
+function createAutomaticThrusterCommand(world, ship, input) {
+  const powerBySlot = new Map();
+  const requestedSpeed = clampSpeed(input?.speedLevel ?? 0);
+  const rotation = getComponent(world, ship, Component.Rotation)?.angle ?? SHIP_FACING_UP;
+  const angularVelocity = getComponent(world, ship, Component.AngularVelocity)?.value ?? 0;
+  const targetAngle = Number.isFinite(input?.targetAngle) ? input.targetAngle : SHIP_FACING_UP;
+  const angleError = normalizeAngle(targetAngle - rotation);
+  const turnSignal = angleError * 1.45 - angularVelocity * 0.35;
+  const turnPower = clamp01(Math.abs(turnSignal));
+  const alignment = Math.max(0, Math.cos(angleError));
+  const mainPower = requestedSpeed * alignment;
+
+  if (turnPower > 0.04) {
+    const slots = turnSignal > 0 ? [ThrusterSlot.TopRight, ThrusterSlot.BottomLeft] : [ThrusterSlot.TopLeft, ThrusterSlot.BottomRight];
+    for (const slot of slots) {
+      powerBySlot.set(slot, turnPower);
+    }
+  }
+
+  if (mainPower > 0.02) {
+    powerBySlot.set(ThrusterSlot.MainBack, mainPower);
+  }
+
+  return createThrusterCommand(powerBySlot, true);
+}
+
+function applyBatteryLimitToCommand(battery, thrusters, command, deltaSeconds) {
+  const requestedEnergyPerSecond = thrusters.reduce(
+    (total, thruster) => total + thruster.energyUsePerSecond * (command.powerBySlot.get(thruster.slot) ?? 0),
+    0
+  );
+
+  if (requestedEnergyPerSecond <= 0) {
+    setBatteryOutput(battery, 0);
+    return command;
+  }
+
+  const availableScale = getBatteryPowerScale(battery, requestedEnergyPerSecond, deltaSeconds);
+  drainBattery(battery, requestedEnergyPerSecond * availableScale, deltaSeconds);
+
+  if (availableScale >= 1) {
+    return command;
+  }
+
+  const scaledPowerBySlot = new Map();
+  for (const [slot, power] of command.powerBySlot) {
+    scaledPowerBySlot.set(slot, power * availableScale);
+  }
+
+  return createThrusterCommand(scaledPowerBySlot, command.stabilizing);
 }
 
 function getShipThrusters(world, ship) {
@@ -180,4 +226,12 @@ export function getThrusterSlotByNumber(number) {
 
 function clampSpeed(value) {
   return Math.max(0, Math.min(1.25, Number.isFinite(value) ? value : 0));
+}
+
+function clamp01(value) {
+  return Math.max(0, Math.min(1, Number.isFinite(value) ? value : 0));
+}
+
+function normalizeAngle(angle) {
+  return Math.atan2(Math.sin(angle), Math.cos(angle));
 }

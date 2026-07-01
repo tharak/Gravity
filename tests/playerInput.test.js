@@ -83,7 +83,7 @@ test("manual control panel shows battery, speed orders, and one switch per thrus
   }
 });
 
-test("automatic mode does not fire manual thrusters yet", () => {
+test("automatic full speed north fires the main thruster when aligned", () => {
   const world = createWorld();
   const ship = createShip(world, { x: 0, y: 0, playerControlled: "player-one", thrusterAcceleration: 100 });
   const input = createPlayerInput();
@@ -93,9 +93,29 @@ test("automatic mode does not fire manual thrusters yet", () => {
 
   applyPlayerInput(world, { "player-one": input }, 1);
 
-  assert.equal(getComponent(world, ship, Component.Acceleration).x, 0);
-  assert.equal(getComponent(world, ship, Component.Acceleration).y, 0);
-  assertAllThrustersOff(world);
+  const battery = getComponent(world, ship, Component.Battery);
+  assert.equal(getThruster(world, ThrusterSlot.MainBack).power, 1);
+  const acceleration = getComponent(world, ship, Component.Acceleration);
+  assert.equal(Math.abs(acceleration.x) < 1e-12, true);
+  assert.equal(acceleration.y, -1000);
+  assert.equal(battery.charge, 97);
+  assert.equal(battery.outputRate, 3);
+});
+
+test("automatic mode rotates toward the selected direction", () => {
+  const world = createWorld();
+  const ship = createShip(world, { x: 0, y: 0, playerControlled: "player-one", thrusterAcceleration: 100 });
+  const input = createPlayerInput();
+  setControllerMode(input, ControllerMode.Automatic);
+  setAutomaticDirection(input, DirectionOrder.East);
+  setSpeedOrder(input, SpeedOrder.Full);
+
+  applyPlayerInput(world, { "player-one": input }, 1);
+
+  assert.equal(getThruster(world, ThrusterSlot.TopRight).power, 1);
+  assert.equal(getThruster(world, ThrusterSlot.BottomLeft).power, 1);
+  assert.equal(getThruster(world, ThrusterSlot.MainBack).power < 1e-12, true);
+  assert.equal(getComponent(world, ship, Component.AngularAcceleration).value > 0, true);
 });
 
 test("each thruster uses one shared unique color", () => {
