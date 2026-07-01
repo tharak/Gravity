@@ -38,6 +38,11 @@ test("manual controller toggles thrusters and sets speed orders", () => {
   assert.equal(input.controllerMode, ControllerMode.Manual);
   assert.equal(input.speedOrder, SpeedOrder.Flank);
   assert.equal(input.speedLevel, 1.25);
+
+  setSpeedOrder(input, SpeedOrder.Stop);
+  assert.equal(input.speedOrder, SpeedOrder.Stop);
+  assert.equal(input.speedLevel, 0);
+  setSpeedOrder(input, SpeedOrder.Flank);
   assert.equal(input.activeSlots.has(ThrusterSlot.TopLeft), true);
 
   setSpeedLevel(input, 2);
@@ -72,6 +77,8 @@ test("manual control panel shows battery, speed orders, and one switch per thrus
   assert.ok(html.includes('data-controller-mode="manual"'));
   assert.ok(html.includes('data-controller-mode="automatic"'));
   assert.ok(html.includes('class="battery-widget"'));
+  assert.ok(html.includes('class="north-readout"'));
+  assert.ok(html.includes('World N'));
   assert.ok(html.includes('class="controller-bay"'));
   assert.ok(html.includes('class="controller-panel manual-panel"'));
   assert.ok(html.includes('class="controller-panel automatic-panel"'));
@@ -126,6 +133,34 @@ test("automatic mode rotates toward the selected direction", () => {
   assert.equal(getThruster(world, ThrusterSlot.BottomLeft).power, 1);
   assert.equal(getThruster(world, ThrusterSlot.MainBack).power < 1e-12, true);
   assert.equal(getComponent(world, ship, Component.AngularAcceleration).value > 0, true);
+});
+
+test("stop speed stabilizes linear movement", () => {
+  const world = createWorld();
+  const ship = createShip(world, { x: 0, y: 0, vy: -30, playerControlled: "player-one", thrusterAcceleration: 100 });
+  const input = createPlayerInput();
+  setSpeedOrder(input, SpeedOrder.Stop);
+
+  applyPlayerInput(world, { "player-one": input }, 1);
+
+  const battery = getComponent(world, ship, Component.Battery);
+  assert.equal(getThruster(world, ThrusterSlot.FrontLeft).power > 0, true);
+  assert.equal(getThruster(world, ThrusterSlot.FrontRight).power > 0, true);
+  assert.equal(getComponent(world, ship, Component.Acceleration).y > 0, true);
+  assert.equal(battery.outputRate > 0, true);
+});
+
+test("stop speed stabilizes angular movement", () => {
+  const world = createWorld();
+  const ship = createShip(world, { x: 0, y: 0, playerControlled: "player-one", angularVelocity: 0.5, thrusterAcceleration: 100 });
+  const input = createPlayerInput();
+  setSpeedOrder(input, SpeedOrder.Stop);
+
+  applyPlayerInput(world, { "player-one": input }, 1);
+
+  assert.equal(getThruster(world, ThrusterSlot.TopLeft).power > 0, true);
+  assert.equal(getThruster(world, ThrusterSlot.BottomRight).power > 0, true);
+  assert.equal(getComponent(world, ship, Component.AngularAcceleration).value < 0, true);
 });
 
 test("each thruster uses one shared unique color", () => {

@@ -7,6 +7,7 @@ export const ControllerMode = Object.freeze({
 });
 
 export const SpeedOrder = Object.freeze({
+  Stop: "stop",
   OneThird: "one-third",
   TwoThirds: "two-thirds",
   Standard: "standard",
@@ -26,6 +27,7 @@ export const DirectionOrder = Object.freeze({
 });
 
 export const SpeedOrders = Object.freeze([
+  Object.freeze({ id: SpeedOrder.Stop, label: "STOP", speedLevel: 0 }),
   Object.freeze({ id: SpeedOrder.OneThird, label: "1/3", speedLevel: 1 / 3 }),
   Object.freeze({ id: SpeedOrder.TwoThirds, label: "2/3", speedLevel: 2 / 3 }),
   Object.freeze({ id: SpeedOrder.Standard, label: "STD", speedLevel: 0.82 }),

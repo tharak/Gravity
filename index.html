@@ -11,15 +11,21 @@
       <section class="sim-panel" aria-label="Gravity simulator">
         <canvas id="gravity-canvas" width="1280" height="720"></canvas>
         <div id="thruster-controls" class="thruster-controls" aria-label="Ship controller">
-          <div class="battery-widget" aria-label="Ship battery">
-            <div class="battery-widget__shell" aria-hidden="true">
-              <span class="battery-widget__bar"></span>
-              <span class="battery-widget__bar"></span>
-              <span class="battery-widget__bar"></span>
-              <span class="battery-widget__bar"></span>
-              <span class="battery-widget__bar"></span>
+          <div class="cockpit-readouts">
+            <div class="battery-widget" aria-label="Ship battery">
+              <div class="battery-widget__shell" aria-hidden="true">
+                <span class="battery-widget__bar"></span>
+                <span class="battery-widget__bar"></span>
+                <span class="battery-widget__bar"></span>
+                <span class="battery-widget__bar"></span>
+                <span class="battery-widget__bar"></span>
+              </div>
+              <span id="battery-percent" class="battery-widget__percent">100%</span>
             </div>
-            <span id="battery-percent" class="battery-widget__percent">100%</span>
+            <div class="north-readout" aria-label="World north reference">
+              <span class="north-readout__needle" aria-hidden="true"></span>
+              <span>World N</span>
+            </div>
           </div>
           <div class="controller-tabs" aria-label="Controller mode">
             <button class="controller-tab is-active" type="button" data-controller-mode="manual" aria-pressed="true">Manual</button>
@@ -53,6 +59,7 @@
           </div>
           <fieldset class="speed-control" aria-label="Speed order">
             <legend>Speed</legend>
+            <button class="speed-button speed-button-stop" type="button" data-speed-order="stop" aria-label="Stop and stabilize" aria-pressed="false">STOP</button>
             <button class="speed-button" type="button" data-speed-order="one-third" aria-label="One-third speed" aria-pressed="false">1/3</button>
             <button class="speed-button" type="button" data-speed-order="two-thirds" aria-label="Two-thirds speed" aria-pressed="false">2/3</button>
             <button class="speed-button is-active" type="button" data-speed-order="standard" aria-label="Standard speed" aria-pressed="true">STD</button>

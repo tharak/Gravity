@@ -128,10 +128,16 @@ body {
   user-select: none;
 }
 
-.battery-widget {
+.cockpit-readouts {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 12px;
+}
+
+.battery-widget {
+  display: flex;
+  align-items: center;
   gap: 10px;
 }
 
@@ -171,6 +177,47 @@ body {
   font-size: 14px;
   font-weight: 800;
   font-variant-numeric: tabular-nums;
+}
+
+.north-readout {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 28px;
+  padding: 0 9px;
+  border: 1px solid rgba(125, 211, 252, 0.34);
+  border-radius: 999px;
+  background: rgba(10, 13, 20, 0.7);
+  color: #7dd3fc;
+  font-size: 12px;
+  font-weight: 900;
+  white-space: nowrap;
+}
+
+.north-readout__needle {
+  position: relative;
+  width: 12px;
+  height: 18px;
+}
+
+.north-readout__needle::before {
+  content: "";
+  position: absolute;
+  left: 5px;
+  bottom: 2px;
+  width: 2px;
+  height: 12px;
+  background: #7dd3fc;
+}
+
+.north-readout__needle::after {
+  content: "";
+  position: absolute;
+  left: 1px;
+  top: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-bottom: 8px solid #7dd3fc;
 }
 
 .controller-tabs {
@@ -438,7 +485,7 @@ body {
 
 .speed-control {
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-columns: repeat(6, minmax(0, 1fr));
   gap: 6px;
   min-width: 0;
   margin: 0;
@@ -469,11 +516,21 @@ body {
   touch-action: manipulation;
 }
 
+.speed-button-stop {
+  color: #ff667a;
+}
+
 .speed-button.is-active,
 .speed-button[aria-pressed="true"] {
   border-color: #ffb454;
   background: #ffb454;
   color: #07111f;
+}
+
+.speed-button-stop.is-active,
+.speed-button-stop[aria-pressed="true"] {
+  border-color: #ff667a;
+  background: #ff667a;
 }
 
 @media (max-width: 760px) {

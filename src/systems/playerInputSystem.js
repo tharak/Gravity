@@ -1,7 +1,7 @@
 import { Component, ThrusterSlot } from "../ecs/components.js";
 import { getComponent, queryEntities } from "../ecs/world.js";
 import { SHIP_FACING_UP } from "../game/factory.js";
-import { ControllerMode } from "../input/playerInput.js";
+import { ControllerMode, SpeedOrder } from "../input/playerInput.js";
 
 export function applyPlayerInput(world, inputById, deltaSeconds = 0) {
   resetThrusterPower(world);
@@ -22,9 +22,11 @@ function createPilotThrusterCommand(world, ship, input, deltaSeconds) {
 
   rechargeBattery(battery, deltaSeconds);
 
-  const command = input?.controllerMode === ControllerMode.Automatic
-    ? createAutomaticThrusterCommand(world, ship, input)
-    : createManualThrusterCommand(input);
+  const command = input?.speedOrder === SpeedOrder.Stop
+    ? createStopThrusterCommand(world, ship)
+    : input?.controllerMode === ControllerMode.Automatic
+      ? createAutomaticThrusterCommand(world, ship, input)
+      : createManualThrusterCommand(input);
 
   return applyBatteryLimitToCommand(battery, thrusters, command, deltaSeconds);
 }
@@ -43,6 +45,38 @@ function createManualThrusterCommand(input) {
   }
 
   return createThrusterCommand(powerBySlot, false);
+}
+
+function createStopThrusterCommand(world, ship) {
+  const powerBySlot = new Map();
+  const rotation = getComponent(world, ship, Component.Rotation)?.angle ?? SHIP_FACING_UP;
+  const velocity = getComponent(world, ship, Component.Velocity) ?? { x: 0, y: 0 };
+  const angularVelocity = getComponent(world, ship, Component.AngularVelocity)?.value ?? 0;
+  const speed = Math.hypot(velocity.x, velocity.y);
+
+  if (speed > 1) {
+    const desired = { x: -velocity.x / speed, y: -velocity.y / speed };
+    const linearPower = clamp01(speed / 45);
+    for (const thruster of getShipThrusters(world, ship)) {
+      const direction = localToWorld(thruster, rotation);
+      const alignment = direction.x * desired.x + direction.y * desired.y;
+      if (alignment > 0.35) {
+        setSlotPower(powerBySlot, thruster.slot, alignment * linearPower);
+      }
+    }
+  }
+
+  if (Math.abs(angularVelocity) > 0.02) {
+    const angularPower = clamp01(Math.abs(angularVelocity) * 0.8);
+    const slots = angularVelocity > 0
+      ? [ThrusterSlot.TopLeft, ThrusterSlot.BottomRight]
+      : [ThrusterSlot.TopRight, ThrusterSlot.BottomLeft];
+    for (const slot of slots) {
+      setSlotPower(powerBySlot, slot, angularPower);
+    }
+  }
+
+  return createThrusterCommand(powerBySlot, true);
 }
 
 function createAutomaticThrusterCommand(world, ship, input) {
@@ -137,6 +171,10 @@ function setBatteryOutput(battery, energyPerSecond) {
 
 function createThrusterCommand(powerBySlot, stabilizing) {
   return { powerBySlot, stabilizing };
+}
+
+function setSlotPower(powerBySlot, slot, power) {
+  powerBySlot.set(slot, Math.max(powerBySlot.get(slot) ?? 0, clamp01(power)));
 }
 
 function applyThrusterCommandToShip(world, ship, command, rotation) {
