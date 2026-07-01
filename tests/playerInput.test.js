@@ -26,6 +26,7 @@ test("up button sector activates the main back thruster on an upward-facing ship
 
   const acceleration = getComponent(world, ship, Component.Acceleration);
   assert.equal(getThruster(world, ThrusterSlot.MainBack).power, 0.75);
+  assert.equal(getThruster(world, ThrusterSlot.MainBack).stabilizing, false);
   assert.ok(Math.abs(acceleration.x) < 1e-12);
   assert.equal(acceleration.y, -75);
 });
@@ -99,6 +100,8 @@ test("released input stabilizes opposite current velocity", () => {
   const acceleration = getComponent(world, ship, Component.Acceleration);
   assert.equal(getThruster(world, ThrusterSlot.FrontLeft).power, 0.5);
   assert.equal(getThruster(world, ThrusterSlot.FrontRight).power, 0.5);
+  assert.equal(getThruster(world, ThrusterSlot.FrontLeft).stabilizing, true);
+  assert.equal(getThruster(world, ThrusterSlot.FrontRight).stabilizing, true);
   assertVelocityIsBeingReduced({ x: 0, y: -90 }, acceleration);
 });
 
@@ -113,6 +116,8 @@ test("released input stabilizes lateral current velocity", () => {
   const acceleration = getComponent(world, ship, Component.Acceleration);
   assert.equal(getThruster(world, ThrusterSlot.BottomLeft).power, 0.5);
   assert.equal(getThruster(world, ThrusterSlot.BottomRight).power, 0.5);
+  assert.equal(getThruster(world, ThrusterSlot.BottomLeft).stabilizing, true);
+  assert.equal(getThruster(world, ThrusterSlot.BottomRight).stabilizing, true);
   assertVelocityIsBeingReduced({ x: 90, y: 0 }, acceleration);
 });
 
@@ -146,10 +151,12 @@ test("released input stabilizes using rotated thruster directions", () => {
   const acceleration = getComponent(world, ship, Component.Acceleration);
   assert.equal(getThruster(world, ThrusterSlot.FrontLeft).power, 0.5);
   assert.equal(getThruster(world, ThrusterSlot.FrontRight).power, 0.5);
+  assert.equal(getThruster(world, ThrusterSlot.FrontLeft).stabilizing, true);
+  assert.equal(getThruster(world, ThrusterSlot.FrontRight).stabilizing, true);
   assertVelocityIsBeingReduced({ x: 90, y: 0 }, acceleration);
 });
 
-test("inactive stopped ship clears thruster power", () => {
+test("inactive stopped ship clears thruster power and stabilize animation", () => {
   const world = createWorld();
   createShip(world, { x: 0, y: 0, playerControlled: "player-one", thrusterAcceleration: 100 });
 
@@ -161,7 +168,9 @@ test("inactive stopped ship clears thruster power", () => {
   });
 
   for (const entity of queryEntities(world, [Component.Thruster])) {
-    assert.equal(getComponent(world, entity, Component.Thruster).power, 0);
+    const thruster = getComponent(world, entity, Component.Thruster);
+    assert.equal(thruster.power, 0);
+    assert.equal(thruster.stabilizing, false);
   }
 });
 

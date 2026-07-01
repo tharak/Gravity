@@ -109,9 +109,11 @@ function drawThrusters(context, world, ship, camera) {
     const radius = Math.max((5 + thruster.power * 4) * camera.scale, 8);
 
     if (thruster.power > 0) {
-      context.fillStyle = `${thruster.color}55`;
+      const pulse = thruster.stabilizing ? 0.65 + 0.35 * Math.sin(world.time * 18 + thruster.number) : 1;
+      const glowRadius = radius + (8 + 7 * pulse) * camera.scale * thruster.power;
+      context.fillStyle = thruster.stabilizing ? `${thruster.color}77` : `${thruster.color}55`;
       context.beginPath();
-      context.arc(x, y, radius + 8 * camera.scale * thruster.power, 0, Math.PI * 2);
+      context.arc(x, y, glowRadius, 0, Math.PI * 2);
       context.fill();
     }
 

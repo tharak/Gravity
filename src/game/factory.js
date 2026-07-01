@@ -70,6 +70,7 @@ export function createThruster(world, thruster) {
     maxAcceleration: thruster.maxAcceleration,
     number: thruster.number,
     power: 0,
+    stabilizing: false,
     color: thruster.color
   });
   return entity;

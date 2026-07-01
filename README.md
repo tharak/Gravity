@@ -22,7 +22,7 @@ The mobile controls use eight press-and-hold thruster buttons. Up, down, left, a
 - Down-left: 4
 - Up-left: 5
 
-When no button is held, the player ship automatically fires thrusters against its current velocity to stabilize to a stop.
+When no button is held, the player ship automatically fires thrusters against its current velocity to stabilize to a stop. Stabilizing thrusters use the same thrust application path as button controls and pulse visually while active.
 
 ## Run Locally
 
