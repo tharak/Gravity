@@ -1,6 +1,7 @@
 import { Component, ThrusterSlot } from "../ecs/components.js";
 import { getComponent, queryEntities } from "../ecs/world.js";
 import { SHIP_FACING_UP } from "../game/factory.js";
+import { ControllerMode } from "../input/playerInput.js";
 
 export function applyPlayerInput(world, inputById, deltaSeconds = 0) {
   resetThrusterPower(world);
@@ -18,7 +19,7 @@ export function applyPlayerInput(world, inputById, deltaSeconds = 0) {
 function createPilotThrusterCommand(world, ship, input, deltaSeconds) {
   const battery = getComponent(world, ship, Component.Battery);
   const powerBySlot = new Map();
-  const requestedSpeed = clampSpeed(input?.speedLevel ?? 0);
+  const requestedSpeed = input?.controllerMode === ControllerMode.Automatic ? 0 : clampSpeed(input?.speedLevel ?? 0);
   const activeSlots = input?.activeSlots ?? new Set();
   const thrusters = getShipThrusters(world, ship);
 

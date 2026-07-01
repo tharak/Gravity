@@ -6,10 +6,14 @@ import { createWorld, getComponent, queryEntities } from "../src/ecs/world.js";
 import { createShip } from "../src/game/factory.js";
 import {
   ControllerMode,
+  DirectionOrder,
+  DirectionOrders,
   SpeedOrder,
   SpeedOrders,
   clearPlayerInput,
   createPlayerInput,
+  setAutomaticDirection,
+  setControllerMode,
   setSpeedLevel,
   setSpeedOrder,
   setThrusterEnabled,
@@ -37,18 +41,28 @@ test("manual controller toggles thrusters and sets speed orders", () => {
   setSpeedLevel(input, 2);
   assert.equal(input.speedLevel, 1.25);
 
+  setAutomaticDirection(input, DirectionOrder.West);
+  assert.equal(input.controllerMode, ControllerMode.Automatic);
+  assert.equal(input.activeSlots.size, 0);
+  assert.equal(input.targetDirection, DirectionOrder.West);
+  assert.equal(input.targetAngle, Math.PI);
+
   clearPlayerInput(input);
   assert.equal(input.activeSlots.size, 0);
   assert.equal(input.controllerMode, ControllerMode.Manual);
   assert.equal(input.speedOrder, SpeedOrder.Standard);
   assert.equal(input.speedLevel, 0.82);
+  assert.equal(input.targetDirection, DirectionOrder.North);
 });
 
 test("manual control panel shows battery, speed orders, and one switch per thruster", () => {
   const html = readIndexHtml();
 
-  assert.ok(html.includes('aria-label="Manual controller"'));
+  assert.ok(html.includes('aria-label="Ship controller"'));
+  assert.ok(html.includes('data-controller-mode="manual"'));
+  assert.ok(html.includes('data-controller-mode="automatic"'));
   assert.ok(html.includes('class="battery-widget"'));
+  assert.ok(html.includes('class="compass-control"'));
   assert.ok(html.includes('class="speed-control"'));
   assert.equal(html.includes('thruster-power'), false);
   assert.equal(html.includes('Power'), false);
@@ -56,9 +70,27 @@ test("manual control panel shows battery, speed orders, and one switch per thrus
   for (const order of SpeedOrders) {
     assert.ok(html.includes('data-speed-order="' + order.id + '"'));
   }
+  for (const direction of DirectionOrders) {
+    assert.ok(html.includes('data-direction-order="' + direction.id + '"'));
+  }
   for (const slot of Object.values(ThrusterSlot)) {
     assert.ok(html.includes('data-thruster-slot="' + slot + '"'));
   }
+});
+
+test("automatic mode does not fire manual thrusters yet", () => {
+  const world = createWorld();
+  const ship = createShip(world, { x: 0, y: 0, playerControlled: "player-one", thrusterAcceleration: 100 });
+  const input = createPlayerInput();
+  setControllerMode(input, ControllerMode.Automatic);
+  setAutomaticDirection(input, DirectionOrder.North);
+  setSpeedOrder(input, SpeedOrder.Full);
+
+  applyPlayerInput(world, { "player-one": input }, 1);
+
+  assert.equal(getComponent(world, ship, Component.Acceleration).x, 0);
+  assert.equal(getComponent(world, ship, Component.Acceleration).y, 0);
+  assertAllThrustersOff(world);
 });
 
 test("each thruster uses one shared unique color", () => {

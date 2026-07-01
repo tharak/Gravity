@@ -10,7 +10,7 @@
     <main class="app-shell">
       <section class="sim-panel" aria-label="Gravity simulator">
         <canvas id="gravity-canvas" width="1280" height="720"></canvas>
-        <div id="thruster-controls" class="thruster-controls" aria-label="Manual controller">
+        <div id="thruster-controls" class="thruster-controls" aria-label="Ship controller">
           <div class="battery-widget" aria-label="Ship battery">
             <div class="battery-widget__shell" aria-hidden="true">
               <span class="battery-widget__bar"></span>
@@ -21,14 +21,33 @@
             </div>
             <span id="battery-percent" class="battery-widget__percent">100%</span>
           </div>
-          <div class="thruster-switches" aria-label="Thruster switches">
-            <button class="thruster-switch" type="button" data-thruster-slot="mainBack" aria-pressed="false">1</button>
-            <button class="thruster-switch" type="button" data-thruster-slot="frontLeft" aria-pressed="false">2</button>
-            <button class="thruster-switch" type="button" data-thruster-slot="frontRight" aria-pressed="false">3</button>
-            <button class="thruster-switch" type="button" data-thruster-slot="topLeft" aria-pressed="false">4</button>
-            <button class="thruster-switch" type="button" data-thruster-slot="topRight" aria-pressed="false">5</button>
-            <button class="thruster-switch" type="button" data-thruster-slot="bottomLeft" aria-pressed="false">6</button>
-            <button class="thruster-switch" type="button" data-thruster-slot="bottomRight" aria-pressed="false">7</button>
+          <div class="controller-tabs" aria-label="Controller mode">
+            <button class="controller-tab is-active" type="button" data-controller-mode="manual" aria-pressed="true">Manual</button>
+            <button class="controller-tab" type="button" data-controller-mode="automatic" aria-pressed="false">Auto</button>
+          </div>
+          <div class="manual-panel" data-controller-panel="manual">
+            <div class="thruster-switches" aria-label="Thruster switches">
+              <button class="thruster-switch" type="button" data-thruster-slot="mainBack" aria-pressed="false">1</button>
+              <button class="thruster-switch" type="button" data-thruster-slot="frontLeft" aria-pressed="false">2</button>
+              <button class="thruster-switch" type="button" data-thruster-slot="frontRight" aria-pressed="false">3</button>
+              <button class="thruster-switch" type="button" data-thruster-slot="topLeft" aria-pressed="false">4</button>
+              <button class="thruster-switch" type="button" data-thruster-slot="topRight" aria-pressed="false">5</button>
+              <button class="thruster-switch" type="button" data-thruster-slot="bottomLeft" aria-pressed="false">6</button>
+              <button class="thruster-switch" type="button" data-thruster-slot="bottomRight" aria-pressed="false">7</button>
+            </div>
+          </div>
+          <div class="automatic-panel" data-controller-panel="automatic" hidden>
+            <div class="compass-control" aria-label="Automatic direction">
+              <button class="compass-button compass-n is-active" type="button" data-direction-order="north" aria-label="North" aria-pressed="true">N</button>
+              <button class="compass-button compass-ne" type="button" data-direction-order="north-east" aria-label="North east" aria-pressed="false">NE</button>
+              <button class="compass-button compass-e" type="button" data-direction-order="east" aria-label="East" aria-pressed="false">E</button>
+              <button class="compass-button compass-se" type="button" data-direction-order="south-east" aria-label="South east" aria-pressed="false">SE</button>
+              <button class="compass-button compass-s" type="button" data-direction-order="south" aria-label="South" aria-pressed="false">S</button>
+              <button class="compass-button compass-sw" type="button" data-direction-order="south-west" aria-label="South west" aria-pressed="false">SW</button>
+              <button class="compass-button compass-w" type="button" data-direction-order="west" aria-label="West" aria-pressed="false">W</button>
+              <button class="compass-button compass-nw" type="button" data-direction-order="north-west" aria-label="North west" aria-pressed="false">NW</button>
+              <div class="compass-center" aria-hidden="true">AUTO</div>
+            </div>
           </div>
           <fieldset class="speed-control" aria-label="Speed order">
             <legend>Speed</legend>

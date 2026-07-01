@@ -170,6 +170,41 @@ body {
   font-variant-numeric: tabular-nums;
 }
 
+.controller-tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+
+.controller-tab {
+  height: 34px;
+  border: 1px solid rgba(233, 238, 248, 0.28);
+  border-radius: 8px;
+  background: rgba(10, 13, 20, 0.76);
+  color: #d7dfed;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 800;
+  touch-action: manipulation;
+}
+
+.controller-tab.is-active,
+.controller-tab[aria-pressed="true"] {
+  border-color: #7dd3fc;
+  background: #7dd3fc;
+  color: #07111f;
+}
+
+.manual-panel,
+.automatic-panel {
+  min-width: 0;
+}
+
+.manual-panel[hidden],
+.automatic-panel[hidden] {
+  display: none;
+}
+
 .thruster-switches {
   display: grid;
   grid-template-columns: repeat(4, 44px);
@@ -199,6 +234,100 @@ body {
   background: var(--thruster-color, #ffb454);
   box-shadow: 0 0 14px var(--thruster-color, #ffb454);
   color: #07111f;
+}
+
+.compass-control {
+  position: relative;
+  width: 168px;
+  height: 168px;
+  margin: 0 auto;
+  border: 1px solid rgba(233, 238, 248, 0.22);
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at center, rgba(125, 211, 252, 0.18) 0 28%, transparent 29%),
+    rgba(10, 13, 20, 0.56);
+}
+
+.compass-button {
+  position: absolute;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 1px solid rgba(233, 238, 248, 0.32);
+  border-radius: 50%;
+  background: rgba(16, 23, 37, 0.92);
+  color: #d7dfed;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 900;
+  line-height: 1;
+  touch-action: manipulation;
+}
+
+.compass-button.is-active,
+.compass-button[aria-pressed="true"] {
+  border-color: #ffb454;
+  background: #ffb454;
+  color: #07111f;
+  box-shadow: 0 0 16px rgba(255, 180, 84, 0.72);
+}
+
+.compass-n {
+  left: 62px;
+  top: 4px;
+}
+
+.compass-ne {
+  right: 19px;
+  top: 19px;
+}
+
+.compass-e {
+  right: 4px;
+  top: 62px;
+}
+
+.compass-se {
+  right: 19px;
+  bottom: 19px;
+}
+
+.compass-s {
+  left: 62px;
+  bottom: 4px;
+}
+
+.compass-sw {
+  left: 19px;
+  bottom: 19px;
+}
+
+.compass-w {
+  left: 4px;
+  top: 62px;
+}
+
+.compass-nw {
+  left: 19px;
+  top: 19px;
+}
+
+.compass-center {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  display: grid;
+  place-items: center;
+  width: 62px;
+  height: 62px;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  border: 1px solid rgba(125, 211, 252, 0.48);
+  color: #7dd3fc;
+  font-size: 11px;
+  font-weight: 900;
 }
 
 .speed-control {

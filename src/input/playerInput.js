@@ -13,6 +13,17 @@ export const SpeedOrder = Object.freeze({
   Flank: "flank"
 });
 
+export const DirectionOrder = Object.freeze({
+  North: "north",
+  NorthEast: "north-east",
+  East: "east",
+  SouthEast: "south-east",
+  South: "south",
+  SouthWest: "south-west",
+  West: "west",
+  NorthWest: "north-west"
+});
+
 export const SpeedOrders = Object.freeze([
   Object.freeze({ id: SpeedOrder.OneThird, label: "1/3", speedLevel: 1 / 3 }),
   Object.freeze({ id: SpeedOrder.TwoThirds, label: "2/3", speedLevel: 2 / 3 }),
@@ -21,14 +32,28 @@ export const SpeedOrders = Object.freeze([
   Object.freeze({ id: SpeedOrder.Flank, label: "FLANK", speedLevel: 1.25 })
 ]);
 
+export const DirectionOrders = Object.freeze([
+  Object.freeze({ id: DirectionOrder.North, label: "N", angle: -Math.PI / 2 }),
+  Object.freeze({ id: DirectionOrder.NorthEast, label: "NE", angle: -Math.PI / 4 }),
+  Object.freeze({ id: DirectionOrder.East, label: "E", angle: 0 }),
+  Object.freeze({ id: DirectionOrder.SouthEast, label: "SE", angle: Math.PI / 4 }),
+  Object.freeze({ id: DirectionOrder.South, label: "S", angle: Math.PI / 2 }),
+  Object.freeze({ id: DirectionOrder.SouthWest, label: "SW", angle: 3 * Math.PI / 4 }),
+  Object.freeze({ id: DirectionOrder.West, label: "W", angle: Math.PI }),
+  Object.freeze({ id: DirectionOrder.NorthWest, label: "NW", angle: -3 * Math.PI / 4 })
+]);
+
 const speedLevelByOrder = new Map(SpeedOrders.map((order) => [order.id, order.speedLevel]));
+const angleByDirection = new Map(DirectionOrders.map((direction) => [direction.id, direction.angle]));
 
 export function createPlayerInput() {
   return {
     controllerMode: ControllerMode.Manual,
     activeSlots: new Set(),
     speedOrder: SpeedOrder.Standard,
-    speedLevel: getSpeedLevel(SpeedOrder.Standard)
+    speedLevel: getSpeedLevel(SpeedOrder.Standard),
+    targetDirection: DirectionOrder.North,
+    targetAngle: getDirectionAngle(DirectionOrder.North)
   };
 }
 
@@ -40,6 +65,8 @@ export function bindThrusterControls(root, input) {
     }
 
     button.addEventListener("click", () => {
+      setControllerMode(input, ControllerMode.Manual);
+      syncModePanels(root, input.controllerMode);
       toggleThruster(input, button.dataset.thrusterSlot);
       button.classList.toggle("is-active", input.activeSlots.has(button.dataset.thrusterSlot));
       button.setAttribute("aria-pressed", String(input.activeSlots.has(button.dataset.thrusterSlot)));
@@ -53,7 +80,27 @@ export function bindThrusterControls(root, input) {
     });
   }
 
+  for (const button of root.querySelectorAll("[data-controller-mode]")) {
+    button.addEventListener("click", () => {
+      setControllerMode(input, button.dataset.controllerMode);
+      syncModePanels(root, input.controllerMode);
+      syncThrusterButtons(root, input.activeSlots);
+    });
+  }
+
+  for (const button of root.querySelectorAll("[data-direction-order]")) {
+    button.addEventListener("click", () => {
+      setAutomaticDirection(input, button.dataset.directionOrder);
+      syncModePanels(root, input.controllerMode);
+      syncThrusterButtons(root, input.activeSlots);
+      syncDirectionButtons(root, input.targetDirection);
+    });
+  }
+
   syncSpeedButtons(root, input.speedOrder);
+  syncModePanels(root, input.controllerMode);
+  syncThrusterButtons(root, input.activeSlots);
+  syncDirectionButtons(root, input.targetDirection);
 }
 
 export function toggleThruster(input, slot) {
@@ -67,11 +114,25 @@ export function toggleThruster(input, slot) {
 
 export function setThrusterEnabled(input, slot, enabled) {
   if (enabled) {
+    setControllerMode(input, ControllerMode.Manual);
     input.activeSlots.add(slot);
     return;
   }
 
   input.activeSlots.delete(slot);
+}
+
+export function setControllerMode(input, controllerMode) {
+  input.controllerMode = controllerMode === ControllerMode.Automatic ? ControllerMode.Automatic : ControllerMode.Manual;
+  if (input.controllerMode === ControllerMode.Automatic) {
+    input.activeSlots.clear();
+  }
+}
+
+export function setAutomaticDirection(input, directionOrder) {
+  setControllerMode(input, ControllerMode.Automatic);
+  input.targetDirection = angleByDirection.has(directionOrder) ? directionOrder : DirectionOrder.North;
+  input.targetAngle = getDirectionAngle(input.targetDirection);
 }
 
 export function setSpeedOrder(input, speedOrder) {
@@ -85,9 +146,11 @@ export function setSpeedLevel(input, speedLevel) {
 }
 
 export function clearPlayerInput(input) {
-  input.controllerMode = ControllerMode.Manual;
+  setControllerMode(input, ControllerMode.Manual);
   input.activeSlots.clear();
   setSpeedOrder(input, SpeedOrder.Standard);
+  setAutomaticDirection(input, DirectionOrder.North);
+  setControllerMode(input, ControllerMode.Manual);
 }
 
 function syncSpeedButtons(root, activeOrder) {
@@ -98,8 +161,40 @@ function syncSpeedButtons(root, activeOrder) {
   }
 }
 
+function syncThrusterButtons(root, activeSlots) {
+  for (const button of root.querySelectorAll("[data-thruster-slot]")) {
+    const isActive = activeSlots.has(button.dataset.thrusterSlot);
+    button.classList.toggle("is-active", isActive);
+    button.setAttribute("aria-pressed", String(isActive));
+  }
+}
+
+function syncModePanels(root, activeMode) {
+  for (const button of root.querySelectorAll("[data-controller-mode]")) {
+    const isActive = button.dataset.controllerMode === activeMode;
+    button.classList.toggle("is-active", isActive);
+    button.setAttribute("aria-pressed", String(isActive));
+  }
+
+  for (const panel of root.querySelectorAll("[data-controller-panel]")) {
+    panel.hidden = panel.dataset.controllerPanel !== activeMode;
+  }
+}
+
+function syncDirectionButtons(root, activeDirection) {
+  for (const button of root.querySelectorAll("[data-direction-order]")) {
+    const isActive = button.dataset.directionOrder === activeDirection;
+    button.classList.toggle("is-active", isActive);
+    button.setAttribute("aria-pressed", String(isActive));
+  }
+}
+
 function getSpeedLevel(speedOrder) {
   return speedLevelByOrder.get(speedOrder) ?? speedLevelByOrder.get(SpeedOrder.Standard);
+}
+
+function getDirectionAngle(directionOrder) {
+  return angleByDirection.get(directionOrder) ?? angleByDirection.get(DirectionOrder.North);
 }
 
 function clampSpeed(value) {

@@ -2,7 +2,7 @@ import { Component } from "./ecs/components.js";
 import { getComponent, queryEntities } from "./ecs/world.js";
 import { createSimulation } from "./game/simulation.js";
 import { sunlight } from "./game/lighting.js";
-import { createPlayerInput, bindThrusterControls } from "./input/playerInput.js";
+import { ControllerMode, createPlayerInput, bindThrusterControls } from "./input/playerInput.js";
 import { createStarterScene } from "./scenes/starterScene.js";
 import { createCamera, fitCameraToWorld } from "./rendering/camera.js";
 import { renderWorld } from "./rendering/canvasRenderer.js";
@@ -50,6 +50,10 @@ function updateHud() {
 }
 
 function getStatusText() {
+  if (playerInput.controllerMode === ControllerMode.Automatic) {
+    return "Auto " + playerInput.speedOrder + " " + playerInput.targetDirection;
+  }
+
   if (playerInput.activeSlots.size > 0) {
     return "Thrusting";
   }
