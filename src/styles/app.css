@@ -145,15 +145,15 @@ body {
   background:
     radial-gradient(circle, rgba(16, 23, 37, 0.72) 0 28%, transparent 29%),
     conic-gradient(
-      from -22.5deg,
-      rgba(255, 180, 84, 0.6) 0deg 45deg,
-      rgba(125, 211, 252, 0.58) 45deg 90deg,
-      rgba(54, 211, 153, 0.52) 90deg 135deg,
-      rgba(192, 132, 252, 0.55) 135deg 180deg,
-      rgba(125, 211, 252, 0.58) 180deg 225deg,
-      rgba(192, 132, 252, 0.55) 225deg 270deg,
-      rgba(54, 211, 153, 0.52) 270deg 315deg,
-      rgba(125, 211, 252, 0.58) 315deg 360deg
+      from -30deg,
+      rgba(255, 180, 84, 0.6) 0deg 60deg,
+      rgba(54, 211, 153, 0.52) 60deg 90deg,
+      rgba(54, 211, 153, 0.52) 90deg 150deg,
+      rgba(54, 211, 153, 0.52) 150deg 180deg,
+      rgba(125, 211, 252, 0.58) 180deg 240deg,
+      rgba(192, 132, 252, 0.55) 240deg 270deg,
+      rgba(192, 132, 252, 0.55) 270deg 330deg,
+      rgba(192, 132, 252, 0.55) 330deg 360deg
     );
 }
 

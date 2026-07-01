@@ -5,6 +5,8 @@ import { SHIP_FACING_UP } from "../game/factory.js";
 const STABILIZE_SPEED = 180;
 const STOP_EPSILON = 2;
 const FULL_CIRCLE = Math.PI * 2;
+const THIRTY_DEGREES = Math.PI / 6;
+const SIXTY_DEGREES = Math.PI / 3;
 
 export function applyPlayerInput(world, inputById) {
   resetThrusterPower(world);
@@ -41,28 +43,29 @@ export function mapInputToThrusterPower(input) {
 
 export function getSectorSlots(x, y) {
   const angle = normalizeAngle(Math.atan2(y, x));
-  const sector = Math.round(angle / (Math.PI / 4)) % 8;
 
-  switch (sector) {
-    case 0:
-      return [ThrusterSlot.MainBack];
-    case 1:
-      return [ThrusterSlot.BottomRight];
-    case 2:
-      return [ThrusterSlot.BottomLeft, ThrusterSlot.BottomRight];
-    case 3:
-      return [ThrusterSlot.BottomLeft];
-    case 4:
-      return [ThrusterSlot.FrontLeft, ThrusterSlot.FrontRight];
-    case 5:
-      return [ThrusterSlot.TopLeft];
-    case 6:
-      return [ThrusterSlot.TopLeft, ThrusterSlot.TopRight];
-    case 7:
-      return [ThrusterSlot.TopRight];
-    default:
-      return [];
+  if (angle >= FULL_CIRCLE - THIRTY_DEGREES || angle < THIRTY_DEGREES) {
+    return [ThrusterSlot.MainBack];
   }
+  if (angle < SIXTY_DEGREES) {
+    return [ThrusterSlot.BottomRight];
+  }
+  if (angle < Math.PI - SIXTY_DEGREES) {
+    return [ThrusterSlot.BottomLeft, ThrusterSlot.BottomRight];
+  }
+  if (angle < Math.PI - THIRTY_DEGREES) {
+    return [ThrusterSlot.BottomLeft];
+  }
+  if (angle < Math.PI + THIRTY_DEGREES) {
+    return [ThrusterSlot.FrontLeft, ThrusterSlot.FrontRight];
+  }
+  if (angle < Math.PI + SIXTY_DEGREES) {
+    return [ThrusterSlot.TopLeft];
+  }
+  if (angle < FULL_CIRCLE - SIXTY_DEGREES) {
+    return [ThrusterSlot.TopLeft, ThrusterSlot.TopRight];
+  }
+  return [ThrusterSlot.TopRight];
 }
 
 function createManualCommand(input) {

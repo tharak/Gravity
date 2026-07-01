@@ -3,7 +3,7 @@ import test from "node:test";
 import { Component, ThrusterSlot } from "../src/ecs/components.js";
 import { createWorld, getComponent, queryEntities } from "../src/ecs/world.js";
 import { createShip } from "../src/game/factory.js";
-import { applyPlayerInput, mapInputToThrusterPower } from "../src/systems/playerInputSystem.js";
+import { applyPlayerInput, getSectorSlots, mapInputToThrusterPower } from "../src/systems/playerInputSystem.js";
 
 test("up stick sector activates the main back thruster on an upward-facing ship", () => {
   const world = createWorld();
@@ -69,6 +69,14 @@ test("diagonal stick sectors activate the requested corner thrusters", () => {
   assertWorldInputActivates({ x: -1, y: -1 }, ThrusterSlot.TopRight);
 });
 
+test("cardinal stick sectors are wider than diagonal sectors", () => {
+  assert.deepEqual(getSectorSlots(...unitVector(25)), [ThrusterSlot.MainBack]);
+  assert.deepEqual(getSectorSlots(...unitVector(35)), [ThrusterSlot.BottomRight]);
+  assert.deepEqual(getSectorSlots(...unitVector(65)), [ThrusterSlot.BottomLeft, ThrusterSlot.BottomRight]);
+  assert.deepEqual(getSectorSlots(...unitVector(115)), [ThrusterSlot.BottomLeft, ThrusterSlot.BottomRight]);
+  assert.deepEqual(getSectorSlots(...unitVector(125)), [ThrusterSlot.BottomLeft]);
+});
+
 test("released input stabilizes opposite current velocity", () => {
   const world = createWorld();
   createShip(world, { x: 0, y: 0, vx: 0, vy: -90, playerControlled: "player-one", thrusterAcceleration: 100 });
@@ -113,6 +121,11 @@ test("ship thrusters have visible debug numbers", () => {
 
   assert.deepEqual(numbers, [1, 2, 3, 4, 5, 6, 7]);
 });
+
+function unitVector(degrees) {
+  const radians = degrees * Math.PI / 180;
+  return [Math.cos(radians), Math.sin(radians)];
+}
 
 function assertWorldInputActivates(input, expectedSlot) {
   const world = createWorld();
