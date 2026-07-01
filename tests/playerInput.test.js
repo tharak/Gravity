@@ -62,6 +62,11 @@ test("manual control panel shows battery, speed orders, and one switch per thrus
   assert.ok(html.includes('data-controller-mode="manual"'));
   assert.ok(html.includes('data-controller-mode="automatic"'));
   assert.ok(html.includes('class="battery-widget"'));
+  assert.ok(html.includes('class="controller-bay"'));
+  assert.ok(html.includes('class="controller-panel manual-panel"'));
+  assert.ok(html.includes('class="controller-panel automatic-panel"'));
+  assert.ok(html.includes('aria-disabled="true"'));
+  assert.equal(html.includes('data-controller-panel="automatic" hidden'), false);
   assert.ok(html.includes('class="compass-control"'));
   assert.ok(html.includes('class="speed-control"'));
   assert.equal(html.includes('thruster-power'), false);

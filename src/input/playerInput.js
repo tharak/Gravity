@@ -177,7 +177,9 @@ function syncModePanels(root, activeMode) {
   }
 
   for (const panel of root.querySelectorAll("[data-controller-panel]")) {
-    panel.hidden = panel.dataset.controllerPanel !== activeMode;
+    const isDisabled = panel.dataset.controllerPanel !== activeMode;
+    panel.classList.toggle("is-disabled", isDisabled);
+    panel.setAttribute("aria-disabled", String(isDisabled));
   }
 }
 
