@@ -2,7 +2,7 @@ import { Component } from "./ecs/components.js";
 import { getComponent, queryEntities } from "./ecs/world.js";
 import { createSimulation } from "./game/simulation.js";
 import { sunlight } from "./game/lighting.js";
-import { createPlayerInput, bindTouchJoystick } from "./input/playerInput.js";
+import { createPlayerInput, bindSideThrusterControl, bindTouchJoystick } from "./input/playerInput.js";
 import { createStarterScene } from "./scenes/starterScene.js";
 import { createCamera, fitCameraToWorld } from "./rendering/camera.js";
 import { renderWorld } from "./rendering/canvasRenderer.js";
@@ -13,6 +13,8 @@ const hudTime = document.querySelector("#hud-time");
 const hudEntities = document.querySelector("#hud-entities");
 const hudStatus = document.querySelector("#hud-status");
 const joystick = document.querySelector("#touch-joystick");
+const topThrusters = document.querySelector("#top-thrusters");
+const bottomThrusters = document.querySelector("#bottom-thrusters");
 const invertStick = document.querySelector("#invert-stick");
 const alignStick = document.querySelector("#align-stick");
 
@@ -70,5 +72,7 @@ alignStick.addEventListener("change", () => {
   playerInput.alignWithShip = alignStick.checked;
 });
 bindTouchJoystick(joystick, playerInput);
+bindSideThrusterControl(topThrusters, playerInput.sideControls.top);
+bindSideThrusterControl(bottomThrusters, playerInput.sideControls.bottom);
 resizeCanvas();
 requestAnimationFrame(tick);

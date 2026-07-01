@@ -3,7 +3,7 @@ import test from "node:test";
 import { Component, ThrusterSlot } from "../src/ecs/components.js";
 import { createWorld, getComponent, queryEntities } from "../src/ecs/world.js";
 import { createShip } from "../src/game/factory.js";
-import { applyPlayerInput, mapInputToThrusterPower } from "../src/systems/playerInputSystem.js";
+import { applyPlayerInput, mapManualInputToThrusterPower } from "../src/systems/playerInputSystem.js";
 
 test("up joystick input activates the main back thruster on an upward-facing ship", () => {
   const world = createWorld();
@@ -34,18 +34,54 @@ test("down joystick input activates both front reverse thrusters", () => {
   assert.equal(acceleration.y, 144);
 });
 
-test("right joystick input activates side thrusters for rightward movement", () => {
+test("right joystick input no longer activates top or bottom side thrusters", () => {
   const world = createWorld();
   const ship = createShip(world, { x: 0, y: 0, playerControlled: "player-one", thrusterAcceleration: 100 });
 
   applyPlayerInput(world, {
-    "player-one": { active: true, alignWithShip: true, inverted: false, x: 1, y: 0, strength: 0.5 }
+    "player-one": createInput({ active: true, x: 1, y: 0, strength: 0.5 })
   });
 
   const acceleration = getComponent(world, ship, Component.Acceleration);
-  assert.equal(getThruster(world, ThrusterSlot.TopLeft).power, 0.5);
-  assert.equal(getThruster(world, ThrusterSlot.TopRight).power, 0.5);
-  assert.ok(Math.abs(acceleration.x - 58) < 1e-12);
+  assert.equal(getThruster(world, ThrusterSlot.TopLeft).power, 0);
+  assert.equal(getThruster(world, ThrusterSlot.TopRight).power, 0);
+  assert.equal(getThruster(world, ThrusterSlot.BottomLeft).power, 0);
+  assert.equal(getThruster(world, ThrusterSlot.BottomRight).power, 0);
+  assert.ok(Math.abs(acceleration.x) < 1e-12);
+  assert.ok(Math.abs(acceleration.y) < 1e-12);
+});
+
+test("top side control activates only top thrusters", () => {
+  const world = createWorld();
+  const ship = createShip(world, { x: 0, y: 0, playerControlled: "player-one", thrusterAcceleration: 100 });
+
+  applyPlayerInput(world, {
+    "player-one": createInput({ active: true, x: 0, y: 0, strength: 0, topStrength: 0.6 })
+  });
+
+  const acceleration = getComponent(world, ship, Component.Acceleration);
+  assert.equal(getThruster(world, ThrusterSlot.TopLeft).power, 0.6);
+  assert.equal(getThruster(world, ThrusterSlot.TopRight).power, 0.6);
+  assert.equal(getThruster(world, ThrusterSlot.BottomLeft).power, 0);
+  assert.equal(getThruster(world, ThrusterSlot.BottomRight).power, 0);
+  assert.ok(Math.abs(acceleration.x - 69.6) < 1e-12);
+  assert.ok(Math.abs(acceleration.y) < 1e-12);
+});
+
+test("bottom side control activates only bottom thrusters", () => {
+  const world = createWorld();
+  const ship = createShip(world, { x: 0, y: 0, playerControlled: "player-one", thrusterAcceleration: 100 });
+
+  applyPlayerInput(world, {
+    "player-one": createInput({ active: true, x: 0, y: 0, strength: 0, bottomStrength: 0.4 })
+  });
+
+  const acceleration = getComponent(world, ship, Component.Acceleration);
+  assert.equal(getThruster(world, ThrusterSlot.TopLeft).power, 0);
+  assert.equal(getThruster(world, ThrusterSlot.TopRight).power, 0);
+  assert.equal(getThruster(world, ThrusterSlot.BottomLeft).power, 0.4);
+  assert.equal(getThruster(world, ThrusterSlot.BottomRight).power, 0.4);
+  assert.ok(Math.abs(acceleration.x + 46.4) < 1e-12);
   assert.ok(Math.abs(acceleration.y) < 1e-12);
 });
 
@@ -90,11 +126,14 @@ test("inactive stopped ship clears thruster power", () => {
 });
 
 test("local diagonal command combines main and matching side thruster", () => {
-  const powerBySlot = mapInputToThrusterPower({ x: 0.7, y: -0.7, strength: 0.9 });
+  const powerBySlot = mapManualInputToThrusterPower(
+    { x: 0.7, y: -0.7, strength: 0.9 },
+    { bottom: { active: true, strength: 0.5 } }
+  );
 
   assert.equal(powerBySlot.get(ThrusterSlot.MainBack), 0.9);
-  assert.equal(powerBySlot.get(ThrusterSlot.BottomRight), 0.9);
-  assert.equal(powerBySlot.has(ThrusterSlot.BottomLeft), false);
+  assert.equal(powerBySlot.get(ThrusterSlot.BottomLeft), 0.5);
+  assert.equal(powerBySlot.get(ThrusterSlot.BottomRight), 0.5);
 });
 
 function getThruster(world, slot) {
@@ -106,4 +145,19 @@ function getThruster(world, slot) {
   }
 
   throw new Error(`Missing thruster ${slot}`);
+}
+
+function createInput({ active, x, y, strength, topStrength = 0, bottomStrength = 0 }) {
+  return {
+    active,
+    alignWithShip: true,
+    inverted: false,
+    x,
+    y,
+    strength,
+    sideControls: {
+      top: { active: topStrength > 0, strength: topStrength },
+      bottom: { active: bottomStrength > 0, strength: bottomStrength }
+    }
+  };
 }

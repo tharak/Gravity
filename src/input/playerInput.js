@@ -5,7 +5,11 @@ export function createPlayerInput() {
     inverted: false,
     x: 0,
     y: 0,
-    strength: 0
+    strength: 0,
+    sideControls: {
+      bottom: createSideControl(),
+      top: createSideControl()
+    }
   };
 }
 
@@ -59,6 +63,54 @@ export function bindTouchJoystick(root, input) {
   root.addEventListener("pointermove", update);
   root.addEventListener("pointerup", end);
   root.addEventListener("pointercancel", end);
+}
+
+export function bindSideThrusterControl(root, control) {
+  const fill = root.querySelector(".side-thruster-control__fill");
+  const maxDistance = 44;
+  let activePointerId = null;
+  let center = { x: 0, y: 0 };
+
+  function begin(pointerEvent) {
+    activePointerId = pointerEvent.pointerId;
+    root.setPointerCapture(activePointerId);
+    center = getCenter(root);
+    update(pointerEvent);
+  }
+
+  function update(pointerEvent) {
+    if (activePointerId !== pointerEvent.pointerId) {
+      return;
+    }
+
+    const distance = Math.min(Math.hypot(pointerEvent.clientX - center.x, pointerEvent.clientY - center.y), maxDistance);
+    control.active = distance > 4;
+    control.strength = control.active ? distance / maxDistance : 0;
+    fill.style.transform = `scaleX(${control.strength.toFixed(3)})`;
+  }
+
+  function end(pointerEvent) {
+    if (activePointerId !== pointerEvent.pointerId) {
+      return;
+    }
+
+    activePointerId = null;
+    control.active = false;
+    control.strength = 0;
+    fill.style.transform = "scaleX(0)";
+  }
+
+  root.addEventListener("pointerdown", begin);
+  root.addEventListener("pointermove", update);
+  root.addEventListener("pointerup", end);
+  root.addEventListener("pointercancel", end);
+}
+
+function createSideControl() {
+  return {
+    active: false,
+    strength: 0
+  };
 }
 
 function getCenter(element) {

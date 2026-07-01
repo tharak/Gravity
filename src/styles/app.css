@@ -116,7 +116,7 @@ body {
   bottom: max(18px, env(safe-area-inset-bottom));
   display: flex;
   align-items: end;
-  gap: 14px;
+  gap: 12px;
 }
 
 .touch-joystick {
@@ -136,13 +136,49 @@ body {
   border-radius: 50%;
   background:
     radial-gradient(circle, rgba(16, 23, 37, 0.72) 0 28%, transparent 29%),
-    conic-gradient(
-      from -45deg,
-      rgba(255, 180, 84, 0.55) 0deg 90deg,
-      rgba(36, 211, 153, 0.5) 90deg 180deg,
-      rgba(125, 211, 252, 0.55) 180deg 270deg,
-      rgba(192, 132, 252, 0.5) 270deg 360deg
+    linear-gradient(
+      to bottom,
+      rgba(255, 180, 84, 0.55) 0 50%,
+      rgba(125, 211, 252, 0.55) 50% 100%
     );
+}
+
+.side-thruster-controls {
+  display: grid;
+  gap: 8px;
+}
+
+.side-thruster-control {
+  position: relative;
+  width: 86px;
+  height: 42px;
+  overflow: hidden;
+  border: 1px solid rgba(233, 238, 248, 0.22);
+  background: rgba(16, 23, 37, 0.72);
+  color: #e9eef8;
+  font: inherit;
+  font-size: 13px;
+  touch-action: none;
+  user-select: none;
+}
+
+.side-thruster-control span {
+  position: relative;
+}
+
+.side-thruster-control__fill {
+  position: absolute;
+  inset: 0;
+  transform: scaleX(0);
+  transform-origin: left center;
+}
+
+.side-thruster-control--top .side-thruster-control__fill {
+  background: rgba(192, 132, 252, 0.45);
+}
+
+.side-thruster-control--bottom .side-thruster-control__fill {
+  background: rgba(54, 211, 153, 0.45);
 }
 
 .control-options {

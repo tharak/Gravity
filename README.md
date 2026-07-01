@@ -11,7 +11,7 @@ The map contains one player ship plus four moving test ships for collision check
 - Green: bottom side thrusters for upward movement
 - Purple: top side thrusters for downward movement
 
-The joystick uses matching color sectors with main thrust at the top. Distance from the center controls thruster power percentage. The checkboxes beside the stick invert manual input or keep stick direction aligned to the ship direction. When the stick is released, the player ship automatically fires thrusters against its current velocity to stabilize to a stop.
+The joystick now controls only main and reverse thrust, with main thrust at the top. Top and bottom side thrusters have separate hold pads beside the stick. Distance from each control center sets power percentage. The checkboxes beside the stick invert manual input or keep stick direction aligned to the ship direction. When the stick is released, the player ship automatically fires thrusters against its current velocity to stabilize to a stop.
 
 ## Run Locally
 

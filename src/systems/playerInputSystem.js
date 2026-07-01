@@ -17,20 +17,39 @@ export function applyPlayerInput(world, inputById) {
       continue;
     }
 
-    const command = input.active ? createManualCommand(input) : createStabilizeCommand(world, ship);
-    if (command.strength <= 0) {
-      continue;
-    }
-
     const rotation = getComponent(world, ship, Component.Rotation)?.angle ?? SHIP_FACING_UP;
     const referenceRotation = input.alignWithShip ? rotation : SHIP_FACING_UP;
-    const localCommand = worldToLocal(command, referenceRotation);
-    const powerBySlot = mapInputToThrusterPower(localCommand);
+    const powerBySlot = input.active
+      ? mapManualInputToThrusterPower(worldToLocal(createManualCommand(input), referenceRotation), input.sideControls)
+      : mapStabilizeInputToThrusterPower(worldToLocal(createStabilizeCommand(world, ship), referenceRotation));
+
     applyThrustersToShip(world, ship, powerBySlot, rotation);
   }
 }
 
-export function mapInputToThrusterPower(input) {
+export function mapManualInputToThrusterPower(input, sideControls = {}) {
+  const powerBySlot = mapMainThrusterPower(input);
+  addSideControlPower(powerBySlot, ThrusterSlot.TopLeft, ThrusterSlot.TopRight, sideControls.top);
+  addSideControlPower(powerBySlot, ThrusterSlot.BottomLeft, ThrusterSlot.BottomRight, sideControls.bottom);
+  return powerBySlot;
+}
+
+export function mapStabilizeInputToThrusterPower(input) {
+  const power = clamp01(input.strength);
+  const powerBySlot = mapMainThrusterPower(input);
+
+  if (input.y < -AXIS_THRESHOLD) {
+    powerBySlot.set(ThrusterSlot.BottomLeft, power);
+    powerBySlot.set(ThrusterSlot.BottomRight, power);
+  } else if (input.y > AXIS_THRESHOLD) {
+    powerBySlot.set(ThrusterSlot.TopLeft, power);
+    powerBySlot.set(ThrusterSlot.TopRight, power);
+  }
+
+  return powerBySlot;
+}
+
+function mapMainThrusterPower(input) {
   const power = clamp01(input.strength);
   const powerBySlot = new Map();
 
@@ -41,13 +60,17 @@ export function mapInputToThrusterPower(input) {
     powerBySlot.set(ThrusterSlot.FrontRight, power);
   }
 
-  if (input.y < -AXIS_THRESHOLD) {
-    setSideThrusterPower(powerBySlot, input.x, ThrusterSlot.BottomLeft, ThrusterSlot.BottomRight, power);
-  } else if (input.y > AXIS_THRESHOLD) {
-    setSideThrusterPower(powerBySlot, input.x, ThrusterSlot.TopLeft, ThrusterSlot.TopRight, power);
+  return powerBySlot;
+}
+
+function addSideControlPower(powerBySlot, leftSlot, rightSlot, control) {
+  if (!control?.active || control.strength <= 0) {
+    return;
   }
 
-  return powerBySlot;
+  const power = clamp01(control.strength);
+  powerBySlot.set(leftSlot, power);
+  powerBySlot.set(rightSlot, power);
 }
 
 function createManualCommand(input) {
@@ -100,21 +123,6 @@ function resetThrusterPower(world) {
   for (const thrusterEntity of queryEntities(world, [Component.Thruster])) {
     getComponent(world, thrusterEntity, Component.Thruster).power = 0;
   }
-}
-
-function setSideThrusterPower(powerBySlot, inputX, leftSlot, rightSlot, power) {
-  if (inputX < -AXIS_THRESHOLD) {
-    powerBySlot.set(leftSlot, power);
-    return;
-  }
-
-  if (inputX > AXIS_THRESHOLD) {
-    powerBySlot.set(rightSlot, power);
-    return;
-  }
-
-  powerBySlot.set(leftSlot, power);
-  powerBySlot.set(rightSlot, power);
 }
 
 function worldToLocal(vector, rotation) {
