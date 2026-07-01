@@ -283,38 +283,38 @@ body {
 }
 
 .thruster-switch:nth-child(1) {
-  left: 4px;
-  top: 58px;
+  left: 58px;
+  top: 112px;
 }
 
 .thruster-switch:nth-child(2) {
-  right: 18px;
-  top: 36px;
+  left: 36px;
+  top: 18px;
 }
 
 .thruster-switch:nth-child(3) {
-  right: 18px;
-  bottom: 36px;
+  right: 36px;
+  top: 18px;
 }
 
 .thruster-switch:nth-child(4) {
-  left: 36px;
-  top: 12px;
+  left: 12px;
+  top: 100px;
 }
 
 .thruster-switch:nth-child(5) {
-  right: 36px;
-  top: 12px;
+  left: 12px;
+  top: 58px;
 }
 
 .thruster-switch:nth-child(6) {
-  left: 36px;
-  bottom: 12px;
+  right: 12px;
+  top: 100px;
 }
 
 .thruster-switch:nth-child(7) {
-  right: 36px;
-  bottom: 12px;
+  right: 12px;
+  top: 58px;
 }
 
 .thruster-switches::after {
@@ -554,38 +554,38 @@ body {
   }
 
   .thruster-switch:nth-child(1) {
-    left: 3px;
-    top: 52px;
+    left: 52px;
+    top: 101px;
   }
 
   .thruster-switch:nth-child(2) {
-    right: 14px;
-    top: 32px;
+    left: 32px;
+    top: 14px;
   }
 
   .thruster-switch:nth-child(3) {
-    right: 14px;
-    bottom: 32px;
+    right: 32px;
+    top: 14px;
   }
 
   .thruster-switch:nth-child(4) {
-    left: 32px;
-    top: 10px;
+    left: 10px;
+    top: 92px;
   }
 
   .thruster-switch:nth-child(5) {
-    right: 32px;
-    top: 10px;
+    left: 10px;
+    top: 52px;
   }
 
   .thruster-switch:nth-child(6) {
-    left: 32px;
-    bottom: 10px;
+    right: 10px;
+    top: 92px;
   }
 
   .thruster-switch:nth-child(7) {
-    right: 32px;
-    bottom: 10px;
+    right: 10px;
+    top: 52px;
   }
 
   .thruster-switches::after,
