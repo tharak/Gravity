@@ -11,7 +11,18 @@ The map contains one zoomed-in player ship. The player ship starts facing up and
 - Green: bottom side thrusters for upward movement
 - Purple: top side thrusters for downward movement
 
-The joystick has eight fixed upward-aligned slices: main back thruster, both front reverse thrusters, right top, left top, right bottom, left bottom, both left, and both right. Distance from the center sets power percentage. When the stick is released, the player ship automatically fires thrusters against its current velocity to stabilize to a stop.
+The joystick has eight fixed upward-aligned slices. Distance from the center sets power percentage. Current debug mapping:
+
+- Up: 1
+- Down: 2 + 3
+- Right: 6 + 7
+- Left: 4 + 5
+- Up-right: 7
+- Down-right: 6
+- Down-left: 4
+- Up-left: 5
+
+When the stick is released, the player ship automatically fires thrusters against its current velocity to stabilize to a stop.
 
 ## Run Locally
 

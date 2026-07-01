@@ -3,7 +3,7 @@ import test from "node:test";
 import { Component, ThrusterSlot } from "../src/ecs/components.js";
 import { createWorld, getComponent, queryEntities } from "../src/ecs/world.js";
 import { createShip } from "../src/game/factory.js";
-import { applyPlayerInput, getSectorSlots, mapInputToThrusterPower } from "../src/systems/playerInputSystem.js";
+import { applyPlayerInput, mapInputToThrusterPower } from "../src/systems/playerInputSystem.js";
 
 test("up stick sector activates the main back thruster on an upward-facing ship", () => {
   const world = createWorld();
@@ -34,7 +34,7 @@ test("down stick sector activates both front reverse thrusters", () => {
   assert.equal(acceleration.y, 144);
 });
 
-test("right stick sector activates both right thrusters", () => {
+test("right stick sector activates thrusters 6 and 7", () => {
   const world = createWorld();
   createShip(world, { x: 0, y: 0, playerControlled: "player-one", thrusterAcceleration: 100 });
 
@@ -42,13 +42,13 @@ test("right stick sector activates both right thrusters", () => {
     "player-one": createInput({ x: 1, y: 0, strength: 0.5 })
   });
 
-  assert.equal(getThruster(world, ThrusterSlot.TopRight).power, 0.5);
+  assert.equal(getThruster(world, ThrusterSlot.BottomLeft).power, 0.5);
   assert.equal(getThruster(world, ThrusterSlot.BottomRight).power, 0.5);
   assert.equal(getThruster(world, ThrusterSlot.TopLeft).power, 0);
-  assert.equal(getThruster(world, ThrusterSlot.BottomLeft).power, 0);
+  assert.equal(getThruster(world, ThrusterSlot.TopRight).power, 0);
 });
 
-test("left stick sector activates both left thrusters", () => {
+test("left stick sector activates thrusters 4 and 5", () => {
   const world = createWorld();
   createShip(world, { x: 0, y: 0, playerControlled: "player-one", thrusterAcceleration: 100 });
 
@@ -57,16 +57,16 @@ test("left stick sector activates both left thrusters", () => {
   });
 
   assert.equal(getThruster(world, ThrusterSlot.TopLeft).power, 0.5);
-  assert.equal(getThruster(world, ThrusterSlot.BottomLeft).power, 0.5);
-  assert.equal(getThruster(world, ThrusterSlot.TopRight).power, 0);
+  assert.equal(getThruster(world, ThrusterSlot.TopRight).power, 0.5);
+  assert.equal(getThruster(world, ThrusterSlot.BottomLeft).power, 0);
   assert.equal(getThruster(world, ThrusterSlot.BottomRight).power, 0);
 });
 
-test("diagonal stick sectors activate individual corner thrusters", () => {
-  assert.deepEqual(getSectorSlots(1, 1), [ThrusterSlot.TopRight]);
-  assert.deepEqual(getSectorSlots(-1, 1), [ThrusterSlot.BottomRight]);
-  assert.deepEqual(getSectorSlots(-1, -1), [ThrusterSlot.BottomLeft]);
-  assert.deepEqual(getSectorSlots(1, -1), [ThrusterSlot.TopLeft]);
+test("diagonal stick sectors activate the requested corner thrusters", () => {
+  assertWorldInputActivates({ x: 1, y: -1 }, ThrusterSlot.BottomRight);
+  assertWorldInputActivates({ x: 1, y: 1 }, ThrusterSlot.BottomLeft);
+  assertWorldInputActivates({ x: -1, y: 1 }, ThrusterSlot.TopLeft);
+  assertWorldInputActivates({ x: -1, y: -1 }, ThrusterSlot.TopRight);
 });
 
 test("released input stabilizes opposite current velocity", () => {
@@ -113,6 +113,24 @@ test("ship thrusters have visible debug numbers", () => {
 
   assert.deepEqual(numbers, [1, 2, 3, 4, 5, 6, 7]);
 });
+
+function assertWorldInputActivates(input, expectedSlot) {
+  const world = createWorld();
+  createShip(world, { x: 0, y: 0, playerControlled: "player-one", thrusterAcceleration: 100 });
+
+  applyPlayerInput(world, {
+    "player-one": createInput({ ...input, strength: 1 })
+  });
+
+  for (const slot of [
+    ThrusterSlot.TopLeft,
+    ThrusterSlot.TopRight,
+    ThrusterSlot.BottomLeft,
+    ThrusterSlot.BottomRight
+  ]) {
+    assert.equal(getThruster(world, slot).power, slot === expectedSlot ? 1 : 0);
+  }
+}
 
 function getThruster(world, slot) {
   for (const entity of queryEntities(world, [Component.Thruster])) {

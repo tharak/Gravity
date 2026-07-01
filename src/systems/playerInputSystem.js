@@ -47,19 +47,19 @@ export function getSectorSlots(x, y) {
     case 0:
       return [ThrusterSlot.MainBack];
     case 1:
-      return [ThrusterSlot.TopRight];
-    case 2:
-      return [ThrusterSlot.TopRight, ThrusterSlot.BottomRight];
-    case 3:
       return [ThrusterSlot.BottomRight];
+    case 2:
+      return [ThrusterSlot.BottomLeft, ThrusterSlot.BottomRight];
+    case 3:
+      return [ThrusterSlot.BottomLeft];
     case 4:
       return [ThrusterSlot.FrontLeft, ThrusterSlot.FrontRight];
     case 5:
-      return [ThrusterSlot.BottomLeft];
-    case 6:
-      return [ThrusterSlot.TopLeft, ThrusterSlot.BottomLeft];
-    case 7:
       return [ThrusterSlot.TopLeft];
+    case 6:
+      return [ThrusterSlot.TopLeft, ThrusterSlot.TopRight];
+    case 7:
+      return [ThrusterSlot.TopRight];
     default:
       return [];
   }
