@@ -2,7 +2,7 @@ import { Component } from "./ecs/components.js";
 import { getComponent, queryEntities } from "./ecs/world.js";
 import { createSimulation } from "./game/simulation.js";
 import { sunlight } from "./game/lighting.js";
-import { createPlayerInput, bindTouchJoystick } from "./input/playerInput.js";
+import { createPlayerInput, bindThrusterButtons } from "./input/playerInput.js";
 import { createStarterScene } from "./scenes/starterScene.js";
 import { createCamera, fitCameraToWorld } from "./rendering/camera.js";
 import { renderWorld } from "./rendering/canvasRenderer.js";
@@ -12,7 +12,7 @@ const context = canvas.getContext("2d");
 const hudTime = document.querySelector("#hud-time");
 const hudEntities = document.querySelector("#hud-entities");
 const hudStatus = document.querySelector("#hud-status");
-const joystick = document.querySelector("#touch-joystick");
+const thrusterControls = document.querySelector("#thruster-controls");
 
 const world = createStarterScene();
 const playerInput = createPlayerInput();
@@ -61,6 +61,6 @@ function getStatusText() {
 }
 
 window.addEventListener("resize", resizeCanvas);
-bindTouchJoystick(joystick, playerInput);
+bindThrusterButtons(thrusterControls, playerInput);
 resizeCanvas();
 requestAnimationFrame(tick);

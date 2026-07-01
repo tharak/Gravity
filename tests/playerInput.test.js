@@ -3,9 +3,20 @@ import test from "node:test";
 import { Component, ThrusterSlot } from "../src/ecs/components.js";
 import { createWorld, getComponent, queryEntities } from "../src/ecs/world.js";
 import { createShip } from "../src/game/factory.js";
+import { clearPlayerInput, createPlayerInput, setDirectionalInput } from "../src/input/playerInput.js";
 import { applyPlayerInput, getSectorSlots, mapInputToThrusterPower } from "../src/systems/playerInputSystem.js";
 
-test("up stick sector activates the main back thruster on an upward-facing ship", () => {
+test("directional input helpers set and clear held button thrust", () => {
+  const input = createPlayerInput();
+
+  setDirectionalInput(input, { x: -1, y: 1 });
+  assert.deepEqual(input, { active: true, x: -1, y: 1, strength: 1 });
+
+  clearPlayerInput(input);
+  assert.deepEqual(input, { active: false, x: 0, y: 0, strength: 0 });
+});
+
+test("up button sector activates the main back thruster on an upward-facing ship", () => {
   const world = createWorld();
   const ship = createShip(world, { x: 0, y: 0, playerControlled: "player-one", thrusterAcceleration: 100 });
 
@@ -19,7 +30,7 @@ test("up stick sector activates the main back thruster on an upward-facing ship"
   assert.equal(acceleration.y, -75);
 });
 
-test("down stick sector activates both front reverse thrusters", () => {
+test("down button sector activates both front reverse thrusters", () => {
   const world = createWorld();
   const ship = createShip(world, { x: 0, y: 0, playerControlled: "player-one", thrusterAcceleration: 100 });
 
@@ -34,7 +45,7 @@ test("down stick sector activates both front reverse thrusters", () => {
   assert.equal(acceleration.y, 144);
 });
 
-test("right stick sector activates thrusters 6 and 7", () => {
+test("right button sector activates thrusters 6 and 7", () => {
   const world = createWorld();
   createShip(world, { x: 0, y: 0, playerControlled: "player-one", thrusterAcceleration: 100 });
 
@@ -48,7 +59,7 @@ test("right stick sector activates thrusters 6 and 7", () => {
   assert.equal(getThruster(world, ThrusterSlot.TopRight).power, 0);
 });
 
-test("left stick sector activates thrusters 4 and 5", () => {
+test("left button sector activates thrusters 4 and 5", () => {
   const world = createWorld();
   createShip(world, { x: 0, y: 0, playerControlled: "player-one", thrusterAcceleration: 100 });
 
@@ -62,14 +73,14 @@ test("left stick sector activates thrusters 4 and 5", () => {
   assert.equal(getThruster(world, ThrusterSlot.BottomRight).power, 0);
 });
 
-test("diagonal stick sectors activate the requested corner thrusters", () => {
+test("diagonal buttons activate the requested corner thrusters", () => {
   assertWorldInputActivates({ x: 1, y: -1 }, ThrusterSlot.BottomRight);
   assertWorldInputActivates({ x: 1, y: 1 }, ThrusterSlot.BottomLeft);
   assertWorldInputActivates({ x: -1, y: 1 }, ThrusterSlot.TopLeft);
   assertWorldInputActivates({ x: -1, y: -1 }, ThrusterSlot.TopRight);
 });
 
-test("cardinal stick sectors are wider than diagonal sectors", () => {
+test("cardinal sector mapping remains wider than diagonal sectors", () => {
   assert.deepEqual(getSectorSlots(...unitVector(25)), [ThrusterSlot.MainBack]);
   assert.deepEqual(getSectorSlots(...unitVector(35)), [ThrusterSlot.BottomRight]);
   assert.deepEqual(getSectorSlots(...unitVector(65)), [ThrusterSlot.BottomLeft, ThrusterSlot.BottomRight]);

@@ -10,12 +10,16 @@
     <main class="app-shell">
       <section class="sim-panel" aria-label="Gravity simulator">
         <canvas id="gravity-canvas" width="1280" height="720"></canvas>
-        <div class="ship-controls" aria-label="Ship controls">
-          <div id="touch-joystick" class="touch-joystick" aria-label="Ship thrust control">
-            <div class="touch-joystick__ring">
-              <div class="touch-joystick__handle"></div>
-            </div>
-          </div>
+        <div id="thruster-controls" class="thruster-controls" aria-label="Ship thruster controls">
+          <button class="thruster-button thruster-button--diagonal" type="button" data-thrust-x="-1" data-thrust-y="-1" aria-label="Up left thruster">↖</button>
+          <button class="thruster-button thruster-button--cardinal" type="button" data-thrust-x="0" data-thrust-y="-1" aria-label="Up thruster">↑</button>
+          <button class="thruster-button thruster-button--diagonal" type="button" data-thrust-x="1" data-thrust-y="-1" aria-label="Up right thruster">↗</button>
+          <button class="thruster-button thruster-button--cardinal" type="button" data-thrust-x="-1" data-thrust-y="0" aria-label="Left thruster">←</button>
+          <span class="thruster-controls__center" aria-hidden="true"></span>
+          <button class="thruster-button thruster-button--cardinal" type="button" data-thrust-x="1" data-thrust-y="0" aria-label="Right thruster">→</button>
+          <button class="thruster-button thruster-button--diagonal" type="button" data-thrust-x="-1" data-thrust-y="1" aria-label="Down left thruster">↙</button>
+          <button class="thruster-button thruster-button--cardinal" type="button" data-thrust-x="0" data-thrust-y="1" aria-label="Down thruster">↓</button>
+          <button class="thruster-button thruster-button--diagonal" type="button" data-thrust-x="1" data-thrust-y="1" aria-label="Down right thruster">↘</button>
         </div>
       </section>
       <aside class="hud" aria-label="Simulator data">
