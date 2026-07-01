@@ -18,33 +18,33 @@ export function applyPlayerInput(world, inputById, deltaSeconds = 0) {
 function createPilotThrusterCommand(world, ship, input, deltaSeconds) {
   const battery = getComponent(world, ship, Component.Battery);
   const powerBySlot = new Map();
-  const requestedPower = clamp01(input?.powerLevel ?? 0);
+  const requestedSpeed = clampSpeed(input?.speedLevel ?? 0);
   const activeSlots = input?.activeSlots ?? new Set();
   const thrusters = getShipThrusters(world, ship);
 
   rechargeBattery(battery, deltaSeconds);
 
-  if (activeSlots.size === 0 || requestedPower <= 0) {
+  if (activeSlots.size === 0 || requestedSpeed <= 0) {
     setBatteryOutput(battery, 0);
     return createThrusterCommand(powerBySlot, false);
   }
 
   const selectedThrusters = thrusters.filter((thruster) => activeSlots.has(thruster.slot));
   const requestedEnergyPerSecond = selectedThrusters.reduce(
-    (total, thruster) => total + thruster.energyUsePerSecond * requestedPower,
+    (total, thruster) => total + thruster.energyUsePerSecond * requestedSpeed,
     0
   );
   const availableScale = getBatteryPowerScale(battery, requestedEnergyPerSecond, deltaSeconds);
-  const actualPower = requestedPower * availableScale;
+  const actualSpeed = requestedSpeed * availableScale;
 
   drainBattery(battery, requestedEnergyPerSecond * availableScale, deltaSeconds);
 
-  if (actualPower <= 0) {
+  if (actualSpeed <= 0) {
     return createThrusterCommand(powerBySlot, false);
   }
 
   for (const thruster of selectedThrusters) {
-    powerBySlot.set(thruster.slot, actualPower);
+    powerBySlot.set(thruster.slot, actualSpeed);
   }
 
   return createThrusterCommand(powerBySlot, false);
@@ -177,6 +177,6 @@ export function getThrusterSlotByNumber(number) {
   }
 }
 
-function clamp01(value) {
-  return Math.max(0, Math.min(1, Number.isFinite(value) ? value : 0));
+function clampSpeed(value) {
+  return Math.max(0, Math.min(1.25, Number.isFinite(value) ? value : 0));
 }

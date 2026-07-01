@@ -1,14 +1,38 @@
 import { thrusterColors } from "../game/thrusterPalette.js";
+
+export const ControllerMode = Object.freeze({
+  Automatic: "automatic",
+  Manual: "manual"
+});
+
+export const SpeedOrder = Object.freeze({
+  OneThird: "one-third",
+  TwoThirds: "two-thirds",
+  Standard: "standard",
+  Full: "full",
+  Flank: "flank"
+});
+
+export const SpeedOrders = Object.freeze([
+  Object.freeze({ id: SpeedOrder.OneThird, label: "1/3", speedLevel: 1 / 3 }),
+  Object.freeze({ id: SpeedOrder.TwoThirds, label: "2/3", speedLevel: 2 / 3 }),
+  Object.freeze({ id: SpeedOrder.Standard, label: "STD", speedLevel: 0.82 }),
+  Object.freeze({ id: SpeedOrder.Full, label: "FULL", speedLevel: 1 }),
+  Object.freeze({ id: SpeedOrder.Flank, label: "FLANK", speedLevel: 1.25 })
+]);
+
+const speedLevelByOrder = new Map(SpeedOrders.map((order) => [order.id, order.speedLevel]));
+
 export function createPlayerInput() {
   return {
+    controllerMode: ControllerMode.Manual,
     activeSlots: new Set(),
-    powerLevel: 1
+    speedOrder: SpeedOrder.Standard,
+    speedLevel: getSpeedLevel(SpeedOrder.Standard)
   };
 }
 
 export function bindThrusterControls(root, input) {
-  const powerSlider = root.querySelector("#thruster-power");
-
   for (const button of root.querySelectorAll("[data-thruster-slot]")) {
     const color = thrusterColors[button.dataset.thrusterSlot];
     if (color) {
@@ -22,12 +46,14 @@ export function bindThrusterControls(root, input) {
     });
   }
 
-  if (powerSlider) {
-    setPowerLevel(input, Number(powerSlider.value) / 100);
-    powerSlider.addEventListener("input", () => {
-      setPowerLevel(input, Number(powerSlider.value) / 100);
+  for (const button of root.querySelectorAll("[data-speed-order]")) {
+    button.addEventListener("click", () => {
+      setSpeedOrder(input, button.dataset.speedOrder);
+      syncSpeedButtons(root, input.speedOrder);
     });
   }
+
+  syncSpeedButtons(root, input.speedOrder);
 }
 
 export function toggleThruster(input, slot) {
@@ -48,15 +74,34 @@ export function setThrusterEnabled(input, slot, enabled) {
   input.activeSlots.delete(slot);
 }
 
-export function setPowerLevel(input, powerLevel) {
-  input.powerLevel = clamp01(powerLevel);
+export function setSpeedOrder(input, speedOrder) {
+  input.speedOrder = speedLevelByOrder.has(speedOrder) ? speedOrder : SpeedOrder.Standard;
+  input.speedLevel = getSpeedLevel(input.speedOrder);
+}
+
+export function setSpeedLevel(input, speedLevel) {
+  input.speedOrder = undefined;
+  input.speedLevel = clampSpeed(speedLevel);
 }
 
 export function clearPlayerInput(input) {
+  input.controllerMode = ControllerMode.Manual;
   input.activeSlots.clear();
-  input.powerLevel = 1;
+  setSpeedOrder(input, SpeedOrder.Standard);
 }
 
-function clamp01(value) {
-  return Math.max(0, Math.min(1, Number.isFinite(value) ? value : 0));
+function syncSpeedButtons(root, activeOrder) {
+  for (const button of root.querySelectorAll("[data-speed-order]")) {
+    const isActive = button.dataset.speedOrder === activeOrder;
+    button.classList.toggle("is-active", isActive);
+    button.setAttribute("aria-pressed", String(isActive));
+  }
+}
+
+function getSpeedLevel(speedOrder) {
+  return speedLevelByOrder.get(speedOrder) ?? speedLevelByOrder.get(SpeedOrder.Standard);
+}
+
+function clampSpeed(value) {
+  return Math.max(0, Math.min(1.25, Number.isFinite(value) ? value : 0));
 }

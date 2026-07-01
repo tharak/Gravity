@@ -15,7 +15,6 @@ const hudStatus = document.querySelector("#hud-status");
 const thrusterControls = document.querySelector("#thruster-controls");
 const batteryPercent = document.querySelector("#battery-percent");
 const batteryBars = [...document.querySelectorAll(".battery-widget__bar")];
-const powerValue = document.querySelector("#thruster-power-value");
 
 const world = createStarterScene();
 const playerInput = createPlayerInput();
@@ -65,8 +64,6 @@ function getStatusText() {
 }
 
 function updateControls() {
-  powerValue.textContent = String(Math.round(playerInput.powerLevel * 100)) + "%";
-
   const player = queryEntities(world, [Component.PlayerControlled, Component.Battery])[0];
   if (player === undefined) {
     return;

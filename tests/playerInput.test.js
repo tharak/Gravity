@@ -5,16 +5,20 @@ import { Component, ThrusterSlot } from "../src/ecs/components.js";
 import { createWorld, getComponent, queryEntities } from "../src/ecs/world.js";
 import { createShip } from "../src/game/factory.js";
 import {
+  ControllerMode,
+  SpeedOrder,
+  SpeedOrders,
   clearPlayerInput,
   createPlayerInput,
-  setPowerLevel,
+  setSpeedLevel,
+  setSpeedOrder,
   setThrusterEnabled,
   toggleThruster
 } from "../src/input/playerInput.js";
 import { applyPlayerInput } from "../src/systems/playerInputSystem.js";
 import { thrusterColors } from "../src/game/thrusterPalette.js";
 
-test("thruster input helpers toggle switches and clamp power", () => {
+test("manual controller toggles thrusters and sets speed orders", () => {
   const input = createPlayerInput();
 
   toggleThruster(input, ThrusterSlot.MainBack);
@@ -24,21 +28,34 @@ test("thruster input helpers toggle switches and clamp power", () => {
   assert.equal(input.activeSlots.has(ThrusterSlot.MainBack), false);
 
   setThrusterEnabled(input, ThrusterSlot.TopLeft, true);
-  setPowerLevel(input, 1.4);
-  assert.equal(input.powerLevel, 1);
+  setSpeedOrder(input, SpeedOrder.Flank);
+  assert.equal(input.controllerMode, ControllerMode.Manual);
+  assert.equal(input.speedOrder, SpeedOrder.Flank);
+  assert.equal(input.speedLevel, 1.25);
   assert.equal(input.activeSlots.has(ThrusterSlot.TopLeft), true);
+
+  setSpeedLevel(input, 2);
+  assert.equal(input.speedLevel, 1.25);
 
   clearPlayerInput(input);
   assert.equal(input.activeSlots.size, 0);
-  assert.equal(input.powerLevel, 1);
+  assert.equal(input.controllerMode, ControllerMode.Manual);
+  assert.equal(input.speedOrder, SpeedOrder.Standard);
+  assert.equal(input.speedLevel, 0.82);
 });
 
-test("control panel shows battery, power, and one switch per thruster", () => {
+test("manual control panel shows battery, speed orders, and one switch per thruster", () => {
   const html = readIndexHtml();
 
+  assert.ok(html.includes('aria-label="Manual controller"'));
   assert.ok(html.includes('class="battery-widget"'));
-  assert.ok(html.includes('id="thruster-power"'));
+  assert.ok(html.includes('class="speed-control"'));
+  assert.equal(html.includes('thruster-power'), false);
+  assert.equal(html.includes('Power'), false);
   assert.equal(html.includes('<small>'), false);
+  for (const order of SpeedOrders) {
+    assert.ok(html.includes('data-speed-order="' + order.id + '"'));
+  }
   for (const slot of Object.values(ThrusterSlot)) {
     assert.ok(html.includes('data-thruster-slot="' + slot + '"'));
   }
@@ -172,7 +189,7 @@ function createInput(slots, powerLevel) {
   for (const slot of slots) {
     setThrusterEnabled(input, slot, true);
   }
-  setPowerLevel(input, powerLevel);
+  setSpeedLevel(input, powerLevel);
   return input;
 }
 
