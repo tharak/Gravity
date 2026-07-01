@@ -13,8 +13,8 @@ The map contains one zoomed-in player ship. The player ship starts facing up and
 
 The mobile controls use eight press-and-hold thruster buttons. Up, down, left, and right are larger than the diagonal buttons. Holding a button fires its mapped thrusters at full power. Current debug mapping:
 
-- Up: 1
-- Down: 2 + 3
+- Up: 2 + 3
+- Down: 1
 - Right: 6 + 7
 - Left: 4 + 5
 - Up-right: 7

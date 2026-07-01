@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+import fs from "node:fs";
 import { Component, ThrusterSlot } from "../src/ecs/components.js";
 import { createWorld, getComponent, queryEntities } from "../src/ecs/world.js";
 import { createShip } from "../src/game/factory.js";
@@ -16,7 +17,14 @@ test("directional input helpers set and clear held button thrust", () => {
   assert.deepEqual(input, { active: false, x: 0, y: 0, strength: 0 });
 });
 
-test("up button sector activates the main back thruster on an upward-facing ship", () => {
+test("vertical control buttons swap front and back thrusters", () => {
+  const html = readIndexHtml();
+
+  assert.ok(html.includes('data-thrust-y="1" aria-label="Front reverse thrusters">↑</button>'));
+  assert.ok(html.includes('data-thrust-y="-1" aria-label="Main back thruster">↓</button>'));
+});
+
+test("main back input sector activates the main back thruster on an upward-facing ship", () => {
   const world = createWorld();
   const ship = createShip(world, { x: 0, y: 0, playerControlled: "player-one", thrusterAcceleration: 100 });
 
@@ -32,7 +40,7 @@ test("up button sector activates the main back thruster on an upward-facing ship
   assertAngularAcceleration(world, ship, 0);
 });
 
-test("down button sector activates both front reverse thrusters", () => {
+test("front reverse input sector activates both front reverse thrusters", () => {
   const world = createWorld();
   const ship = createShip(world, { x: 0, y: 0, playerControlled: "player-one", thrusterAcceleration: 100 });
 
@@ -201,6 +209,10 @@ test("ship thrusters have visible debug numbers", () => {
 
   assert.deepEqual(numbers, [1, 2, 3, 4, 5, 6, 7]);
 });
+
+function readIndexHtml() {
+  return fs.readFileSync(new URL("../index.html", import.meta.url), "utf8");
+}
 
 function assertAngularAcceleration(world, ship, expected) {
   assert.equal(Math.abs(getComponent(world, ship, Component.AngularAcceleration).value) < 1e-12, expected === 0);
