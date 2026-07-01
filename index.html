@@ -10,9 +10,15 @@
     <main class="app-shell">
       <section class="sim-panel" aria-label="Gravity simulator">
         <canvas id="gravity-canvas" width="1280" height="720"></canvas>
-        <div id="touch-joystick" class="touch-joystick" aria-label="Ship thrust control">
-          <div class="touch-joystick__ring">
-            <div class="touch-joystick__handle"></div>
+        <div class="ship-controls" aria-label="Ship controls">
+          <div id="touch-joystick" class="touch-joystick" aria-label="Ship thrust control">
+            <div class="touch-joystick__ring">
+              <div class="touch-joystick__handle"></div>
+            </div>
+          </div>
+          <div class="control-options">
+            <label><input id="invert-stick" type="checkbox" />Invert</label>
+            <label><input id="align-stick" type="checkbox" checked />Ship align</label>
           </div>
         </div>
       </section>

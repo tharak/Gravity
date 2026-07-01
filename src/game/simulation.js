@@ -1,5 +1,6 @@
 import { Component } from "../ecs/components.js";
 import { applyGravity } from "../systems/gravitySystem.js";
+import { resolveCollisions } from "../systems/collisionSystem.js";
 import { integrateMotion } from "../systems/integrationSystem.js";
 import { applyPlayerInput } from "../systems/playerInputSystem.js";
 import { recordTrails } from "../systems/trailSystem.js";
@@ -24,6 +25,7 @@ export function createSimulation(world, config = {}) {
         applyGravity(world, settings);
         applyPlayerInput(world, inputById);
         integrateMotion(world, settings.fixedDeltaSeconds);
+        resolveCollisions(world);
         recordTrails(world, settings.maxTrailLength);
         accumulator -= settings.fixedDeltaSeconds;
       }

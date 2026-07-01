@@ -1,3 +1,5 @@
+import { Component } from "./ecs/components.js";
+import { getComponent, queryEntities } from "./ecs/world.js";
 import { createSimulation } from "./game/simulation.js";
 import { sunlight } from "./game/lighting.js";
 import { createPlayerInput, bindTouchJoystick } from "./input/playerInput.js";
@@ -11,6 +13,8 @@ const hudTime = document.querySelector("#hud-time");
 const hudEntities = document.querySelector("#hud-entities");
 const hudStatus = document.querySelector("#hud-status");
 const joystick = document.querySelector("#touch-joystick");
+const invertStick = document.querySelector("#invert-stick");
+const alignStick = document.querySelector("#align-stick");
 
 const world = createStarterScene();
 const playerInput = createPlayerInput();
@@ -41,10 +45,30 @@ function tick(timestamp) {
 function updateHud() {
   hudTime.textContent = `${world.time.toFixed(1)}s`;
   hudEntities.textContent = String(world.entities.size);
-  hudStatus.textContent = playerInput.active ? "Thrusting" : "Running";
+  hudStatus.textContent = getStatusText();
+}
+
+function getStatusText() {
+  if (playerInput.active) {
+    return "Thrusting";
+  }
+
+  const player = queryEntities(world, [Component.PlayerControlled, Component.Velocity])[0];
+  if (player === undefined) {
+    return "Running";
+  }
+
+  const velocity = getComponent(world, player, Component.Velocity);
+  return Math.hypot(velocity.x, velocity.y) > 2 ? "Stabilizing" : "Running";
 }
 
 window.addEventListener("resize", resizeCanvas);
+invertStick.addEventListener("change", () => {
+  playerInput.inverted = invertStick.checked;
+});
+alignStick.addEventListener("change", () => {
+  playerInput.alignWithShip = alignStick.checked;
+});
 bindTouchJoystick(joystick, playerInput);
 resizeCanvas();
 requestAnimationFrame(tick);

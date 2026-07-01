@@ -1,6 +1,8 @@
 export function createPlayerInput() {
   return {
     active: false,
+    alignWithShip: true,
+    inverted: false,
     x: 0,
     y: 0,
     strength: 0

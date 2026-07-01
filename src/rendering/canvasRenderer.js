@@ -67,7 +67,8 @@ function drawBodies(context, canvas, world, camera, lightPosition) {
     const shipFrame = getComponent(world, entity, Component.ShipFrame);
 
     if (kind === BodyKind.Ship && shipFrame) {
-      drawShip(context, world, entity, screen, shipFrame, camera);
+      const rotation = getComponent(world, entity, Component.Rotation)?.angle ?? 0;
+      drawShip(context, world, entity, screen, shipFrame, camera, rotation);
       continue;
     }
 
@@ -76,31 +77,35 @@ function drawBodies(context, canvas, world, camera, lightPosition) {
   context.restore();
 }
 
-function drawShip(context, world, ship, screen, frame, camera) {
+function drawShip(context, world, ship, screen, frame, camera, rotation) {
   const width = frame.width * camera.scale;
   const height = frame.height * camera.scale;
   const isPlayer = getComponent(world, ship, Component.PlayerControlled) !== undefined;
 
+  context.save();
+  context.translate(screen.x, screen.y);
+  context.rotate(rotation);
   context.fillStyle = bodyColors[BodyKind.Ship];
   context.strokeStyle = isPlayer ? "#ffffff" : "rgba(255, 255, 255, 0.35)";
   context.lineWidth = isPlayer ? 2 : 1;
   context.beginPath();
-  context.rect(screen.x - width / 2, screen.y - height / 2, width, height);
+  context.rect(-width / 2, -height / 2, width, height);
   context.fill();
   context.stroke();
 
-  drawThrusters(context, world, ship, screen, camera);
+  drawThrusters(context, world, ship, camera);
+  context.restore();
 }
 
-function drawThrusters(context, world, ship, screen, camera) {
+function drawThrusters(context, world, ship, camera) {
   for (const entity of queryEntities(world, [Component.Thruster])) {
     const thruster = getComponent(world, entity, Component.Thruster);
     if (thruster.shipEntity !== ship) {
       continue;
     }
 
-    const x = screen.x + thruster.localX * camera.scale;
-    const y = screen.y + thruster.localY * camera.scale;
+    const x = thruster.localX * camera.scale;
+    const y = thruster.localY * camera.scale;
     const radius = (5 + thruster.power * 4) * camera.scale;
 
     if (thruster.power > 0) {

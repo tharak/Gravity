@@ -7,6 +7,7 @@ export const Component = Object.freeze({
   Position: "position",
   Radius: "radius",
   Resource: "resource",
+  Rotation: "rotation",
   ShipFrame: "shipFrame",
   StaticBody: "staticBody",
   Thruster: "thruster",

@@ -9,7 +9,7 @@ export function createCamera() {
   };
 }
 
-export function fitCameraToWorld(camera, canvas, world, padding = 96) {
+export function fitCameraToWorld(camera, canvas, world, padding = 180) {
   const bodies = queryEntities(world, [Component.Position, Component.Radius]);
   if (bodies.length === 0) {
     camera.x = 0;
@@ -32,8 +32,8 @@ export function fitCameraToWorld(camera, canvas, world, padding = 96) {
     maxY = Math.max(maxY, position.y + radius);
   }
 
-  const width = Math.max(1, maxX - minX);
-  const height = Math.max(1, maxY - minY);
+  const width = Math.max(1400, maxX - minX);
+  const height = Math.max(900, maxY - minY);
   const availableWidth = Math.max(1, canvas.width - padding * 2);
   const availableHeight = Math.max(1, canvas.height - padding * 2);
 

@@ -1,24 +1,32 @@
 import { Component, ThrusterSlot } from "../ecs/components.js";
 import { getComponent, queryEntities } from "../ecs/world.js";
+import { SHIP_FACING_UP } from "../game/factory.js";
 
 const AXIS_THRESHOLD = 0.25;
+const STABILIZE_SPEED = 180;
+const STOP_EPSILON = 2;
 
 export function applyPlayerInput(world, inputById) {
   resetThrusterPower(world);
 
-  for (const ship of queryEntities(world, [
-    Component.Acceleration,
-    Component.PlayerControlled
-  ])) {
+  for (const ship of queryEntities(world, [Component.Acceleration, Component.PlayerControlled])) {
     const player = getComponent(world, ship, Component.PlayerControlled);
     const input = inputById[player.inputId];
 
-    if (!input?.active) {
+    if (!input) {
       continue;
     }
 
-    const powerBySlot = mapInputToThrusterPower(input);
-    applyThrustersToShip(world, ship, powerBySlot);
+    const command = input.active ? createManualCommand(input) : createStabilizeCommand(world, ship);
+    if (command.strength <= 0) {
+      continue;
+    }
+
+    const rotation = getComponent(world, ship, Component.Rotation)?.angle ?? SHIP_FACING_UP;
+    const referenceRotation = input.alignWithShip ? rotation : SHIP_FACING_UP;
+    const localCommand = worldToLocal(command, referenceRotation);
+    const powerBySlot = mapInputToThrusterPower(localCommand);
+    applyThrustersToShip(world, ship, powerBySlot, rotation);
   }
 }
 
@@ -42,7 +50,36 @@ export function mapInputToThrusterPower(input) {
   return powerBySlot;
 }
 
-function applyThrustersToShip(world, ship, powerBySlot) {
+function createManualCommand(input) {
+  const invert = input.inverted ? -1 : 1;
+  return {
+    x: input.x * invert,
+    y: input.y * invert,
+    strength: clamp01(input.strength)
+  };
+}
+
+function createStabilizeCommand(world, ship) {
+  const velocity = getComponent(world, ship, Component.Velocity);
+  if (!velocity) {
+    return { x: 0, y: 0, strength: 0 };
+  }
+
+  const speed = Math.hypot(velocity.x, velocity.y);
+  if (speed < STOP_EPSILON) {
+    velocity.x = 0;
+    velocity.y = 0;
+    return { x: 0, y: 0, strength: 0 };
+  }
+
+  return {
+    x: -velocity.x / speed,
+    y: -velocity.y / speed,
+    strength: clamp01(speed / STABILIZE_SPEED)
+  };
+}
+
+function applyThrustersToShip(world, ship, powerBySlot, rotation) {
   const acceleration = getComponent(world, ship, Component.Acceleration);
 
   for (const thrusterEntity of queryEntities(world, [Component.Thruster])) {
@@ -52,9 +89,10 @@ function applyThrustersToShip(world, ship, powerBySlot) {
     }
 
     const power = powerBySlot.get(thruster.slot) ?? 0;
+    const direction = localToWorld(thruster, rotation);
     thruster.power = power;
-    acceleration.x += thruster.directionX * thruster.maxAcceleration * power;
-    acceleration.y += thruster.directionY * thruster.maxAcceleration * power;
+    acceleration.x += direction.x * thruster.maxAcceleration * power;
+    acceleration.y += direction.y * thruster.maxAcceleration * power;
   }
 }
 
@@ -77,6 +115,25 @@ function setSideThrusterPower(powerBySlot, inputX, leftSlot, rightSlot, power) {
 
   powerBySlot.set(leftSlot, power);
   powerBySlot.set(rightSlot, power);
+}
+
+function worldToLocal(vector, rotation) {
+  const cos = Math.cos(rotation);
+  const sin = Math.sin(rotation);
+  return {
+    x: vector.x * cos + vector.y * sin,
+    y: -vector.x * sin + vector.y * cos,
+    strength: vector.strength
+  };
+}
+
+function localToWorld(vector, rotation) {
+  const cos = Math.cos(rotation);
+  const sin = Math.sin(rotation);
+  return {
+    x: vector.directionX * cos - vector.directionY * sin,
+    y: vector.directionX * sin + vector.directionY * cos
+  };
 }
 
 function clamp01(value) {

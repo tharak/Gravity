@@ -1,12 +1,18 @@
 import { BodyKind, Component, ThrusterSlot } from "../ecs/components.js";
 import { addComponent, createEntity } from "../ecs/world.js";
 
+export const SHIP_FACING_UP = -Math.PI / 2;
+
 export function createBody(world, body) {
   const entity = createEntity(world);
   addComponent(world, entity, Component.BodyKind, { value: body.kind });
   addComponent(world, entity, Component.Position, { x: body.x, y: body.y });
   addComponent(world, entity, Component.Mass, { value: body.mass });
   addComponent(world, entity, Component.Radius, { value: body.radius });
+
+  if (body.rotation !== undefined) {
+    addComponent(world, entity, Component.Rotation, { angle: body.rotation });
+  }
 
   if (body.shipFrame) {
     addComponent(world, entity, Component.ShipFrame, { ...body.shipFrame });
@@ -40,6 +46,7 @@ export function createShip(world, ship) {
     vy: ship.vy ?? 0,
     mass: ship.mass ?? 2,
     radius: ship.radius ?? 48,
+    rotation: ship.rotation ?? SHIP_FACING_UP,
     playerControlled: ship.playerControlled,
     shipFrame: ship.shipFrame ?? { width: 88, height: 42 }
   });
@@ -69,76 +76,13 @@ export function createThruster(world, thruster) {
 
 function createDefaultThrusters(shipEntity, maxAcceleration) {
   return [
-    {
-      shipEntity,
-      slot: ThrusterSlot.MainBack,
-      localX: -50,
-      localY: 0,
-      directionX: 1,
-      directionY: 0,
-      maxAcceleration,
-      color: "#ffb454"
-    },
-    {
-      shipEntity,
-      slot: ThrusterSlot.FrontLeft,
-      localX: 42,
-      localY: -12,
-      directionX: -1,
-      directionY: 0,
-      maxAcceleration: maxAcceleration * 0.72,
-      color: "#7dd3fc"
-    },
-    {
-      shipEntity,
-      slot: ThrusterSlot.FrontRight,
-      localX: 42,
-      localY: 12,
-      directionX: -1,
-      directionY: 0,
-      maxAcceleration: maxAcceleration * 0.72,
-      color: "#7dd3fc"
-    },
-    {
-      shipEntity,
-      slot: ThrusterSlot.TopLeft,
-      localX: -24,
-      localY: -26,
-      directionX: 0,
-      directionY: 1,
-      maxAcceleration: maxAcceleration * 0.58,
-      color: "#c084fc"
-    },
-    {
-      shipEntity,
-      slot: ThrusterSlot.TopRight,
-      localX: 24,
-      localY: -26,
-      directionX: 0,
-      directionY: 1,
-      maxAcceleration: maxAcceleration * 0.58,
-      color: "#c084fc"
-    },
-    {
-      shipEntity,
-      slot: ThrusterSlot.BottomLeft,
-      localX: -24,
-      localY: 26,
-      directionX: 0,
-      directionY: -1,
-      maxAcceleration: maxAcceleration * 0.58,
-      color: "#36d399"
-    },
-    {
-      shipEntity,
-      slot: ThrusterSlot.BottomRight,
-      localX: 24,
-      localY: 26,
-      directionX: 0,
-      directionY: -1,
-      maxAcceleration: maxAcceleration * 0.58,
-      color: "#36d399"
-    }
+    { shipEntity, slot: ThrusterSlot.MainBack, localX: -50, localY: 0, directionX: 1, directionY: 0, maxAcceleration, color: "#ffb454" },
+    { shipEntity, slot: ThrusterSlot.FrontLeft, localX: 42, localY: -12, directionX: -1, directionY: 0, maxAcceleration: maxAcceleration * 0.72, color: "#7dd3fc" },
+    { shipEntity, slot: ThrusterSlot.FrontRight, localX: 42, localY: 12, directionX: -1, directionY: 0, maxAcceleration: maxAcceleration * 0.72, color: "#7dd3fc" },
+    { shipEntity, slot: ThrusterSlot.TopLeft, localX: -24, localY: -26, directionX: 0, directionY: 1, maxAcceleration: maxAcceleration * 0.58, color: "#c084fc" },
+    { shipEntity, slot: ThrusterSlot.TopRight, localX: 24, localY: -26, directionX: 0, directionY: 1, maxAcceleration: maxAcceleration * 0.58, color: "#c084fc" },
+    { shipEntity, slot: ThrusterSlot.BottomLeft, localX: -24, localY: 26, directionX: 0, directionY: -1, maxAcceleration: maxAcceleration * 0.58, color: "#36d399" },
+    { shipEntity, slot: ThrusterSlot.BottomRight, localX: 24, localY: 26, directionX: 0, directionY: -1, maxAcceleration: maxAcceleration * 0.58, color: "#36d399" }
   ];
 }
 
@@ -152,4 +96,9 @@ export function seedStarterSystem(world) {
     thrusterAcceleration: 150,
     shipFrame: { width: 94, height: 46 }
   });
+
+  createShip(world, { x: -360, y: -260, vx: 20, vy: 12, rotation: SHIP_FACING_UP, mass: 2, radius: 50 });
+  createShip(world, { x: 360, y: -220, vx: -28, vy: 8, rotation: SHIP_FACING_UP, mass: 2, radius: 50 });
+  createShip(world, { x: -420, y: 260, vx: 34, vy: -14, rotation: SHIP_FACING_UP, mass: 2, radius: 50 });
+  createShip(world, { x: 440, y: 280, vx: -22, vy: -20, rotation: SHIP_FACING_UP, mass: 2, radius: 50 });
 }
