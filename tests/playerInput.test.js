@@ -19,6 +19,8 @@ import {
   setThrusterEnabled,
   toggleThruster
 } from "../src/input/playerInput.js";
+import { SHIP_FACING_UP } from "../src/game/factory.js";
+import { WORLD_NORTH_ANGLE } from "../src/game/navigation.js";
 import { applyPlayerInput } from "../src/systems/playerInputSystem.js";
 import { thrusterColors } from "../src/game/thrusterPalette.js";
 
@@ -45,7 +47,7 @@ test("manual controller toggles thrusters and sets speed orders", () => {
   assert.equal(input.controllerMode, ControllerMode.Automatic);
   assert.equal(input.activeSlots.size, 0);
   assert.equal(input.targetDirection, DirectionOrder.West);
-  assert.equal(input.targetAngle, Math.PI);
+  assert.equal(input.targetAngle, WORLD_NORTH_ANGLE - Math.PI / 2);
 
   clearPlayerInput(input);
   assert.equal(input.activeSlots.size, 0);
@@ -53,6 +55,14 @@ test("manual controller toggles thrusters and sets speed orders", () => {
   assert.equal(input.speedOrder, SpeedOrder.Standard);
   assert.equal(input.speedLevel, 0.82);
   assert.equal(input.targetDirection, DirectionOrder.North);
+});
+
+test("world north is the shared ship and automatic north reference", () => {
+  const input = createPlayerInput();
+
+  assert.equal(SHIP_FACING_UP, WORLD_NORTH_ANGLE);
+  assert.equal(input.targetAngle, WORLD_NORTH_ANGLE);
+  assert.equal(DirectionOrders.find((direction) => direction.id === DirectionOrder.North).angle, WORLD_NORTH_ANGLE);
 });
 
 test("manual control panel shows battery, speed orders, and one switch per thruster", () => {

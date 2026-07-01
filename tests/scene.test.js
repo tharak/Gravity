@@ -22,5 +22,5 @@ test("starter scene is a single-ship thruster debug map", () => {
   const mainThruster = [...thrusters.entries()]
     .map(([entity]) => getComponent(world, entity, Component.Thruster))
     .find((thruster) => thruster.number === 1);
-  assert.equal(mainThruster.maxAcceleration, 300);
+  assert.equal(mainThruster.maxAcceleration, 150);
 });

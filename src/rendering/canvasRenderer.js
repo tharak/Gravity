@@ -1,11 +1,13 @@
 import { BodyKind, Component } from "../ecs/components.js";
 import { getComponent, queryEntities } from "../ecs/world.js";
+import { WORLD_NORTH_VECTOR } from "../game/navigation.js";
 import { bodyColors } from "./colors.js";
 import { worldToScreen } from "./camera.js";
 
 export function renderWorld(context, canvas, world, camera, options = {}) {
   context.clearRect(0, 0, canvas.width, canvas.height);
   drawGrid(context, canvas, camera);
+  drawWorldNorthIndicator(context, canvas);
   drawTrails(context, canvas, world, camera);
   drawBodies(context, canvas, world, camera, options.lightPosition);
 }
@@ -31,6 +33,39 @@ function drawGrid(context, canvas, camera) {
     context.lineTo(canvas.width, y);
     context.stroke();
   }
+  context.restore();
+}
+
+function drawWorldNorthIndicator(context, canvas) {
+  const scale = Math.max(1, Math.min(1.4, canvas.width / 1280));
+  const origin = { x: canvas.width - 58 * scale, y: 58 * scale };
+  const length = 34 * scale;
+  const tip = {
+    x: origin.x + WORLD_NORTH_VECTOR.x * length,
+    y: origin.y + WORLD_NORTH_VECTOR.y * length
+  };
+
+  context.save();
+  context.lineWidth = 2 * scale;
+  context.strokeStyle = "rgba(125, 211, 252, 0.92)";
+  context.fillStyle = "rgba(125, 211, 252, 0.92)";
+  context.beginPath();
+  context.arc(origin.x, origin.y, 3.5 * scale, 0, Math.PI * 2);
+  context.fill();
+  context.beginPath();
+  context.moveTo(origin.x, origin.y);
+  context.lineTo(tip.x, tip.y);
+  context.stroke();
+  context.beginPath();
+  context.moveTo(tip.x, tip.y);
+  context.lineTo(tip.x - 6 * scale, tip.y + 10 * scale);
+  context.lineTo(tip.x + 6 * scale, tip.y + 10 * scale);
+  context.closePath();
+  context.fill();
+  context.font = String(12 * scale) + "px ui-sans-serif, system-ui, sans-serif";
+  context.textAlign = "center";
+  context.textBaseline = "top";
+  context.fillText("WORLD N", origin.x, origin.y + 8 * scale);
   context.restore();
 }
 

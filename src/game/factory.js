@@ -1,8 +1,9 @@
 import { BodyKind, Component, ThrusterSlot } from "../ecs/components.js";
 import { addComponent, createEntity } from "../ecs/world.js";
+import { WORLD_NORTH_ANGLE } from "./navigation.js";
 import { thrusterColors } from "./thrusterPalette.js";
 
-export const SHIP_FACING_UP = -Math.PI / 2;
+export const SHIP_FACING_UP = WORLD_NORTH_ANGLE;
 
 export function createBody(world, body) {
   const entity = createEntity(world);
@@ -70,7 +71,7 @@ export function createShip(world, ship) {
     rechargeRate: ship.batteryRechargeRate ?? 1
   });
 
-  for (const thruster of createDefaultThrusters(entity, ship.thrusterAcceleration ?? 26)) {
+  for (const thruster of createDefaultThrusters(entity, ship.thrusterAcceleration ?? 13)) {
     createThruster(world, thruster);
   }
 
@@ -120,7 +121,7 @@ export function seedStarterSystem(world) {
     mass: 2,
     radius: 56,
     playerControlled: "player-one",
-    thrusterAcceleration: 30,
+    thrusterAcceleration: 15,
     shipFrame: { width: 94, height: 46 }
   });
 }
