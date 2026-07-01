@@ -2,7 +2,7 @@ import { Component } from "./ecs/components.js";
 import { getComponent, queryEntities } from "./ecs/world.js";
 import { createSimulation } from "./game/simulation.js";
 import { sunlight } from "./game/lighting.js";
-import { createPlayerInput, bindThrusterButtons } from "./input/playerInput.js";
+import { createPlayerInput, bindThrusterControls } from "./input/playerInput.js";
 import { createStarterScene } from "./scenes/starterScene.js";
 import { createCamera, fitCameraToWorld } from "./rendering/camera.js";
 import { renderWorld } from "./rendering/canvasRenderer.js";
@@ -13,6 +13,9 @@ const hudTime = document.querySelector("#hud-time");
 const hudEntities = document.querySelector("#hud-entities");
 const hudStatus = document.querySelector("#hud-status");
 const thrusterControls = document.querySelector("#thruster-controls");
+const batteryPercent = document.querySelector("#battery-percent");
+const batteryBars = [...document.querySelectorAll(".battery-widget__bar")];
+const powerValue = document.querySelector("#thruster-power-value");
 
 const world = createStarterScene();
 const playerInput = createPlayerInput();
@@ -37,6 +40,7 @@ function tick(timestamp) {
   simulation.step(deltaSeconds);
   renderWorld(context, canvas, world, camera, { lightPosition: sunlight });
   updateHud();
+  updateControls();
   requestAnimationFrame(tick);
 }
 
@@ -47,7 +51,7 @@ function updateHud() {
 }
 
 function getStatusText() {
-  if (playerInput.active) {
+  if (playerInput.activeSlots.size > 0) {
     return "Thrusting";
   }
 
@@ -57,10 +61,27 @@ function getStatusText() {
   }
 
   const velocity = getComponent(world, player, Component.Velocity);
-  return Math.hypot(velocity.x, velocity.y) > 2 ? "Stabilizing" : "Running";
+  return Math.hypot(velocity.x, velocity.y) > 2 ? "Coasting" : "Running";
+}
+
+function updateControls() {
+  powerValue.textContent = String(Math.round(playerInput.powerLevel * 100)) + "%";
+
+  const player = queryEntities(world, [Component.PlayerControlled, Component.Battery])[0];
+  if (player === undefined) {
+    return;
+  }
+
+  const battery = getComponent(world, player, Component.Battery);
+  const percent = battery.capacity > 0 ? Math.round((battery.charge / battery.capacity) * 100) : 0;
+  const filledBars = Math.ceil(percent / 20);
+  batteryPercent.textContent = String(percent) + "%";
+  batteryBars.forEach((bar, index) => {
+    bar.classList.toggle("is-filled", index < filledBars);
+  });
 }
 
 window.addEventListener("resize", resizeCanvas);
-bindThrusterButtons(thrusterControls, playerInput);
+bindThrusterControls(thrusterControls, playerInput);
 resizeCanvas();
 requestAnimationFrame(tick);

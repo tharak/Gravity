@@ -2,111 +2,90 @@ import { Component, ThrusterSlot } from "../ecs/components.js";
 import { getComponent, queryEntities } from "../ecs/world.js";
 import { SHIP_FACING_UP } from "../game/factory.js";
 
-const STABILIZE_SPEED = 180;
-const STOP_EPSILON = 2;
-const FULL_CIRCLE = Math.PI * 2;
-const THIRTY_DEGREES = Math.PI / 6;
-const SIXTY_DEGREES = Math.PI / 3;
-
-export function applyPlayerInput(world, inputById) {
+export function applyPlayerInput(world, inputById, deltaSeconds = 0) {
   resetThrusterPower(world);
 
   for (const ship of queryEntities(world, [Component.Acceleration, Component.PlayerControlled])) {
     const player = getComponent(world, ship, Component.PlayerControlled);
     const input = inputById[player.inputId];
-
-    if (!input) {
-      continue;
-    }
-
     const rotation = getComponent(world, ship, Component.Rotation)?.angle ?? SHIP_FACING_UP;
-    const command = input.active
-      ? createManualThrusterCommand(input)
-      : createStabilizeThrusterCommand(world, ship, rotation);
+    const command = createPilotThrusterCommand(world, ship, input, deltaSeconds);
 
     applyThrusterCommandToShip(world, ship, command, rotation);
   }
 }
 
-export function mapInputToThrusterPower(input) {
-  const power = clamp01(input.strength);
+function createPilotThrusterCommand(world, ship, input, deltaSeconds) {
+  const battery = getComponent(world, ship, Component.Battery);
   const powerBySlot = new Map();
-  if (power <= 0) {
-    return powerBySlot;
+  const requestedPower = clamp01(input?.powerLevel ?? 0);
+  const activeSlots = input?.activeSlots ?? new Set();
+  const thrusters = getShipThrusters(world, ship);
+
+  rechargeBattery(battery, deltaSeconds);
+
+  if (activeSlots.size === 0 || requestedPower <= 0) {
+    setBatteryOutput(battery, 0);
+    return createThrusterCommand(powerBySlot, false);
   }
 
-  for (const slot of getSectorSlots(input.x, input.y)) {
-    powerBySlot.set(slot, power);
+  const selectedThrusters = thrusters.filter((thruster) => activeSlots.has(thruster.slot));
+  const requestedEnergyPerSecond = selectedThrusters.reduce(
+    (total, thruster) => total + thruster.energyUsePerSecond * requestedPower,
+    0
+  );
+  const availableScale = getBatteryPowerScale(battery, requestedEnergyPerSecond, deltaSeconds);
+  const actualPower = requestedPower * availableScale;
+
+  drainBattery(battery, requestedEnergyPerSecond * availableScale, deltaSeconds);
+
+  if (actualPower <= 0) {
+    return createThrusterCommand(powerBySlot, false);
   }
-  return powerBySlot;
+
+  for (const thruster of selectedThrusters) {
+    powerBySlot.set(thruster.slot, actualPower);
+  }
+
+  return createThrusterCommand(powerBySlot, false);
 }
 
-export function getSectorSlots(x, y) {
-  const angle = normalizeAngle(Math.atan2(y, x));
-
-  if (angle >= FULL_CIRCLE - THIRTY_DEGREES || angle < THIRTY_DEGREES) {
-    return [ThrusterSlot.MainBack];
-  }
-  if (angle < SIXTY_DEGREES) {
-    return [ThrusterSlot.BottomRight];
-  }
-  if (angle < Math.PI - SIXTY_DEGREES) {
-    return [ThrusterSlot.BottomLeft, ThrusterSlot.BottomRight];
-  }
-  if (angle < Math.PI - THIRTY_DEGREES) {
-    return [ThrusterSlot.BottomLeft];
-  }
-  if (angle < Math.PI + THIRTY_DEGREES) {
-    return [ThrusterSlot.FrontLeft, ThrusterSlot.FrontRight];
-  }
-  if (angle < Math.PI + SIXTY_DEGREES) {
-    return [ThrusterSlot.TopLeft];
-  }
-  if (angle < FULL_CIRCLE - SIXTY_DEGREES) {
-    return [ThrusterSlot.TopLeft, ThrusterSlot.TopRight];
-  }
-  return [ThrusterSlot.TopRight];
+function getShipThrusters(world, ship) {
+  return queryEntities(world, [Component.Thruster])
+    .map((entity) => getComponent(world, entity, Component.Thruster))
+    .filter((thruster) => thruster.shipEntity === ship);
 }
 
-function createManualThrusterCommand(input) {
-  const command = { x: input.x, y: input.y, strength: clamp01(input.strength) };
-  return createThrusterCommand(mapInputToThrusterPower(worldToLocal(command, SHIP_FACING_UP)), false);
+function rechargeBattery(battery, deltaSeconds) {
+  if (!battery) {
+    return;
+  }
+
+  battery.charge = Math.min(battery.capacity, battery.charge + battery.rechargeRate * deltaSeconds);
 }
 
-function createStabilizeThrusterCommand(world, ship, rotation) {
-  const velocity = getComponent(world, ship, Component.Velocity);
-  const powerBySlot = new Map();
-  if (!velocity) {
-    return createThrusterCommand(powerBySlot, true);
+function getBatteryPowerScale(battery, energyPerSecond, deltaSeconds) {
+  if (!battery || energyPerSecond <= 0 || deltaSeconds <= 0) {
+    return 1;
   }
 
-  const speed = Math.hypot(velocity.x, velocity.y);
-  if (speed < STOP_EPSILON) {
-    velocity.x = 0;
-    velocity.y = 0;
-    return createThrusterCommand(powerBySlot, true);
+  return Math.min(1, battery.charge / (energyPerSecond * deltaSeconds));
+}
+
+function drainBattery(battery, energyPerSecond, deltaSeconds) {
+  if (!battery) {
+    return;
   }
 
-  const desiredDirection = {
-    x: -velocity.x / speed,
-    y: -velocity.y / speed
-  };
-  const basePower = clamp01(speed / STABILIZE_SPEED);
+  const energyUsed = energyPerSecond * deltaSeconds;
+  battery.charge = Math.max(0, battery.charge - energyUsed);
+  setBatteryOutput(battery, energyPerSecond);
+}
 
-  for (const thrusterEntity of queryEntities(world, [Component.Thruster])) {
-    const thruster = getComponent(world, thrusterEntity, Component.Thruster);
-    if (thruster.shipEntity !== ship) {
-      continue;
-    }
-
-    const direction = localToWorld(thruster, rotation);
-    const alignment = direction.x * desiredDirection.x + direction.y * desiredDirection.y;
-    if (alignment > 0) {
-      powerBySlot.set(thruster.slot, basePower * alignment);
-    }
+function setBatteryOutput(battery, energyPerSecond) {
+  if (battery) {
+    battery.outputRate = energyPerSecond;
   }
-
-  return createThrusterCommand(powerBySlot, true);
 }
 
 function createThrusterCommand(powerBySlot, stabilizing) {
@@ -155,16 +134,6 @@ function resetThrusterPower(world) {
   }
 }
 
-function worldToLocal(vector, rotation) {
-  const cos = Math.cos(rotation);
-  const sin = Math.sin(rotation);
-  return {
-    x: vector.x * cos + vector.y * sin,
-    y: -vector.x * sin + vector.y * cos,
-    strength: vector.strength
-  };
-}
-
 function rotatePoint(x, y, rotation) {
   const cos = Math.cos(rotation);
   const sin = Math.sin(rotation);
@@ -187,11 +156,27 @@ function localToWorld(vector, rotation) {
   };
 }
 
-
-function normalizeAngle(angle) {
-  return (angle + FULL_CIRCLE) % FULL_CIRCLE;
+export function getThrusterSlotByNumber(number) {
+  switch (number) {
+    case 1:
+      return ThrusterSlot.MainBack;
+    case 2:
+      return ThrusterSlot.FrontLeft;
+    case 3:
+      return ThrusterSlot.FrontRight;
+    case 4:
+      return ThrusterSlot.TopLeft;
+    case 5:
+      return ThrusterSlot.TopRight;
+    case 6:
+      return ThrusterSlot.BottomLeft;
+    case 7:
+      return ThrusterSlot.BottomRight;
+    default:
+      return undefined;
+  }
 }
 
 function clamp01(value) {
-  return Math.max(0, Math.min(1, value));
+  return Math.max(0, Math.min(1, Number.isFinite(value) ? value : 0));
 }

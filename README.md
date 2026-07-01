@@ -11,18 +11,9 @@ The map contains one zoomed-in player ship. The player ship starts facing up and
 - Green: bottom side thrusters for upward movement
 - Purple: top side thrusters for downward movement
 
-The mobile controls use eight press-and-hold thruster buttons. Up, down, left, and right are larger than the diagonal buttons. Holding a button fires its mapped thrusters at full power. Current debug mapping:
+The mobile controls now let the pilot choose exactly which thrusters receive power. Each thruster has an on/off switch, and the power slider controls the throttle sent to every enabled thruster.
 
-- Up: 2 + 3
-- Down: 1
-- Right: 6 + 7
-- Left: 4 + 5
-- Up-right: 7
-- Down-right: 6
-- Down-left: 4
-- Up-left: 5
-
-When no button is held, the player ship automatically fires thrusters against its current velocity to stabilize to a stop. Stabilizing thrusters use the same thrust application path as button controls and pulse visually while active.
+The ship starts with a 100-unit battery. The main thruster consumes 3 units per second at full power, each other thruster consumes 1 unit per second, and the battery recharges by 1 unit per second. If the selected thrusters request more energy than the battery has available, thrust is scaled down to match the available charge.
 
 ## Run Locally
 

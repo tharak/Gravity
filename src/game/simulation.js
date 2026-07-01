@@ -23,7 +23,7 @@ export function createSimulation(world, config = {}) {
       accumulator += Math.min(deltaSeconds, 0.25);
       while (accumulator >= settings.fixedDeltaSeconds) {
         applyGravity(world, settings);
-        applyPlayerInput(world, inputById);
+        applyPlayerInput(world, inputById, settings.fixedDeltaSeconds);
         integrateMotion(world, settings.fixedDeltaSeconds);
         resolveCollisions(world);
         recordTrails(world, settings.maxTrailLength);

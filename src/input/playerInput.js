@@ -1,71 +1,56 @@
 export function createPlayerInput() {
   return {
-    active: false,
-    x: 0,
-    y: 0,
-    strength: 0
+    activeSlots: new Set(),
+    powerLevel: 1
   };
 }
 
-export function bindThrusterButtons(root, input) {
-  const activePointers = new Map();
+export function bindThrusterControls(root, input) {
+  const powerSlider = root.querySelector("#thruster-power");
 
-  for (const button of root.querySelectorAll("[data-thrust-x][data-thrust-y]")) {
-    button.addEventListener("pointerdown", (pointerEvent) => {
-      pointerEvent.preventDefault();
-      button.setPointerCapture(pointerEvent.pointerId);
-      button.classList.add("is-active");
-      activePointers.set(pointerEvent.pointerId, getButtonInput(button));
-      applyLatestPointer(input, activePointers);
+  for (const button of root.querySelectorAll("[data-thruster-slot]")) {
+    button.addEventListener("click", () => {
+      toggleThruster(input, button.dataset.thrusterSlot);
+      button.classList.toggle("is-active", input.activeSlots.has(button.dataset.thrusterSlot));
+      button.setAttribute("aria-pressed", String(input.activeSlots.has(button.dataset.thrusterSlot)));
     });
+  }
 
-    button.addEventListener("pointerup", (pointerEvent) => {
-      releasePointer(button, input, activePointers, pointerEvent.pointerId);
-    });
-
-    button.addEventListener("pointercancel", (pointerEvent) => {
-      releasePointer(button, input, activePointers, pointerEvent.pointerId);
-    });
-
-    button.addEventListener("lostpointercapture", (pointerEvent) => {
-      releasePointer(button, input, activePointers, pointerEvent.pointerId);
+  if (powerSlider) {
+    setPowerLevel(input, Number(powerSlider.value) / 100);
+    powerSlider.addEventListener("input", () => {
+      setPowerLevel(input, Number(powerSlider.value) / 100);
     });
   }
 }
 
-export function setDirectionalInput(input, direction) {
-  input.active = true;
-  input.x = direction.x;
-  input.y = direction.y;
-  input.strength = 1;
-}
-
-export function clearPlayerInput(input) {
-  input.active = false;
-  input.x = 0;
-  input.y = 0;
-  input.strength = 0;
-}
-
-function releasePointer(button, input, activePointers, pointerId) {
-  button.classList.remove("is-active");
-  activePointers.delete(pointerId);
-  applyLatestPointer(input, activePointers);
-}
-
-function applyLatestPointer(input, activePointers) {
-  const latest = [...activePointers.values()].at(-1);
-  if (latest) {
-    setDirectionalInput(input, latest);
+export function toggleThruster(input, slot) {
+  if (input.activeSlots.has(slot)) {
+    input.activeSlots.delete(slot);
     return;
   }
 
-  clearPlayerInput(input);
+  input.activeSlots.add(slot);
 }
 
-function getButtonInput(button) {
-  return {
-    x: Number(button.dataset.thrustX),
-    y: Number(button.dataset.thrustY)
-  };
+export function setThrusterEnabled(input, slot, enabled) {
+  if (enabled) {
+    input.activeSlots.add(slot);
+    return;
+  }
+
+  input.activeSlots.delete(slot);
+}
+
+export function setPowerLevel(input, powerLevel) {
+  input.powerLevel = clamp01(powerLevel);
+}
+
+export function clearPlayerInput(input) {
+  input.activeSlots.clear();
+  input.powerLevel = 1;
+}
+
+function clamp01(value) {
+  return Math.max(0, Math.min(1, Number.isFinite(value) ? value : 0));
 }

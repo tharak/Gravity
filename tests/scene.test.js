@@ -16,4 +16,6 @@ test("starter scene is a single-ship thruster debug map", () => {
   assert.equal(getComponents(world, Component.AngularVelocity).size, 1);
   assert.equal(getComponents(world, Component.AngularAcceleration).size, 1);
   assert.equal(getComponents(world, Component.MomentOfInertia).size, 1);
+  assert.equal(getComponents(world, Component.Battery).size, 1);
+  assert.equal(getComponents(world, Component.Parent).size, 7);
 });

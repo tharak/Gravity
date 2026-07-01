@@ -10,16 +10,31 @@
     <main class="app-shell">
       <section class="sim-panel" aria-label="Gravity simulator">
         <canvas id="gravity-canvas" width="1280" height="720"></canvas>
-        <div id="thruster-controls" class="thruster-controls" aria-label="Ship thruster controls">
-          <button class="thruster-button thruster-button--diagonal" type="button" data-thrust-x="-1" data-thrust-y="-1" aria-label="Up left thruster 5"><span class="thruster-button__arrow">↖</span><span class="thruster-button__label">5</span></button>
-          <button class="thruster-button thruster-button--cardinal" type="button" data-thrust-x="0" data-thrust-y="1" aria-label="Front reverse thrusters 2 and 3"><span class="thruster-button__arrow">↑</span><span class="thruster-button__label">2+3</span></button>
-          <button class="thruster-button thruster-button--diagonal" type="button" data-thrust-x="1" data-thrust-y="-1" aria-label="Up right thruster 7"><span class="thruster-button__arrow">↗</span><span class="thruster-button__label">7</span></button>
-          <button class="thruster-button thruster-button--cardinal" type="button" data-thrust-x="-1" data-thrust-y="0" aria-label="Left thrusters 4 and 5"><span class="thruster-button__arrow">←</span><span class="thruster-button__label">4+5</span></button>
-          <span class="thruster-controls__center" aria-hidden="true"></span>
-          <button class="thruster-button thruster-button--cardinal" type="button" data-thrust-x="1" data-thrust-y="0" aria-label="Right thrusters 6 and 7"><span class="thruster-button__arrow">→</span><span class="thruster-button__label">6+7</span></button>
-          <button class="thruster-button thruster-button--diagonal" type="button" data-thrust-x="-1" data-thrust-y="1" aria-label="Down left thruster 4"><span class="thruster-button__arrow">↙</span><span class="thruster-button__label">4</span></button>
-          <button class="thruster-button thruster-button--cardinal" type="button" data-thrust-x="0" data-thrust-y="-1" aria-label="Main back thruster 1"><span class="thruster-button__arrow">↓</span><span class="thruster-button__label">1</span></button>
-          <button class="thruster-button thruster-button--diagonal" type="button" data-thrust-x="1" data-thrust-y="1" aria-label="Down right thruster 6"><span class="thruster-button__arrow">↘</span><span class="thruster-button__label">6</span></button>
+        <div id="thruster-controls" class="thruster-controls" aria-label="Ship power controls">
+          <div class="battery-widget" aria-label="Ship battery">
+            <div class="battery-widget__shell" aria-hidden="true">
+              <span class="battery-widget__bar"></span>
+              <span class="battery-widget__bar"></span>
+              <span class="battery-widget__bar"></span>
+              <span class="battery-widget__bar"></span>
+              <span class="battery-widget__bar"></span>
+            </div>
+            <span id="battery-percent" class="battery-widget__percent">100%</span>
+          </div>
+          <div class="thruster-switches" aria-label="Thruster switches">
+            <button class="thruster-switch" type="button" data-thruster-slot="mainBack" aria-pressed="false"><span>1</span><small>3u/s</small></button>
+            <button class="thruster-switch" type="button" data-thruster-slot="frontLeft" aria-pressed="false"><span>2</span><small>1u/s</small></button>
+            <button class="thruster-switch" type="button" data-thruster-slot="frontRight" aria-pressed="false"><span>3</span><small>1u/s</small></button>
+            <button class="thruster-switch" type="button" data-thruster-slot="topLeft" aria-pressed="false"><span>4</span><small>1u/s</small></button>
+            <button class="thruster-switch" type="button" data-thruster-slot="topRight" aria-pressed="false"><span>5</span><small>1u/s</small></button>
+            <button class="thruster-switch" type="button" data-thruster-slot="bottomLeft" aria-pressed="false"><span>6</span><small>1u/s</small></button>
+            <button class="thruster-switch" type="button" data-thruster-slot="bottomRight" aria-pressed="false"><span>7</span><small>1u/s</small></button>
+          </div>
+          <label class="power-control" for="thruster-power">
+            <span>Power</span>
+            <input id="thruster-power" type="range" min="0" max="100" value="100" />
+            <output id="thruster-power-value" for="thruster-power">100%</output>
+          </label>
         </div>
       </section>
       <aside class="hud" aria-label="Simulator data">
