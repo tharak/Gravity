@@ -12,7 +12,7 @@ import {
   toggleThruster
 } from "../src/input/playerInput.js";
 import { applyPlayerInput } from "../src/systems/playerInputSystem.js";
-import { thrusterColors } from "../src/rendering/colors.js";
+import { thrusterColors } from "../src/game/thrusterPalette.js";
 
 test("thruster input helpers toggle switches and clamp power", () => {
   const input = createPlayerInput();

@@ -1,6 +1,6 @@
 import { BodyKind, Component, ThrusterSlot } from "../ecs/components.js";
 import { addComponent, createEntity } from "../ecs/world.js";
-import { thrusterColors } from "../rendering/colors.js";
+import { thrusterColors } from "./thrusterPalette.js";
 
 export const SHIP_FACING_UP = -Math.PI / 2;
 

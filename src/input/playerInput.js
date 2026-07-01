@@ -1,4 +1,4 @@
-import { thrusterColors } from "../rendering/colors.js";
+import { thrusterColors } from "../game/thrusterPalette.js";
 export function createPlayerInput() {
   return {
     activeSlots: new Set(),
