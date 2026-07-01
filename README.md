@@ -6,7 +6,7 @@ The current milestone is a dependency-free ECS-style ship thruster test map.
 
 The map contains one zoomed-in player ship. The player ship starts facing up and is drawn as a rectangle with seven numbered thruster entities drawn as circles on the hull. Thrusters apply force from their mounted location, so off-center thrusters rotate the ship through torque:
 
-- Orange: main back thruster for forward movement
+- Orange: main back thruster for forward movement, tuned to 10x the baseline thruster power
 - Blue: front reverse thrusters
 - Green: bottom side thrusters for upward movement
 - Purple: top side thrusters for downward movement

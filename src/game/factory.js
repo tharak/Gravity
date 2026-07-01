@@ -94,13 +94,13 @@ function getShipMomentOfInertia(mass, frame) {
 
 function createDefaultThrusters(shipEntity, maxAcceleration) {
   return [
-    { shipEntity, number: 1, slot: ThrusterSlot.MainBack, localX: -50, localY: 0, directionX: 1, directionY: 0, maxAcceleration, color: "#ffb454" },
-    { shipEntity, number: 2, slot: ThrusterSlot.FrontLeft, localX: 42, localY: -12, directionX: -1, directionY: 0, maxAcceleration: maxAcceleration * 0.72, color: "#7dd3fc" },
-    { shipEntity, number: 3, slot: ThrusterSlot.FrontRight, localX: 42, localY: 12, directionX: -1, directionY: 0, maxAcceleration: maxAcceleration * 0.72, color: "#7dd3fc" },
-    { shipEntity, number: 4, slot: ThrusterSlot.TopLeft, localX: -24, localY: -26, directionX: 0, directionY: 1, maxAcceleration: maxAcceleration * 0.58, color: "#c084fc" },
-    { shipEntity, number: 5, slot: ThrusterSlot.TopRight, localX: 24, localY: -26, directionX: 0, directionY: 1, maxAcceleration: maxAcceleration * 0.58, color: "#c084fc" },
-    { shipEntity, number: 6, slot: ThrusterSlot.BottomLeft, localX: -24, localY: 26, directionX: 0, directionY: -1, maxAcceleration: maxAcceleration * 0.58, color: "#36d399" },
-    { shipEntity, number: 7, slot: ThrusterSlot.BottomRight, localX: 24, localY: 26, directionX: 0, directionY: -1, maxAcceleration: maxAcceleration * 0.58, color: "#36d399" }
+    { shipEntity, number: 1, slot: ThrusterSlot.MainBack, localX: -50, localY: 0, directionX: 1, directionY: 0, maxAcceleration: maxAcceleration * 10, color: "#ffb454" },
+    { shipEntity, number: 2, slot: ThrusterSlot.FrontLeft, localX: 42, localY: -12, directionX: -1, directionY: 0, maxAcceleration, color: "#7dd3fc" },
+    { shipEntity, number: 3, slot: ThrusterSlot.FrontRight, localX: 42, localY: 12, directionX: -1, directionY: 0, maxAcceleration, color: "#7dd3fc" },
+    { shipEntity, number: 4, slot: ThrusterSlot.TopLeft, localX: -24, localY: -26, directionX: 0, directionY: 1, maxAcceleration, color: "#c084fc" },
+    { shipEntity, number: 5, slot: ThrusterSlot.TopRight, localX: 24, localY: -26, directionX: 0, directionY: 1, maxAcceleration, color: "#c084fc" },
+    { shipEntity, number: 6, slot: ThrusterSlot.BottomLeft, localX: -24, localY: 26, directionX: 0, directionY: -1, maxAcceleration, color: "#36d399" },
+    { shipEntity, number: 7, slot: ThrusterSlot.BottomRight, localX: 24, localY: 26, directionX: 0, directionY: -1, maxAcceleration, color: "#36d399" }
   ];
 }
 

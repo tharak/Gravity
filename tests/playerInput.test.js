@@ -36,7 +36,7 @@ test("main back input sector activates the main back thruster on an upward-facin
   assert.equal(getThruster(world, ThrusterSlot.MainBack).power, 0.75);
   assert.equal(getThruster(world, ThrusterSlot.MainBack).stabilizing, false);
   assert.ok(Math.abs(acceleration.x) < 1e-12);
-  assert.equal(acceleration.y, -75);
+  assert.equal(acceleration.y, -750);
   assertAngularAcceleration(world, ship, 0);
 });
 
@@ -52,7 +52,7 @@ test("front reverse input sector activates both front reverse thrusters", () => 
   assert.equal(getThruster(world, ThrusterSlot.FrontLeft).power, 1);
   assert.equal(getThruster(world, ThrusterSlot.FrontRight).power, 1);
   assert.ok(Math.abs(acceleration.x) < 1e-12);
-  assert.equal(acceleration.y, 144);
+  assert.equal(acceleration.y, 200);
   assertAngularAcceleration(world, ship, 0);
 });
 
@@ -208,6 +208,23 @@ test("ship thrusters have visible debug numbers", () => {
     .sort((a, b) => a - b);
 
   assert.deepEqual(numbers, [1, 2, 3, 4, 5, 6, 7]);
+});
+
+test("main back thruster has ten times the baseline power", () => {
+  const world = createWorld();
+  createShip(world, { x: 0, y: 0, thrusterAcceleration: 100 });
+
+  const main = getThruster(world, ThrusterSlot.MainBack);
+  for (const slot of [
+    ThrusterSlot.FrontLeft,
+    ThrusterSlot.FrontRight,
+    ThrusterSlot.TopLeft,
+    ThrusterSlot.TopRight,
+    ThrusterSlot.BottomLeft,
+    ThrusterSlot.BottomRight
+  ]) {
+    assert.equal(main.maxAcceleration, getThruster(world, slot).maxAcceleration * 10);
+  }
 });
 
 function readIndexHtml() {
