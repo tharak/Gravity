@@ -2,14 +2,16 @@
 
 Browser gravity simulator for a future space game with ships, planets, resources, and combat.
 
-The current milestone is a dependency-free ECS-style gravity simulation rendered as colored circles:
+The current milestone is a dependency-free ECS-style ship thruster test map.
 
-- Blue: planet
-- Green: resource planet
-- Red: ship
-- Gray: abandoned station
+The map contains only one player ship. The ship is drawn as a rectangle with seven thruster entities drawn as circles on the hull:
 
-Planets and stations are static gravity sources. Ships are dynamic bodies affected by those gravity sources and by player thrust. The map uses a fixed whole-system view, and sunlight is a render-only direction used for planet shading. The player ship has a white outline. Drag the on-screen joystick on mobile or desktop to apply thrust.
+- Orange: main back thruster for forward movement
+- Blue: front reverse thrusters
+- Green: bottom side thrusters for upward movement
+- Purple: top side thrusters for downward movement
+
+The joystick uses matching color sectors. Distance from the center controls thruster power percentage.
 
 ## Run Locally
 

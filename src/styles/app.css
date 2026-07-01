@@ -90,20 +90,24 @@ body {
   border-radius: 50%;
 }
 
-.legend-planet {
-  background: #5fa8ff;
-}
-
-.legend-resource {
-  background: #36d399;
-}
-
 .legend-ship {
   background: #ff667a;
 }
 
-.legend-station {
-  background: #b8c2d6;
+.legend-main {
+  background: #ffb454;
+}
+
+.legend-reverse {
+  background: #7dd3fc;
+}
+
+.legend-side-up {
+  background: #36d399;
+}
+
+.legend-side-down {
+  background: #c084fc;
 }
 
 .touch-joystick {
@@ -124,7 +128,15 @@ body {
   height: 124px;
   border: 1px solid rgba(233, 238, 248, 0.34);
   border-radius: 50%;
-  background: rgba(16, 23, 37, 0.58);
+  background:
+    radial-gradient(circle, rgba(16, 23, 37, 0.72) 0 28%, transparent 29%),
+    conic-gradient(
+      from -45deg,
+      rgba(54, 211, 153, 0.5) 0deg 90deg,
+      rgba(255, 180, 84, 0.55) 90deg 180deg,
+      rgba(192, 132, 252, 0.5) 180deg 270deg,
+      rgba(125, 211, 252, 0.55) 270deg 360deg
+    );
 }
 
 .touch-joystick__handle {

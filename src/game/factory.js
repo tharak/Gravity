@@ -1,4 +1,4 @@
-import { BodyKind, Component } from "../ecs/components.js";
+import { BodyKind, Component, ThrusterSlot } from "../ecs/components.js";
 import { addComponent, createEntity } from "../ecs/world.js";
 
 export function createBody(world, body) {
@@ -7,6 +7,10 @@ export function createBody(world, body) {
   addComponent(world, entity, Component.Position, { x: body.x, y: body.y });
   addComponent(world, entity, Component.Mass, { value: body.mass });
   addComponent(world, entity, Component.Radius, { value: body.radius });
+
+  if (body.shipFrame) {
+    addComponent(world, entity, Component.ShipFrame, { ...body.shipFrame });
+  }
 
   if (body.static) {
     addComponent(world, entity, Component.StaticBody, { value: true });
@@ -20,10 +24,6 @@ export function createBody(world, body) {
     addComponent(world, entity, Component.PlayerControlled, { inputId: body.playerControlled });
   }
 
-  if (body.thrust) {
-    addComponent(world, entity, Component.Thrust, { acceleration: body.thrust.acceleration });
-  }
-
   if (body.resources) {
     addComponent(world, entity, Component.Resource, { ...body.resources });
   }
@@ -31,54 +31,125 @@ export function createBody(world, body) {
   return entity;
 }
 
+export function createShip(world, ship) {
+  const entity = createBody(world, {
+    kind: BodyKind.Ship,
+    x: ship.x,
+    y: ship.y,
+    vx: ship.vx ?? 0,
+    vy: ship.vy ?? 0,
+    mass: ship.mass ?? 2,
+    radius: ship.radius ?? 48,
+    playerControlled: ship.playerControlled,
+    shipFrame: ship.shipFrame ?? { width: 88, height: 42 }
+  });
+
+  for (const thruster of createDefaultThrusters(entity, ship.thrusterAcceleration ?? 130)) {
+    createThruster(world, thruster);
+  }
+
+  return entity;
+}
+
+export function createThruster(world, thruster) {
+  const entity = createEntity(world);
+  addComponent(world, entity, Component.Thruster, {
+    shipEntity: thruster.shipEntity,
+    slot: thruster.slot,
+    localX: thruster.localX,
+    localY: thruster.localY,
+    directionX: thruster.directionX,
+    directionY: thruster.directionY,
+    maxAcceleration: thruster.maxAcceleration,
+    power: 0,
+    color: thruster.color
+  });
+  return entity;
+}
+
+function createDefaultThrusters(shipEntity, maxAcceleration) {
+  return [
+    {
+      shipEntity,
+      slot: ThrusterSlot.MainBack,
+      localX: -50,
+      localY: 0,
+      directionX: 1,
+      directionY: 0,
+      maxAcceleration,
+      color: "#ffb454"
+    },
+    {
+      shipEntity,
+      slot: ThrusterSlot.FrontLeft,
+      localX: 42,
+      localY: -12,
+      directionX: -1,
+      directionY: 0,
+      maxAcceleration: maxAcceleration * 0.72,
+      color: "#7dd3fc"
+    },
+    {
+      shipEntity,
+      slot: ThrusterSlot.FrontRight,
+      localX: 42,
+      localY: 12,
+      directionX: -1,
+      directionY: 0,
+      maxAcceleration: maxAcceleration * 0.72,
+      color: "#7dd3fc"
+    },
+    {
+      shipEntity,
+      slot: ThrusterSlot.TopLeft,
+      localX: -24,
+      localY: -26,
+      directionX: 0,
+      directionY: 1,
+      maxAcceleration: maxAcceleration * 0.58,
+      color: "#c084fc"
+    },
+    {
+      shipEntity,
+      slot: ThrusterSlot.TopRight,
+      localX: 24,
+      localY: -26,
+      directionX: 0,
+      directionY: 1,
+      maxAcceleration: maxAcceleration * 0.58,
+      color: "#c084fc"
+    },
+    {
+      shipEntity,
+      slot: ThrusterSlot.BottomLeft,
+      localX: -24,
+      localY: 26,
+      directionX: 0,
+      directionY: -1,
+      maxAcceleration: maxAcceleration * 0.58,
+      color: "#36d399"
+    },
+    {
+      shipEntity,
+      slot: ThrusterSlot.BottomRight,
+      localX: 24,
+      localY: 26,
+      directionX: 0,
+      directionY: -1,
+      maxAcceleration: maxAcceleration * 0.58,
+      color: "#36d399"
+    }
+  ];
+}
+
 export function seedStarterSystem(world) {
-  createBody(world, {
-    kind: BodyKind.Planet,
-    x: 320,
-    y: 140,
-    mass: 18000,
-    radius: 24,
-    static: true
-  });
-
-  createBody(world, {
-    kind: BodyKind.ResourcePlanet,
-    x: -280,
-    y: 80,
-    mass: 22000,
-    radius: 29,
-    static: true,
-    resources: { minerals: 180, fuel: 95 }
-  });
-
-  createBody(world, {
-    kind: BodyKind.Station,
-    x: -80,
-    y: 310,
-    mass: 4000,
-    radius: 16,
-    static: true
-  });
-
-  createBody(world, {
-    kind: BodyKind.Ship,
-    x: 80,
-    y: -210,
-    vx: 10,
-    vy: 0,
+  createShip(world, {
+    x: 0,
+    y: 0,
     mass: 2,
-    radius: 7,
+    radius: 56,
     playerControlled: "player-one",
-    thrust: { acceleration: 140 }
-  });
-
-  createBody(world, {
-    kind: BodyKind.Ship,
-    x: 245,
-    y: -180,
-    vx: -8,
-    vy: 6,
-    mass: 2,
-    radius: 6
+    thrusterAcceleration: 150,
+    shipFrame: { width: 94, height: 46 }
   });
 }

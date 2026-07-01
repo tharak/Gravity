@@ -4,13 +4,12 @@ import { BodyKind, Component } from "../src/ecs/components.js";
 import { getComponents } from "../src/ecs/world.js";
 import { createStarterScene } from "../src/scenes/starterScene.js";
 
-test("starter scene uses render-only sunlight instead of a sun entity", () => {
+test("starter scene is a ship-only thruster debug map", () => {
   const world = createStarterScene();
   const kinds = [...getComponents(world, Component.BodyKind).values()].map((kind) => kind.value);
+  const thrusters = getComponents(world, Component.Thruster);
 
-  assert.equal(kinds.includes("star"), false);
-  assert.equal(kinds.includes(BodyKind.Planet), true);
-  assert.equal(kinds.includes(BodyKind.ResourcePlanet), true);
-  assert.equal(kinds.includes(BodyKind.Station), true);
-  assert.equal(kinds.includes(BodyKind.Ship), true);
+  assert.deepEqual(kinds, [BodyKind.Ship]);
+  assert.equal(thrusters.size, 7);
+  assert.equal(getComponents(world, Component.ShipFrame).size, 1);
 });

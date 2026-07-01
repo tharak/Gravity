@@ -64,19 +64,57 @@ function drawBodies(context, canvas, world, camera, lightPosition) {
     const position = getComponent(world, entity, Component.Position);
     const radius = getComponent(world, entity, Component.Radius).value * camera.scale;
     const screen = worldToScreen(camera, canvas, position);
-    const isPlayer = getComponent(world, entity, Component.PlayerControlled) !== undefined;
+    const shipFrame = getComponent(world, entity, Component.ShipFrame);
+
+    if (kind === BodyKind.Ship && shipFrame) {
+      drawShip(context, world, entity, screen, shipFrame, camera);
+      continue;
+    }
 
     drawBodyCircle(context, screen, Math.max(radius, 3), bodyColors[kind], kind, position, lightPosition);
-
-    if (isPlayer) {
-      context.strokeStyle = "#ffffff";
-      context.lineWidth = 2;
-      context.beginPath();
-      context.arc(screen.x, screen.y, Math.max(radius + 5, 8), 0, Math.PI * 2);
-      context.stroke();
-    }
   }
   context.restore();
+}
+
+function drawShip(context, world, ship, screen, frame, camera) {
+  const width = frame.width * camera.scale;
+  const height = frame.height * camera.scale;
+  const isPlayer = getComponent(world, ship, Component.PlayerControlled) !== undefined;
+
+  context.fillStyle = bodyColors[BodyKind.Ship];
+  context.strokeStyle = isPlayer ? "#ffffff" : "rgba(255, 255, 255, 0.35)";
+  context.lineWidth = isPlayer ? 2 : 1;
+  context.beginPath();
+  context.rect(screen.x - width / 2, screen.y - height / 2, width, height);
+  context.fill();
+  context.stroke();
+
+  drawThrusters(context, world, ship, screen, camera);
+}
+
+function drawThrusters(context, world, ship, screen, camera) {
+  for (const entity of queryEntities(world, [Component.Thruster])) {
+    const thruster = getComponent(world, entity, Component.Thruster);
+    if (thruster.shipEntity !== ship) {
+      continue;
+    }
+
+    const x = screen.x + thruster.localX * camera.scale;
+    const y = screen.y + thruster.localY * camera.scale;
+    const radius = (5 + thruster.power * 4) * camera.scale;
+
+    if (thruster.power > 0) {
+      context.fillStyle = `${thruster.color}55`;
+      context.beginPath();
+      context.arc(x, y, radius + 8 * camera.scale * thruster.power, 0, Math.PI * 2);
+      context.fill();
+    }
+
+    context.fillStyle = thruster.color;
+    context.beginPath();
+    context.arc(x, y, Math.max(radius, 3), 0, Math.PI * 2);
+    context.fill();
+  }
 }
 
 function drawBodyCircle(context, screen, radius, color, kind, position, lightPosition) {
