@@ -24,6 +24,12 @@ export function createBody(world, body) {
     addComponent(world, entity, Component.Velocity, { x: body.vx ?? 0, y: body.vy ?? 0 });
     addComponent(world, entity, Component.Acceleration, { x: 0, y: 0 });
     addComponent(world, entity, Component.OrbitTrail, { points: [] });
+
+    if (body.angular) {
+      addComponent(world, entity, Component.AngularVelocity, { value: body.angularVelocity ?? 0 });
+      addComponent(world, entity, Component.AngularAcceleration, { value: 0 });
+      addComponent(world, entity, Component.MomentOfInertia, { value: body.momentOfInertia });
+    }
   }
 
   if (body.playerControlled) {
@@ -47,6 +53,12 @@ export function createShip(world, ship) {
     mass: ship.mass ?? 2,
     radius: ship.radius ?? 48,
     rotation: ship.rotation ?? SHIP_FACING_UP,
+    angular: true,
+    angularVelocity: ship.angularVelocity ?? 0,
+    momentOfInertia: ship.momentOfInertia ?? getShipMomentOfInertia(
+      ship.mass ?? 2,
+      ship.shipFrame ?? { width: 88, height: 42 }
+    ),
     playerControlled: ship.playerControlled,
     shipFrame: ship.shipFrame ?? { width: 88, height: 42 }
   });
@@ -74,6 +86,10 @@ export function createThruster(world, thruster) {
     color: thruster.color
   });
   return entity;
+}
+
+function getShipMomentOfInertia(mass, frame) {
+  return mass * (frame.width * frame.width + frame.height * frame.height) / 12;
 }
 
 function createDefaultThrusters(shipEntity, maxAcceleration) {

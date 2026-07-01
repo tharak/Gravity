@@ -109,3 +109,27 @@ test("static bodies are not dynamic acceleration targets", () => {
   assert.equal(getComponent(world, planet, Component.Acceleration), undefined);
   assert.equal(getComponent(world, planet, Component.Velocity), undefined);
 });
+
+
+test("integration updates angular velocity before rotation", () => {
+  const world = createWorld();
+  const entity = createBody(world, {
+    kind: "ship",
+    x: 0,
+    y: 0,
+    vx: 0,
+    vy: 0,
+    mass: 1,
+    radius: 10,
+    rotation: 0,
+    angular: true,
+    angularVelocity: 2,
+    momentOfInertia: 4
+  });
+
+  getComponent(world, entity, Component.AngularAcceleration).value = 8;
+  integrateMotion(world, 0.5);
+
+  assert.equal(getComponent(world, entity, Component.AngularVelocity).value, 6);
+  assert.equal(getComponent(world, entity, Component.Rotation).angle, 3);
+});

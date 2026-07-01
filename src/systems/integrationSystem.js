@@ -17,7 +17,22 @@ export function integrateMotion(world, deltaSeconds) {
     velocity.y += acceleration.y * deltaSeconds;
     position.x += velocity.x * deltaSeconds;
     position.y += velocity.y * deltaSeconds;
+
+    integrateRotation(world, entity, deltaSeconds);
   }
 
   world.time += deltaSeconds;
+}
+
+function integrateRotation(world, entity, deltaSeconds) {
+  const rotation = getComponent(world, entity, Component.Rotation);
+  const angularVelocity = getComponent(world, entity, Component.AngularVelocity);
+  const angularAcceleration = getComponent(world, entity, Component.AngularAcceleration);
+
+  if (!rotation || !angularVelocity || !angularAcceleration) {
+    return;
+  }
+
+  angularVelocity.value += angularAcceleration.value * deltaSeconds;
+  rotation.angle += angularVelocity.value * deltaSeconds;
 }

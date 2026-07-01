@@ -1,7 +1,10 @@
 export const Component = Object.freeze({
   Acceleration: "acceleration",
+  AngularAcceleration: "angularAcceleration",
+  AngularVelocity: "angularVelocity",
   BodyKind: "bodyKind",
   Mass: "mass",
+  MomentOfInertia: "momentOfInertia",
   OrbitTrail: "orbitTrail",
   PlayerControlled: "playerControlled",
   Position: "position",

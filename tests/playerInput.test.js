@@ -29,6 +29,7 @@ test("up button sector activates the main back thruster on an upward-facing ship
   assert.equal(getThruster(world, ThrusterSlot.MainBack).stabilizing, false);
   assert.ok(Math.abs(acceleration.x) < 1e-12);
   assert.equal(acceleration.y, -75);
+  assertAngularAcceleration(world, ship, 0);
 });
 
 test("down button sector activates both front reverse thrusters", () => {
@@ -44,11 +45,12 @@ test("down button sector activates both front reverse thrusters", () => {
   assert.equal(getThruster(world, ThrusterSlot.FrontRight).power, 1);
   assert.ok(Math.abs(acceleration.x) < 1e-12);
   assert.equal(acceleration.y, 144);
+  assertAngularAcceleration(world, ship, 0);
 });
 
 test("right button sector activates thrusters 6 and 7", () => {
   const world = createWorld();
-  createShip(world, { x: 0, y: 0, playerControlled: "player-one", thrusterAcceleration: 100 });
+  const ship = createShip(world, { x: 0, y: 0, playerControlled: "player-one", thrusterAcceleration: 100 });
 
   applyPlayerInput(world, {
     "player-one": createInput({ x: 1, y: 0, strength: 0.5 })
@@ -58,11 +60,12 @@ test("right button sector activates thrusters 6 and 7", () => {
   assert.equal(getThruster(world, ThrusterSlot.BottomRight).power, 0.5);
   assert.equal(getThruster(world, ThrusterSlot.TopLeft).power, 0);
   assert.equal(getThruster(world, ThrusterSlot.TopRight).power, 0);
+  assertAngularAcceleration(world, ship, 0);
 });
 
 test("left button sector activates thrusters 4 and 5", () => {
   const world = createWorld();
-  createShip(world, { x: 0, y: 0, playerControlled: "player-one", thrusterAcceleration: 100 });
+  const ship = createShip(world, { x: 0, y: 0, playerControlled: "player-one", thrusterAcceleration: 100 });
 
   applyPlayerInput(world, {
     "player-one": createInput({ x: -1, y: 0, strength: 0.5 })
@@ -72,6 +75,7 @@ test("left button sector activates thrusters 4 and 5", () => {
   assert.equal(getThruster(world, ThrusterSlot.TopRight).power, 0.5);
   assert.equal(getThruster(world, ThrusterSlot.BottomLeft).power, 0);
   assert.equal(getThruster(world, ThrusterSlot.BottomRight).power, 0);
+  assertAngularAcceleration(world, ship, 0);
 });
 
 test("diagonal buttons activate the requested corner thrusters", () => {
@@ -79,6 +83,13 @@ test("diagonal buttons activate the requested corner thrusters", () => {
   assertWorldInputActivates({ x: 1, y: 1 }, ThrusterSlot.BottomLeft);
   assertWorldInputActivates({ x: -1, y: 1 }, ThrusterSlot.TopLeft);
   assertWorldInputActivates({ x: -1, y: -1 }, ThrusterSlot.TopRight);
+});
+
+test("individual side thrusters rotate the ship", () => {
+  assertWorldInputRotates({ x: 1, y: -1 });
+  assertWorldInputRotates({ x: 1, y: 1 });
+  assertWorldInputRotates({ x: -1, y: 1 });
+  assertWorldInputRotates({ x: -1, y: -1 });
 });
 
 test("cardinal sector mapping remains wider than diagonal sectors", () => {
@@ -191,6 +202,10 @@ test("ship thrusters have visible debug numbers", () => {
   assert.deepEqual(numbers, [1, 2, 3, 4, 5, 6, 7]);
 });
 
+function assertAngularAcceleration(world, ship, expected) {
+  assert.equal(Math.abs(getComponent(world, ship, Component.AngularAcceleration).value) < 1e-12, expected === 0);
+}
+
 function assertVelocityIsBeingReduced(velocity, acceleration) {
   assert.ok(velocity.x * acceleration.x + velocity.y * acceleration.y < 0);
 }
@@ -198,6 +213,17 @@ function assertVelocityIsBeingReduced(velocity, acceleration) {
 function unitVector(degrees) {
   const radians = degrees * Math.PI / 180;
   return [Math.cos(radians), Math.sin(radians)];
+}
+
+function assertWorldInputRotates(input) {
+  const world = createWorld();
+  const ship = createShip(world, { x: 0, y: 0, playerControlled: "player-one", thrusterAcceleration: 100 });
+
+  applyPlayerInput(world, {
+    "player-one": createInput({ ...input, strength: 1 })
+  });
+
+  assert.notEqual(getComponent(world, ship, Component.AngularAcceleration).value, 0);
 }
 
 function assertWorldInputActivates(input, expectedSlot) {

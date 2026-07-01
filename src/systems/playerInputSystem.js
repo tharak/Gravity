@@ -115,6 +115,12 @@ function createThrusterCommand(powerBySlot, stabilizing) {
 
 function applyThrusterCommandToShip(world, ship, command, rotation) {
   const acceleration = getComponent(world, ship, Component.Acceleration);
+  const angularAcceleration = getComponent(world, ship, Component.AngularAcceleration);
+  const mass = getComponent(world, ship, Component.Mass);
+  const momentOfInertia = getComponent(world, ship, Component.MomentOfInertia);
+  if (angularAcceleration) {
+    angularAcceleration.value = 0;
+  }
 
   for (const thrusterEntity of queryEntities(world, [Component.Thruster])) {
     const thruster = getComponent(world, thrusterEntity, Component.Thruster);
@@ -124,10 +130,20 @@ function applyThrusterCommandToShip(world, ship, command, rotation) {
 
     const power = command.powerBySlot.get(thruster.slot) ?? 0;
     const direction = localToWorld(thruster, rotation);
+    const force = {
+      x: direction.x * thruster.maxAcceleration * power,
+      y: direction.y * thruster.maxAcceleration * power
+    };
     thruster.power = power;
     thruster.stabilizing = command.stabilizing && power > 0;
-    acceleration.x += direction.x * thruster.maxAcceleration * power;
-    acceleration.y += direction.y * thruster.maxAcceleration * power;
+    acceleration.x += force.x;
+    acceleration.y += force.y;
+
+    if (angularAcceleration && mass && momentOfInertia) {
+      const offset = rotatePoint(thruster.localX, thruster.localY, rotation);
+      const worldForce = { x: force.x * mass.value, y: force.y * mass.value };
+      angularAcceleration.value += cross2(offset, worldForce) / momentOfInertia.value;
+    }
   }
 }
 
@@ -147,6 +163,19 @@ function worldToLocal(vector, rotation) {
     y: -vector.x * sin + vector.y * cos,
     strength: vector.strength
   };
+}
+
+function rotatePoint(x, y, rotation) {
+  const cos = Math.cos(rotation);
+  const sin = Math.sin(rotation);
+  return {
+    x: x * cos - y * sin,
+    y: x * sin + y * cos
+  };
+}
+
+function cross2(a, b) {
+  return a.x * b.y - a.y * b.x;
 }
 
 function localToWorld(vector, rotation) {
