@@ -253,34 +253,92 @@ body {
 }
 
 .thruster-switches {
-  display: grid;
-  grid-template-columns: repeat(4, 44px);
-  gap: 8px;
-  justify-content: center;
+  position: relative;
+  width: 160px;
+  height: 160px;
+  margin: 0 auto;
+  border: 1px solid rgba(233, 238, 248, 0.22);
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at center, rgba(255, 180, 84, 0.14) 0 28%, transparent 29%),
+    rgba(10, 13, 20, 0.56);
 }
 
 .thruster-switch {
+  position: absolute;
   display: grid;
   place-items: center;
   width: 44px;
   height: 44px;
   padding: 0;
-  border: 2px solid var(--thruster-color, #e9eef8);
-  border-radius: 8px;
-  background: rgba(10, 13, 20, 0.82);
+  border: 1px solid var(--thruster-color, #e9eef8);
+  border-radius: 50%;
+  background: rgba(16, 23, 37, 0.92);
   color: var(--thruster-color, #e9eef8);
   font-family: inherit;
-  font-weight: 800;
-  font-size: 20px;
+  font-weight: 900;
+  font-size: 16px;
   line-height: 1;
   touch-action: manipulation;
+}
+
+.thruster-switch:nth-child(1) {
+  left: 4px;
+  top: 58px;
+}
+
+.thruster-switch:nth-child(2) {
+  right: 18px;
+  top: 36px;
+}
+
+.thruster-switch:nth-child(3) {
+  right: 18px;
+  bottom: 36px;
+}
+
+.thruster-switch:nth-child(4) {
+  left: 36px;
+  top: 12px;
+}
+
+.thruster-switch:nth-child(5) {
+  right: 36px;
+  top: 12px;
+}
+
+.thruster-switch:nth-child(6) {
+  left: 36px;
+  bottom: 12px;
+}
+
+.thruster-switch:nth-child(7) {
+  right: 36px;
+  bottom: 12px;
+}
+
+.thruster-switches::after {
+  content: "MAN";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  display: grid;
+  place-items: center;
+  width: 58px;
+  height: 58px;
+  border: 1px solid rgba(255, 180, 84, 0.44);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  color: #ffb454;
+  font-size: 11px;
+  font-weight: 900;
 }
 
 .thruster-switch.is-active,
 .thruster-switch[aria-pressed="true"] {
   border-color: var(--thruster-color, #ffb454);
   background: var(--thruster-color, #ffb454);
-  box-shadow: 0 0 14px var(--thruster-color, #ffb454);
+  box-shadow: 0 0 16px var(--thruster-color, #ffb454);
   color: #07111f;
 }
 
@@ -449,10 +507,7 @@ body {
     padding: 4px;
   }
 
-  .thruster-switches {
-    grid-template-columns: repeat(3, 44px);
-  }
-
+  .thruster-switches,
   .compass-control {
     width: 148px;
     height: 148px;
@@ -498,6 +553,42 @@ body {
     top: 14px;
   }
 
+  .thruster-switch:nth-child(1) {
+    left: 3px;
+    top: 52px;
+  }
+
+  .thruster-switch:nth-child(2) {
+    right: 14px;
+    top: 32px;
+  }
+
+  .thruster-switch:nth-child(3) {
+    right: 14px;
+    bottom: 32px;
+  }
+
+  .thruster-switch:nth-child(4) {
+    left: 32px;
+    top: 10px;
+  }
+
+  .thruster-switch:nth-child(5) {
+    right: 32px;
+    top: 10px;
+  }
+
+  .thruster-switch:nth-child(6) {
+    left: 32px;
+    bottom: 10px;
+  }
+
+  .thruster-switch:nth-child(7) {
+    right: 32px;
+    bottom: 10px;
+  }
+
+  .thruster-switches::after,
   .compass-center {
     width: 52px;
     height: 52px;
