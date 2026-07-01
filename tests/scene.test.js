@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { BodyKind, Component } from "../src/ecs/components.js";
-import { getComponents } from "../src/ecs/world.js";
+import { getComponent, getComponents } from "../src/ecs/world.js";
 import { createStarterScene } from "../src/scenes/starterScene.js";
 
 test("starter scene is a single-ship thruster debug map", () => {
@@ -18,4 +18,9 @@ test("starter scene is a single-ship thruster debug map", () => {
   assert.equal(getComponents(world, Component.MomentOfInertia).size, 1);
   assert.equal(getComponents(world, Component.Battery).size, 1);
   assert.equal(getComponents(world, Component.Parent).size, 7);
+
+  const mainThruster = [...thrusters.entries()]
+    .map(([entity]) => getComponent(world, entity, Component.Thruster))
+    .find((thruster) => thruster.number === 1);
+  assert.equal(mainThruster.maxAcceleration, 300);
 });

@@ -70,7 +70,7 @@ export function createShip(world, ship) {
     rechargeRate: ship.batteryRechargeRate ?? 1
   });
 
-  for (const thruster of createDefaultThrusters(entity, ship.thrusterAcceleration ?? 130)) {
+  for (const thruster of createDefaultThrusters(entity, ship.thrusterAcceleration ?? 26)) {
     createThruster(world, thruster);
   }
 
@@ -120,7 +120,7 @@ export function seedStarterSystem(world) {
     mass: 2,
     radius: 56,
     playerControlled: "player-one",
-    thrusterAcceleration: 150,
+    thrusterAcceleration: 30,
     shipFrame: { width: 94, height: 46 }
   });
 }
