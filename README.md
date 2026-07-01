@@ -4,7 +4,7 @@ Browser gravity simulator for a future space game with ships, planets, resources
 
 The current milestone is a dependency-free ECS-style ship thruster test map.
 
-The map contains one player ship plus four moving test ships for collision checks. The player ship starts facing up and is drawn as a rectangle with seven numbered thruster entities drawn as circles on the hull:
+The map contains one zoomed-in player ship. The player ship starts facing up and is drawn as a rectangle with seven numbered thruster entities drawn as circles on the hull:
 
 - Orange: main back thruster for forward movement
 - Blue: front reverse thrusters

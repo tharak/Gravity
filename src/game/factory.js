@@ -97,9 +97,4 @@ export function seedStarterSystem(world) {
     thrusterAcceleration: 150,
     shipFrame: { width: 94, height: 46 }
   });
-
-  createShip(world, { x: -360, y: -260, vx: 20, vy: 12, rotation: SHIP_FACING_UP, mass: 2, radius: 50 });
-  createShip(world, { x: 360, y: -220, vx: -28, vy: 8, rotation: SHIP_FACING_UP, mass: 2, radius: 50 });
-  createShip(world, { x: -420, y: 260, vx: 34, vy: -14, rotation: SHIP_FACING_UP, mass: 2, radius: 50 });
-  createShip(world, { x: 440, y: 280, vx: -22, vy: -20, rotation: SHIP_FACING_UP, mass: 2, radius: 50 });
 }
