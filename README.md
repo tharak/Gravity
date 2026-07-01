@@ -11,7 +11,7 @@ The map contains one player ship plus four moving test ships for collision check
 - Green: bottom side thrusters for upward movement
 - Purple: top side thrusters for downward movement
 
-The joystick now controls only main and reverse thrust, with main thrust at the top. Top and bottom side thrusters have separate hold pads beside the stick. Distance from each control center sets power percentage. The checkboxes beside the stick invert manual input or keep stick direction aligned to the ship direction. When the stick is released, the player ship automatically fires thrusters against its current velocity to stabilize to a stop.
+The joystick has eight slices: main back thruster, both front reverse thrusters, right top, left top, right bottom, left bottom, both left, and both right. Distance from the center sets power percentage. The invert checkbox rotates the stick 180 degrees. The ship-align checkbox rotates the stick with the ship; when unchecked, the stick stays aligned upward. When the stick is released, the player ship automatically fires thrusters against its current velocity to stabilize to a stop.
 
 ## Run Locally
 

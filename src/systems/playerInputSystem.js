@@ -2,9 +2,9 @@ import { Component, ThrusterSlot } from "../ecs/components.js";
 import { getComponent, queryEntities } from "../ecs/world.js";
 import { SHIP_FACING_UP } from "../game/factory.js";
 
-const AXIS_THRESHOLD = 0.25;
 const STABILIZE_SPEED = 180;
 const STOP_EPSILON = 2;
+const FULL_CIRCLE = Math.PI * 2;
 
 export function applyPlayerInput(world, inputById) {
   resetThrusterPower(world);
@@ -19,67 +19,56 @@ export function applyPlayerInput(world, inputById) {
 
     const rotation = getComponent(world, ship, Component.Rotation)?.angle ?? SHIP_FACING_UP;
     const referenceRotation = input.alignWithShip ? rotation : SHIP_FACING_UP;
-    const powerBySlot = input.active
-      ? mapManualInputToThrusterPower(worldToLocal(createManualCommand(input), referenceRotation), input.sideControls)
-      : mapStabilizeInputToThrusterPower(worldToLocal(createStabilizeCommand(world, ship), referenceRotation));
+    const command = input.active ? createManualCommand(input) : createStabilizeCommand(world, ship);
+    const localCommand = worldToLocal(command, referenceRotation);
+    const powerBySlot = mapInputToThrusterPower(localCommand);
 
     applyThrustersToShip(world, ship, powerBySlot, rotation);
   }
 }
 
-export function mapManualInputToThrusterPower(input, sideControls = {}) {
-  const powerBySlot = mapMainThrusterPower(input);
-  addSideControlPower(powerBySlot, ThrusterSlot.TopLeft, ThrusterSlot.TopRight, sideControls.top);
-  addSideControlPower(powerBySlot, ThrusterSlot.BottomLeft, ThrusterSlot.BottomRight, sideControls.bottom);
-  return powerBySlot;
-}
-
-export function mapStabilizeInputToThrusterPower(input) {
-  const power = clamp01(input.strength);
-  const powerBySlot = mapMainThrusterPower(input);
-
-  if (input.y < -AXIS_THRESHOLD) {
-    powerBySlot.set(ThrusterSlot.BottomLeft, power);
-    powerBySlot.set(ThrusterSlot.BottomRight, power);
-  } else if (input.y > AXIS_THRESHOLD) {
-    powerBySlot.set(ThrusterSlot.TopLeft, power);
-    powerBySlot.set(ThrusterSlot.TopRight, power);
-  }
-
-  return powerBySlot;
-}
-
-function mapMainThrusterPower(input) {
+export function mapInputToThrusterPower(input) {
   const power = clamp01(input.strength);
   const powerBySlot = new Map();
-
-  if (input.x > AXIS_THRESHOLD) {
-    powerBySlot.set(ThrusterSlot.MainBack, power);
-  } else if (input.x < -AXIS_THRESHOLD) {
-    powerBySlot.set(ThrusterSlot.FrontLeft, power);
-    powerBySlot.set(ThrusterSlot.FrontRight, power);
+  if (power <= 0) {
+    return powerBySlot;
   }
 
+  for (const slot of getSectorSlots(input.x, input.y)) {
+    powerBySlot.set(slot, power);
+  }
   return powerBySlot;
 }
 
-function addSideControlPower(powerBySlot, leftSlot, rightSlot, control) {
-  if (!control?.active || control.strength <= 0) {
-    return;
-  }
+export function getSectorSlots(x, y) {
+  const angle = normalizeAngle(Math.atan2(y, x));
+  const sector = Math.round(angle / (Math.PI / 4)) % 8;
 
-  const power = clamp01(control.strength);
-  powerBySlot.set(leftSlot, power);
-  powerBySlot.set(rightSlot, power);
+  switch (sector) {
+    case 0:
+      return [ThrusterSlot.MainBack];
+    case 1:
+      return [ThrusterSlot.TopRight];
+    case 2:
+      return [ThrusterSlot.TopRight, ThrusterSlot.BottomRight];
+    case 3:
+      return [ThrusterSlot.BottomRight];
+    case 4:
+      return [ThrusterSlot.FrontLeft, ThrusterSlot.FrontRight];
+    case 5:
+      return [ThrusterSlot.BottomLeft];
+    case 6:
+      return [ThrusterSlot.TopLeft, ThrusterSlot.BottomLeft];
+    case 7:
+      return [ThrusterSlot.TopLeft];
+    default:
+      return [];
+  }
 }
 
 function createManualCommand(input) {
-  const invert = input.inverted ? -1 : 1;
-  return {
-    x: input.x * invert,
-    y: input.y * invert,
-    strength: clamp01(input.strength)
-  };
+  const rotation = input.inverted ? Math.PI : 0;
+  return rotateVector({ x: input.x, y: input.y, strength: clamp01(input.strength) }, rotation);
 }
 
 function createStabilizeCommand(world, ship) {
@@ -142,6 +131,20 @@ function localToWorld(vector, rotation) {
     x: vector.directionX * cos - vector.directionY * sin,
     y: vector.directionX * sin + vector.directionY * cos
   };
+}
+
+function rotateVector(vector, rotation) {
+  const cos = Math.cos(rotation);
+  const sin = Math.sin(rotation);
+  return {
+    x: vector.x * cos - vector.y * sin,
+    y: vector.x * sin + vector.y * cos,
+    strength: vector.strength
+  };
+}
+
+function normalizeAngle(angle) {
+  return (angle + FULL_CIRCLE) % FULL_CIRCLE;
 }
 
 function clamp01(value) {
