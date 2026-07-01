@@ -18,9 +18,8 @@ export function applyPlayerInput(world, inputById) {
     }
 
     const rotation = getComponent(world, ship, Component.Rotation)?.angle ?? SHIP_FACING_UP;
-    const referenceRotation = input.alignWithShip ? rotation : SHIP_FACING_UP;
     const command = input.active ? createManualCommand(input) : createStabilizeCommand(world, ship);
-    const localCommand = worldToLocal(command, referenceRotation);
+    const localCommand = worldToLocal(command, SHIP_FACING_UP);
     const powerBySlot = mapInputToThrusterPower(localCommand);
 
     applyThrustersToShip(world, ship, powerBySlot, rotation);
@@ -67,8 +66,7 @@ export function getSectorSlots(x, y) {
 }
 
 function createManualCommand(input) {
-  const rotation = input.inverted ? Math.PI : 0;
-  return rotateVector({ x: input.x, y: input.y, strength: clamp01(input.strength) }, rotation);
+  return { x: input.x, y: input.y, strength: clamp01(input.strength) };
 }
 
 function createStabilizeCommand(world, ship) {
@@ -133,15 +131,6 @@ function localToWorld(vector, rotation) {
   };
 }
 
-function rotateVector(vector, rotation) {
-  const cos = Math.cos(rotation);
-  const sin = Math.sin(rotation);
-  return {
-    x: vector.x * cos - vector.y * sin,
-    y: vector.x * sin + vector.y * cos,
-    strength: vector.strength
-  };
-}
 
 function normalizeAngle(angle) {
   return (angle + FULL_CIRCLE) % FULL_CIRCLE;

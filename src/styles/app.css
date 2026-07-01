@@ -155,30 +155,6 @@ body {
       rgba(54, 211, 153, 0.52) 270deg 315deg,
       rgba(125, 211, 252, 0.58) 315deg 360deg
     );
-  transform: rotate(var(--stick-rotation, 0rad));
-}
-
-.control-options {
-  display: grid;
-  gap: 8px;
-  padding: 10px 12px;
-  border: 1px solid rgba(233, 238, 248, 0.18);
-  background: rgba(16, 23, 37, 0.72);
-  font-size: 13px;
-}
-
-.control-options label {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  color: #d7dfed;
-  white-space: nowrap;
-}
-
-.control-options input {
-  width: 16px;
-  height: 16px;
-  accent-color: #ffb454;
 }
 
 .touch-joystick__handle {

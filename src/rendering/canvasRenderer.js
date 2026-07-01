@@ -106,7 +106,7 @@ function drawThrusters(context, world, ship, camera) {
 
     const x = thruster.localX * camera.scale;
     const y = thruster.localY * camera.scale;
-    const radius = (5 + thruster.power * 4) * camera.scale;
+    const radius = Math.max((5 + thruster.power * 4) * camera.scale, 8);
 
     if (thruster.power > 0) {
       context.fillStyle = `${thruster.color}55`;
@@ -119,6 +119,12 @@ function drawThrusters(context, world, ship, camera) {
     context.beginPath();
     context.arc(x, y, Math.max(radius, 3), 0, Math.PI * 2);
     context.fill();
+
+    context.fillStyle = "#07111f";
+    context.font = String(Math.max(10, 12 * camera.scale)) + "px ui-sans-serif, system-ui, sans-serif";
+    context.textAlign = "center";
+    context.textBaseline = "middle";
+    context.fillText(String(thruster.number), x, y);
   }
 }
 

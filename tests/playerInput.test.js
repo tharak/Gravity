@@ -69,18 +69,6 @@ test("diagonal stick sectors activate individual corner thrusters", () => {
   assert.deepEqual(getSectorSlots(1, -1), [ThrusterSlot.TopLeft]);
 });
 
-test("invert rotates the stick sector by 180 degrees", () => {
-  const world = createWorld();
-  createShip(world, { x: 0, y: 0, playerControlled: "player-one", thrusterAcceleration: 100 });
-
-  applyPlayerInput(world, {
-    "player-one": createInput({ inverted: true, x: 0, y: -1, strength: 1 })
-  });
-
-  assert.equal(getThruster(world, ThrusterSlot.FrontLeft).power, 1);
-  assert.equal(getThruster(world, ThrusterSlot.FrontRight).power, 1);
-});
-
 test("released input stabilizes opposite current velocity", () => {
   const world = createWorld();
   createShip(world, { x: 0, y: 0, vx: 0, vy: -90, playerControlled: "player-one", thrusterAcceleration: 100 });
@@ -115,6 +103,17 @@ test("sector mapping keeps power percentage from distance", () => {
   assert.equal(powerBySlot.get(ThrusterSlot.MainBack), 0.42);
 });
 
+test("ship thrusters have visible debug numbers", () => {
+  const world = createWorld();
+  createShip(world, { x: 0, y: 0 });
+
+  const numbers = queryEntities(world, [Component.Thruster])
+    .map((entity) => getComponent(world, entity, Component.Thruster).number)
+    .sort((a, b) => a - b);
+
+  assert.deepEqual(numbers, [1, 2, 3, 4, 5, 6, 7]);
+});
+
 function getThruster(world, slot) {
   for (const entity of queryEntities(world, [Component.Thruster])) {
     const thruster = getComponent(world, entity, Component.Thruster);
@@ -126,11 +125,9 @@ function getThruster(world, slot) {
   throw new Error(`Missing thruster ${slot}`);
 }
 
-function createInput({ active = true, alignWithShip = true, inverted = false, x, y, strength }) {
+function createInput({ active = true, x, y, strength }) {
   return {
     active,
-    alignWithShip,
-    inverted,
     x,
     y,
     strength
