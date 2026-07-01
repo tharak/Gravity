@@ -20,9 +20,9 @@ export function applyPlayerInput(world, inputById) {
     }
 
     const rotation = getComponent(world, ship, Component.Rotation)?.angle ?? SHIP_FACING_UP;
-    const command = input.active ? createManualCommand(input) : createStabilizeCommand(world, ship);
-    const localCommand = worldToLocal(command, SHIP_FACING_UP);
-    const powerBySlot = mapInputToThrusterPower(localCommand);
+    const powerBySlot = input.active
+      ? createManualThrusterPower(input)
+      : createStabilizeThrusterPower(world, ship, rotation);
 
     applyThrustersToShip(world, ship, powerBySlot, rotation);
   }
@@ -68,28 +68,45 @@ export function getSectorSlots(x, y) {
   return [ThrusterSlot.TopRight];
 }
 
-function createManualCommand(input) {
-  return { x: input.x, y: input.y, strength: clamp01(input.strength) };
+function createManualThrusterPower(input) {
+  const command = { x: input.x, y: input.y, strength: clamp01(input.strength) };
+  return mapInputToThrusterPower(worldToLocal(command, SHIP_FACING_UP));
 }
 
-function createStabilizeCommand(world, ship) {
+function createStabilizeThrusterPower(world, ship, rotation) {
   const velocity = getComponent(world, ship, Component.Velocity);
+  const powerBySlot = new Map();
   if (!velocity) {
-    return { x: 0, y: 0, strength: 0 };
+    return powerBySlot;
   }
 
   const speed = Math.hypot(velocity.x, velocity.y);
   if (speed < STOP_EPSILON) {
     velocity.x = 0;
     velocity.y = 0;
-    return { x: 0, y: 0, strength: 0 };
+    return powerBySlot;
   }
 
-  return {
+  const desiredDirection = {
     x: -velocity.x / speed,
-    y: -velocity.y / speed,
-    strength: clamp01(speed / STABILIZE_SPEED)
+    y: -velocity.y / speed
   };
+  const basePower = clamp01(speed / STABILIZE_SPEED);
+
+  for (const thrusterEntity of queryEntities(world, [Component.Thruster])) {
+    const thruster = getComponent(world, thrusterEntity, Component.Thruster);
+    if (thruster.shipEntity !== ship) {
+      continue;
+    }
+
+    const direction = localToWorld(thruster, rotation);
+    const alignment = direction.x * desiredDirection.x + direction.y * desiredDirection.y;
+    if (alignment > 0) {
+      powerBySlot.set(thruster.slot, basePower * alignment);
+    }
+  }
+
+  return powerBySlot;
 }
 
 function applyThrustersToShip(world, ship, powerBySlot, rotation) {

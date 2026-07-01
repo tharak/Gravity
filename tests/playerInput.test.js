@@ -90,14 +90,63 @@ test("cardinal sector mapping remains wider than diagonal sectors", () => {
 
 test("released input stabilizes opposite current velocity", () => {
   const world = createWorld();
-  createShip(world, { x: 0, y: 0, vx: 0, vy: -90, playerControlled: "player-one", thrusterAcceleration: 100 });
+  const ship = createShip(world, { x: 0, y: 0, vx: 0, vy: -90, playerControlled: "player-one", thrusterAcceleration: 100 });
 
   applyPlayerInput(world, {
     "player-one": createInput({ active: false, x: 0, y: 0, strength: 0 })
   });
 
+  const acceleration = getComponent(world, ship, Component.Acceleration);
   assert.equal(getThruster(world, ThrusterSlot.FrontLeft).power, 0.5);
   assert.equal(getThruster(world, ThrusterSlot.FrontRight).power, 0.5);
+  assertVelocityIsBeingReduced({ x: 0, y: -90 }, acceleration);
+});
+
+test("released input stabilizes lateral current velocity", () => {
+  const world = createWorld();
+  const ship = createShip(world, { x: 0, y: 0, vx: 90, vy: 0, playerControlled: "player-one", thrusterAcceleration: 100 });
+
+  applyPlayerInput(world, {
+    "player-one": createInput({ active: false, x: 0, y: 0, strength: 0 })
+  });
+
+  const acceleration = getComponent(world, ship, Component.Acceleration);
+  assert.equal(getThruster(world, ThrusterSlot.BottomLeft).power, 0.5);
+  assert.equal(getThruster(world, ThrusterSlot.BottomRight).power, 0.5);
+  assertVelocityIsBeingReduced({ x: 90, y: 0 }, acceleration);
+});
+
+test("released input stabilizes diagonal current velocity", () => {
+  const world = createWorld();
+  const ship = createShip(world, { x: 0, y: 0, vx: 90, vy: -90, playerControlled: "player-one", thrusterAcceleration: 100 });
+
+  applyPlayerInput(world, {
+    "player-one": createInput({ active: false, x: 0, y: 0, strength: 0 })
+  });
+
+  assertVelocityIsBeingReduced({ x: 90, y: -90 }, getComponent(world, ship, Component.Acceleration));
+});
+
+test("released input stabilizes using rotated thruster directions", () => {
+  const world = createWorld();
+  const ship = createShip(world, {
+    x: 0,
+    y: 0,
+    vx: 90,
+    vy: 0,
+    rotation: 0,
+    playerControlled: "player-one",
+    thrusterAcceleration: 100
+  });
+
+  applyPlayerInput(world, {
+    "player-one": createInput({ active: false, x: 0, y: 0, strength: 0 })
+  });
+
+  const acceleration = getComponent(world, ship, Component.Acceleration);
+  assert.equal(getThruster(world, ThrusterSlot.FrontLeft).power, 0.5);
+  assert.equal(getThruster(world, ThrusterSlot.FrontRight).power, 0.5);
+  assertVelocityIsBeingReduced({ x: 90, y: 0 }, acceleration);
 });
 
 test("inactive stopped ship clears thruster power", () => {
@@ -132,6 +181,10 @@ test("ship thrusters have visible debug numbers", () => {
 
   assert.deepEqual(numbers, [1, 2, 3, 4, 5, 6, 7]);
 });
+
+function assertVelocityIsBeingReduced(velocity, acceleration) {
+  assert.ok(velocity.x * acceleration.x + velocity.y * acceleration.y < 0);
+}
 
 function unitVector(degrees) {
   const radians = degrees * Math.PI / 180;
