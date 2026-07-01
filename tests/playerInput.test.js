@@ -37,6 +37,7 @@ test("control panel shows battery, power, and one switch per thruster", () => {
 
   assert.ok(html.includes('class="battery-widget"'));
   assert.ok(html.includes('id="thruster-power"'));
+  assert.equal(html.includes('<small>'), false);
   for (const slot of Object.values(ThrusterSlot)) {
     assert.ok(html.includes('data-thruster-slot="' + slot + '"'));
   }

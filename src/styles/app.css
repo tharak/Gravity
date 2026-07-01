@@ -172,35 +172,25 @@ body {
 
 .thruster-switches {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(4, 44px);
   gap: 8px;
 }
 
 .thruster-switch {
   display: grid;
   place-items: center;
-  gap: 3px;
-  min-width: 0;
-  height: 54px;
-  padding: 6px 4px;
+  width: 44px;
+  height: 44px;
+  padding: 0;
   border: 1px solid rgba(233, 238, 248, 0.3);
   border-radius: 8px;
   background: rgba(10, 13, 20, 0.74);
   color: #e9eef8;
   font-family: inherit;
   font-weight: 800;
+  font-size: 20px;
   line-height: 1;
   touch-action: manipulation;
-}
-
-.thruster-switch span {
-  font-size: 20px;
-}
-
-.thruster-switch small {
-  color: #9ca9bd;
-  font-size: 11px;
-  font-weight: 700;
 }
 
 .thruster-switch.is-active,
