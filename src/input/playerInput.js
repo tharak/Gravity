@@ -1,3 +1,4 @@
+import { thrusterColors } from "../rendering/colors.js";
 export function createPlayerInput() {
   return {
     activeSlots: new Set(),
@@ -9,6 +10,11 @@ export function bindThrusterControls(root, input) {
   const powerSlider = root.querySelector("#thruster-power");
 
   for (const button of root.querySelectorAll("[data-thruster-slot]")) {
+    const color = thrusterColors[button.dataset.thrusterSlot];
+    if (color) {
+      button.style.setProperty("--thruster-color", color);
+    }
+
     button.addEventListener("click", () => {
       toggleThruster(input, button.dataset.thrusterSlot);
       button.classList.toggle("is-active", input.activeSlots.has(button.dataset.thrusterSlot));

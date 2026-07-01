@@ -12,6 +12,7 @@ import {
   toggleThruster
 } from "../src/input/playerInput.js";
 import { applyPlayerInput } from "../src/systems/playerInputSystem.js";
+import { thrusterColors } from "../src/rendering/colors.js";
 
 test("thruster input helpers toggle switches and clamp power", () => {
   const input = createPlayerInput();
@@ -40,6 +41,18 @@ test("control panel shows battery, power, and one switch per thruster", () => {
   assert.equal(html.includes('<small>'), false);
   for (const slot of Object.values(ThrusterSlot)) {
     assert.ok(html.includes('data-thruster-slot="' + slot + '"'));
+  }
+});
+
+test("each thruster uses one shared unique color", () => {
+  const world = createWorld();
+  createShip(world, { x: 0, y: 0 });
+
+  const colors = Object.values(thrusterColors);
+  assert.equal(new Set(colors).size, Object.values(ThrusterSlot).length);
+
+  for (const slot of Object.values(ThrusterSlot)) {
+    assert.equal(getThruster(world, slot).color, thrusterColors[slot]);
   }
 });
 

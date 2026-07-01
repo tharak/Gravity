@@ -182,10 +182,10 @@ body {
   width: 44px;
   height: 44px;
   padding: 0;
-  border: 1px solid rgba(233, 238, 248, 0.3);
+  border: 2px solid var(--thruster-color, #e9eef8);
   border-radius: 8px;
-  background: rgba(10, 13, 20, 0.74);
-  color: #e9eef8;
+  background: rgba(10, 13, 20, 0.82);
+  color: var(--thruster-color, #e9eef8);
   font-family: inherit;
   font-weight: 800;
   font-size: 20px;
@@ -195,9 +195,10 @@ body {
 
 .thruster-switch.is-active,
 .thruster-switch[aria-pressed="true"] {
-  border-color: rgba(255, 180, 84, 0.82);
-  background: rgba(255, 180, 84, 0.28);
-  color: #ffffff;
+  border-color: var(--thruster-color, #ffb454);
+  background: var(--thruster-color, #ffb454);
+  box-shadow: 0 0 14px var(--thruster-color, #ffb454);
+  color: #07111f;
 }
 
 .power-control {
