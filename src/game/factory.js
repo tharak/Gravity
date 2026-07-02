@@ -71,7 +71,11 @@ export function createShip(world, ship) {
     rechargeRate: ship.batteryRechargeRate ?? 1
   });
 
-  for (const thruster of createDefaultThrusters(entity, ship.thrusterAcceleration ?? 13)) {
+  for (const thruster of createDefaultThrusters(
+    entity,
+    ship.thrusterAcceleration ?? 13,
+    ship.maxThrusterSpeed ?? 120
+  )) {
     createThruster(world, thruster);
   }
 
@@ -89,6 +93,7 @@ export function createThruster(world, thruster) {
     directionX: thruster.directionX,
     directionY: thruster.directionY,
     maxAcceleration: thruster.maxAcceleration,
+    maxSpeed: thruster.maxSpeed,
     energyUsePerSecond: thruster.energyUsePerSecond,
     number: thruster.number,
     power: 0,
@@ -102,15 +107,15 @@ function getShipMomentOfInertia(mass, frame) {
   return mass * (frame.width * frame.width + frame.height * frame.height) / 12;
 }
 
-function createDefaultThrusters(shipEntity, maxAcceleration) {
+function createDefaultThrusters(shipEntity, maxAcceleration, maxSpeed) {
   return [
-    { shipEntity, number: 1, slot: ThrusterSlot.MainBack, localX: -50, localY: 0, directionX: 1, directionY: 0, maxAcceleration: maxAcceleration * 10, energyUsePerSecond: 3, color: thrusterColors[ThrusterSlot.MainBack] },
-    { shipEntity, number: 2, slot: ThrusterSlot.FrontLeft, localX: 42, localY: -12, directionX: -1, directionY: 0, maxAcceleration, energyUsePerSecond: 1, color: thrusterColors[ThrusterSlot.FrontLeft] },
-    { shipEntity, number: 3, slot: ThrusterSlot.FrontRight, localX: 42, localY: 12, directionX: -1, directionY: 0, maxAcceleration, energyUsePerSecond: 1, color: thrusterColors[ThrusterSlot.FrontRight] },
-    { shipEntity, number: 4, slot: ThrusterSlot.TopLeft, localX: -24, localY: -26, directionX: 0, directionY: 1, maxAcceleration, energyUsePerSecond: 1, color: thrusterColors[ThrusterSlot.TopLeft] },
-    { shipEntity, number: 5, slot: ThrusterSlot.TopRight, localX: 24, localY: -26, directionX: 0, directionY: 1, maxAcceleration, energyUsePerSecond: 1, color: thrusterColors[ThrusterSlot.TopRight] },
-    { shipEntity, number: 6, slot: ThrusterSlot.BottomLeft, localX: -24, localY: 26, directionX: 0, directionY: -1, maxAcceleration, energyUsePerSecond: 1, color: thrusterColors[ThrusterSlot.BottomLeft] },
-    { shipEntity, number: 7, slot: ThrusterSlot.BottomRight, localX: 24, localY: 26, directionX: 0, directionY: -1, maxAcceleration, energyUsePerSecond: 1, color: thrusterColors[ThrusterSlot.BottomRight] }
+    { shipEntity, number: 1, slot: ThrusterSlot.MainBack, localX: -50, localY: 0, directionX: 1, directionY: 0, maxAcceleration: maxAcceleration * 10, maxSpeed, energyUsePerSecond: 3, color: thrusterColors[ThrusterSlot.MainBack] },
+    { shipEntity, number: 2, slot: ThrusterSlot.FrontLeft, localX: 42, localY: -12, directionX: -1, directionY: 0, maxAcceleration, maxSpeed, energyUsePerSecond: 1, color: thrusterColors[ThrusterSlot.FrontLeft] },
+    { shipEntity, number: 3, slot: ThrusterSlot.FrontRight, localX: 42, localY: 12, directionX: -1, directionY: 0, maxAcceleration, maxSpeed, energyUsePerSecond: 1, color: thrusterColors[ThrusterSlot.FrontRight] },
+    { shipEntity, number: 4, slot: ThrusterSlot.TopLeft, localX: -24, localY: -26, directionX: 0, directionY: 1, maxAcceleration, maxSpeed, energyUsePerSecond: 1, color: thrusterColors[ThrusterSlot.TopLeft] },
+    { shipEntity, number: 5, slot: ThrusterSlot.TopRight, localX: 24, localY: -26, directionX: 0, directionY: 1, maxAcceleration, maxSpeed, energyUsePerSecond: 1, color: thrusterColors[ThrusterSlot.TopRight] },
+    { shipEntity, number: 6, slot: ThrusterSlot.BottomLeft, localX: -24, localY: 26, directionX: 0, directionY: -1, maxAcceleration, maxSpeed, energyUsePerSecond: 1, color: thrusterColors[ThrusterSlot.BottomLeft] },
+    { shipEntity, number: 7, slot: ThrusterSlot.BottomRight, localX: 24, localY: 26, directionX: 0, directionY: -1, maxAcceleration, maxSpeed, energyUsePerSecond: 1, color: thrusterColors[ThrusterSlot.BottomRight] }
   ];
 }
 

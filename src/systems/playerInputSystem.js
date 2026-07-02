@@ -27,8 +27,9 @@ function createPilotThrusterCommand(world, ship, input, deltaSeconds) {
     : input?.controllerMode === ControllerMode.Automatic
       ? createAutomaticThrusterCommand(world, ship, input)
       : createManualThrusterCommand(input);
+  const speedLimitedCommand = limitCommandByThrusterMaxSpeed(world, ship, thrusters, command);
 
-  return applyBatteryLimitToCommand(battery, thrusters, command, deltaSeconds);
+  return applyBatteryLimitToCommand(battery, thrusters, speedLimitedCommand, deltaSeconds);
 }
 
 function createManualThrusterCommand(input) {
@@ -122,6 +123,41 @@ function applyTurnSignal(powerBySlot, turnSignal) {
   for (const slot of slots) {
     setSlotPower(powerBySlot, slot, turnPower);
   }
+}
+
+function limitCommandByThrusterMaxSpeed(world, ship, thrusters, command) {
+  const velocity = getComponent(world, ship, Component.Velocity);
+  const rotation = getComponent(world, ship, Component.Rotation)?.angle ?? SHIP_FACING_UP;
+  if (!velocity) {
+    return command;
+  }
+
+  const limitedPowerBySlot = new Map();
+  for (const [slot, power] of command.powerBySlot) {
+    const thruster = thrusters.find((candidate) => candidate.slot === slot);
+    const limitedPower = thruster
+      ? getSpeedLimitedPower(thruster, velocity, rotation, power)
+      : power;
+    if (limitedPower > 0) {
+      limitedPowerBySlot.set(slot, limitedPower);
+    }
+  }
+
+  return createThrusterCommand(limitedPowerBySlot, command.stabilizing);
+}
+
+function getSpeedLimitedPower(thruster, velocity, rotation, power) {
+  if (!Number.isFinite(thruster.maxSpeed) || thruster.maxSpeed <= 0 || power <= 0) {
+    return clamp01(power);
+  }
+
+  const direction = localToWorld(thruster, rotation);
+  const speedInThrustDirection = velocity.x * direction.x + velocity.y * direction.y;
+  if (speedInThrustDirection >= thruster.maxSpeed) {
+    return 0;
+  }
+
+  return clamp01(power);
 }
 
 function applyBatteryLimitToCommand(battery, thrusters, command, deltaSeconds) {

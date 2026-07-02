@@ -305,6 +305,54 @@ test("main back thruster has ten times the baseline power", () => {
   }
 });
 
+test("thrusters have a configurable max speed", () => {
+  const world = createWorld();
+  createShip(world, { x: 0, y: 0, maxThrusterSpeed: 42 });
+
+  for (const entity of queryEntities(world, [Component.Thruster])) {
+    assert.equal(getComponent(world, entity, Component.Thruster).maxSpeed, 42);
+  }
+});
+
+test("thrusters stop accelerating once their max speed is reached", () => {
+  const world = createWorld();
+  const ship = createShip(world, {
+    x: 0,
+    y: 0,
+    vy: -20,
+    playerControlled: "player-one",
+    thrusterAcceleration: 100,
+    maxThrusterSpeed: 20
+  });
+  const input = createInput([ThrusterSlot.MainBack], 1);
+
+  applyPlayerInput(world, { "player-one": input }, 1);
+
+  assert.equal(getThruster(world, ThrusterSlot.MainBack).power, 0);
+  assert.equal(getComponent(world, ship, Component.Acceleration).y, 0);
+  assert.equal(getComponent(world, ship, Component.Battery).outputRate, 0);
+});
+
+test("reverse thrusters can brake while the ship is over forward max speed", () => {
+  const world = createWorld();
+  const ship = createShip(world, {
+    x: 0,
+    y: 0,
+    vy: -40,
+    playerControlled: "player-one",
+    thrusterAcceleration: 100,
+    maxThrusterSpeed: 20
+  });
+  const input = createInput([ThrusterSlot.FrontLeft, ThrusterSlot.FrontRight], 1);
+
+  applyPlayerInput(world, { "player-one": input }, 1);
+
+  assert.equal(getThruster(world, ThrusterSlot.FrontLeft).power, 1);
+  assert.equal(getThruster(world, ThrusterSlot.FrontRight).power, 1);
+  assert.equal(getComponent(world, ship, Component.Acceleration).y > 0, true);
+  assert.equal(getComponent(world, ship, Component.Battery).outputRate, 2);
+});
+
 test("thruster entities keep parent-relative view attachment", () => {
   const world = createWorld();
   const ship = createShip(world, { x: 0, y: 0 });
