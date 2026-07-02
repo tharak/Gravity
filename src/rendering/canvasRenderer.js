@@ -143,28 +143,46 @@ function drawThrusters(context, world, ship, camera) {
 
     const x = thruster.localX * camera.scale;
     const y = thruster.localY * camera.scale;
-    const radius = Math.max((5 + thruster.power * 4) * camera.scale, 8);
+    const length = Math.max((18 + thruster.power * 5) * camera.scale, 16);
+    const width = Math.max((13 + thruster.power * 4) * camera.scale, 11);
 
     if (thruster.power > 0) {
       const pulse = thruster.stabilizing ? 0.65 + 0.35 * Math.sin(world.time * 18 + thruster.number) : 1;
-      const glowRadius = radius + (8 + 7 * pulse) * camera.scale * thruster.power;
-      context.fillStyle = thruster.stabilizing ? `${thruster.color}77` : `${thruster.color}55`;
-      context.beginPath();
-      context.arc(x, y, glowRadius, 0, Math.PI * 2);
-      context.fill();
+      context.fillStyle = thruster.color + (thruster.stabilizing ? "77" : "55");
+      drawThrusterCone(
+        context,
+        x,
+        y,
+        thruster.directionX,
+        thruster.directionY,
+        length + (12 + 8 * pulse) * camera.scale * thruster.power,
+        width + (9 + 6 * pulse) * camera.scale * thruster.power
+      );
     }
 
     context.fillStyle = thruster.color;
-    context.beginPath();
-    context.arc(x, y, Math.max(radius, 3), 0, Math.PI * 2);
-    context.fill();
-
-    context.fillStyle = "#07111f";
-    context.font = String(Math.max(10, 12 * camera.scale)) + "px ui-sans-serif, system-ui, sans-serif";
-    context.textAlign = "center";
-    context.textBaseline = "middle";
-    context.fillText(String(thruster.number), x, y);
+    drawThrusterCone(context, x, y, thruster.directionX, thruster.directionY, length, width);
   }
+}
+
+function drawThrusterCone(context, x, y, directionX, directionY, length, width) {
+  const magnitude = Math.hypot(directionX, directionY) || 1;
+  const unitX = directionX / magnitude;
+  const unitY = directionY / magnitude;
+  const perpendicularX = -unitY;
+  const perpendicularY = unitX;
+  const tipX = x + unitX * length * 0.55;
+  const tipY = y + unitY * length * 0.55;
+  const baseX = x - unitX * length * 0.45;
+  const baseY = y - unitY * length * 0.45;
+  const halfWidth = width / 2;
+
+  context.beginPath();
+  context.moveTo(tipX, tipY);
+  context.lineTo(baseX + perpendicularX * halfWidth, baseY + perpendicularY * halfWidth);
+  context.lineTo(baseX - perpendicularX * halfWidth, baseY - perpendicularY * halfWidth);
+  context.closePath();
+  context.fill();
 }
 
 function drawDamagePopups(context, canvas, world, camera) {

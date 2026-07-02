@@ -22,3 +22,12 @@ test("renderer draws collision damage popups", () => {
   assert.ok(source.includes("DamagePopup"));
   assert.ok(source.includes("formatDamage"));
 });
+
+test("renderer draws thrusters as force-direction cones", () => {
+  const source = fs.readFileSync(new URL("../src/rendering/canvasRenderer.js", import.meta.url), "utf8");
+
+  assert.ok(source.includes("drawThrusterCone"));
+  assert.ok(source.includes("thruster.directionX"));
+  assert.ok(source.includes("thruster.directionY"));
+  assert.ok(source.includes("context.lineTo(baseX"));
+});
