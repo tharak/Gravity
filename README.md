@@ -11,9 +11,9 @@ The map contains one zoomed-in player ship. The player ship starts facing up and
 - Green: bottom side thrusters for upward movement
 - Purple: top side thrusters for downward movement
 
-The mobile controls now let the pilot choose exactly which thrusters receive power. Each thruster has an on/off switch, and the power slider controls the throttle sent to every enabled thruster.
+The cockpit has a manual mode and an automatic mode. In manual mode each thruster has an on/off switch (or the WASD keys for thruster groups), and the acceleration order (STOP through FLANK, stepped with Q/E) sets the throttle sent to every enabled thruster. In automatic mode the pilot picks a compass heading and the autopilot rotates the ship and fires the main thruster. The STOP order stabilizes linear and angular motion.
 
-The ship starts with a 100-unit battery. The main thruster consumes 3 units per second at full power, each other thruster consumes 1 unit per second, and the battery recharges by 1 unit per second. If the selected thrusters request more energy than the battery has available, thrust is scaled down to match the available charge.
+The ship battery's capacity scales with the map size. The main thruster consumes 3 units per second at full power, each other thruster consumes 1 unit per second, and the battery recharges from the ship (1 unit per second) plus its solar panel (3 units per second). If the selected thrusters request more energy than the battery has available, thrust is scaled down to match the available charge. Collisions and material stress damage the hull and its equipment components (ECs).
 
 ## Run Locally
 
@@ -35,8 +35,12 @@ npm test
 
 - `src/core`: portable math primitives
 - `src/ecs`: entity and component storage
-- `src/game`: simulation orchestration and entity factories
+- `src/config`: model, view, and UI label tuning values
+- `src/game`: simulation orchestration, entity factories, and shared world queries
 - `src/systems`: ECS systems such as gravity and integration
-- `src/rendering`: canvas camera and circle rendering
-- `src/scenes`: starter world composition
+- `src/input`: player input state and control bindings
+- `src/rendering`: canvas camera and world rendering
+- `src/ui`: HUD, ship status panel, and label DOM helpers
+- `src/scenes`: test map composition
+- `src/styles`: app stylesheet
 - `tests`: physics and integration tests

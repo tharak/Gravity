@@ -10,3 +10,5 @@ export const SpeedOrderConfig = Object.freeze({
 });
 
 export const SpeedOrderList = Object.freeze(Object.values(SpeedOrderConfig));
+
+export const MaxSpeedLevel = Math.max(...SpeedOrderList.map((order) => order.speedLevel));

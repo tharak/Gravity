@@ -3,8 +3,9 @@ import { MaterialStressConfig } from "../config/materialStressConfig.js";
 import { DefaultShipModelConfig, DefaultShipViewConfig, StarterShipModelConfig, StarterShipViewConfig, ThrusterModelConfig, ThrusterViewConfig } from "../config/shipConfig.js";
 import { SolarPanelModelConfig, SolarPanelViewConfig } from "../config/solarPanelConfig.js";
 import { BodyKind, Component } from "../ecs/components.js";
-import { addComponent, createEntity } from "../ecs/world.js";
+import { addComponent, createEntity, getComponent, getComponents } from "../ecs/world.js";
 import { WORLD_NORTH_ANGLE } from "./navigation.js";
+import { getWorldBounds } from "./worldBounds.js";
 import { thrusterColors } from "./thrusterPalette.js";
 
 export const SHIP_FACING_UP = WORLD_NORTH_ANGLE;
@@ -102,7 +103,6 @@ export function createThruster(world, thruster) {
   const entity = createEntity(world);
   addComponent(world, entity, Component.Parent, { entity: thruster.shipEntity });
   addComponent(world, entity, Component.Thruster, {
-    shipEntity: thruster.shipEntity,
     slot: thruster.slot,
     localX: thruster.localX,
     localY: thruster.localY,
@@ -130,7 +130,6 @@ export function createSolarPanel(world, solarPanel) {
   const entity = createEntity(world);
   addComponent(world, entity, Component.Parent, { entity: solarPanel.shipEntity });
   addComponent(world, entity, Component.SolarPanel, {
-    shipEntity: solarPanel.shipEntity,
     batteryRechargeRate: solarPanel.batteryRechargeRate,
     localX: solarPanel.localX,
     localY: solarPanel.localY,
@@ -200,8 +199,7 @@ export function setShipBatteryFromMapSize(world) {
 
 function queryShipBatteryEntities(world) {
   const ships = [];
-  const bodyKinds = world.components.get(Component.BodyKind) ?? new Map();
-  for (const [entity, bodyKind] of bodyKinds) {
+  for (const [entity, bodyKind] of getComponents(world, Component.BodyKind)) {
     if (bodyKind.value === BodyKind.Ship) {
       ships.push(entity);
     }
@@ -210,7 +208,7 @@ function queryShipBatteryEntities(world) {
 }
 
 function addOrGetBattery(world, ship, capacity) {
-  const existing = world.components.get(Component.Battery)?.get(ship);
+  const existing = getComponent(world, ship, Component.Battery);
   if (existing) {
     return existing;
   }
@@ -223,23 +221,10 @@ function addOrGetBattery(world, ship, capacity) {
 }
 
 function getWorldDiagonal(world) {
-  const positions = world.components.get(Component.Position) ?? new Map();
-  const radii = world.components.get(Component.Radius) ?? new Map();
-  if (positions.size === 0) {
+  const bounds = getWorldBounds(world);
+  if (!bounds) {
     return 0;
   }
 
-  let minX = Infinity;
-  let maxX = -Infinity;
-  let minY = Infinity;
-  let maxY = -Infinity;
-  for (const [entity, position] of positions) {
-    const radius = radii.get(entity)?.value ?? 0;
-    minX = Math.min(minX, position.x - radius);
-    maxX = Math.max(maxX, position.x + radius);
-    minY = Math.min(minY, position.y - radius);
-    maxY = Math.max(maxY, position.y + radius);
-  }
-
-  return Math.hypot(maxX - minX, maxY - minY);
+  return Math.hypot(bounds.maxX - bounds.minX, bounds.maxY - bounds.minY);
 }

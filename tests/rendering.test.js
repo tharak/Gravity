@@ -55,5 +55,5 @@ test("renderer draws solar panel ECs", () => {
   const source = fs.readFileSync(new URL("../src/rendering/canvasRenderer.js", import.meta.url), "utf8");
 
   assert.ok(source.includes("drawSolarPanels"));
-  assert.ok(source.includes("Component.SolarPanel"));
+  assert.ok(source.includes("getShipSolarPanels"));
 });

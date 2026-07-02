@@ -2,34 +2,24 @@ export function vec2(x = 0, y = 0) {
   return { x, y };
 }
 
-export function add(a, b) {
-  return { x: a.x + b.x, y: a.y + b.y };
+export function rotate(x, y, angle) {
+  const cos = Math.cos(angle);
+  const sin = Math.sin(angle);
+  return { x: x * cos - y * sin, y: x * sin + y * cos };
 }
 
-export function subtract(a, b) {
-  return { x: a.x - b.x, y: a.y - b.y };
+export function cross(a, b) {
+  return a.x * b.y - a.y * b.x;
 }
 
-export function scale(v, scalar) {
-  return { x: v.x * scalar, y: v.y * scalar };
+export function clamp(value, min, max) {
+  return Math.max(min, Math.min(max, Number.isFinite(value) ? value : min));
 }
 
-export function magnitudeSquared(v) {
-  return v.x * v.x + v.y * v.y;
+export function clamp01(value) {
+  return clamp(value, 0, 1);
 }
 
-export function magnitude(v) {
-  return Math.sqrt(magnitudeSquared(v));
-}
-
-export function normalize(v) {
-  const length = magnitude(v);
-  if (length === 0) {
-    return vec2();
-  }
-  return scale(v, 1 / length);
-}
-
-export function distance(a, b) {
-  return magnitude(subtract(a, b));
+export function normalizeAngle(angle) {
+  return Math.atan2(Math.sin(angle), Math.cos(angle));
 }

@@ -1,8 +1,10 @@
 import { LabelConfig } from "../config/labelConfig.js";
-import { SpeedOrderConfig, SpeedOrderList } from "../config/speedOrderConfig.js";
+import { MaxSpeedLevel, SpeedOrderConfig, SpeedOrderList } from "../config/speedOrderConfig.js";
+import { clamp } from "../core/vector.js";
 import { WORLD_NORTH_ANGLE } from "../game/navigation.js";
 import { ThrusterSlot } from "../ecs/components.js";
 import { thrusterColors } from "../game/thrusterPalette.js";
+import { syncToggleButtons } from "../ui/toggles.js";
 
 export const ControllerMode = Object.freeze({
   Automatic: "automatic",
@@ -48,7 +50,6 @@ const speedLevelByOrder = new Map(SpeedOrders.map((order) => [order.id, order.sp
 const powerConsumptionWeightByOrder = new Map(SpeedOrders.map((order) => [order.id, order.powerConsumptionWeight]));
 const speedOrderIndexById = new Map(SpeedOrders.map((order, index) => [order.id, index]));
 const angleByDirection = new Map(DirectionOrders.map((direction) => [direction.id, direction.angle]));
-const maxConfiguredSpeedLevel = Math.max(...SpeedOrders.map((order) => order.speedLevel));
 
 export function createPlayerInput() {
   return {
@@ -222,7 +223,6 @@ export function changeAccelerationOrder(input, step) {
 }
 
 export function clearPlayerInput(input) {
-  setControllerMode(input, ControllerMode.Manual);
   input.activeSlots.clear();
   input.activeAccelerationKeys.clear();
   setSpeedOrder(input, SpeedOrder.Stop);
@@ -231,44 +231,26 @@ export function clearPlayerInput(input) {
 }
 
 function syncSpeedButtons(root, activeOrder) {
-  for (const button of root.querySelectorAll("[data-speed-order]")) {
-    const isActive = button.dataset.speedOrder === activeOrder;
-    button.classList.toggle("is-active", isActive);
-    button.setAttribute("aria-pressed", String(isActive));
-  }
+  syncToggleButtons(root, "[data-speed-order]", (button) => button.dataset.speedOrder === activeOrder);
 }
 
 function syncThrusterButtons(root, activeSlots) {
-  for (const button of root.querySelectorAll("[data-thruster-slot]")) {
-    const isActive = activeSlots.has(button.dataset.thrusterSlot);
-    button.classList.toggle("is-active", isActive);
-    button.setAttribute("aria-pressed", String(isActive));
-  }
+  syncToggleButtons(root, "[data-thruster-slot]", (button) => activeSlots.has(button.dataset.thrusterSlot));
 }
 
 function syncKeyboardButtons(root, activeSlots) {
-  for (const button of root.querySelectorAll("[data-key-code]")) {
+  syncToggleButtons(root, "[data-key-code]", (button) => {
     const slots = ThrusterKeyBindings[button.dataset.keyCode] ?? [];
-    const isActive = slots.length > 0 && slots.every((slot) => activeSlots.has(slot));
-    button.classList.toggle("is-active", isActive);
-    button.setAttribute("aria-pressed", String(isActive));
-  }
+    return slots.length > 0 && slots.every((slot) => activeSlots.has(slot));
+  });
 }
 
 function syncAccelerationButtons(root, activeKeys) {
-  for (const button of root.querySelectorAll("[data-acceleration-key]")) {
-    const isActive = activeKeys.has(button.dataset.accelerationKey);
-    button.classList.toggle("is-active", isActive);
-    button.setAttribute("aria-pressed", String(isActive));
-  }
+  syncToggleButtons(root, "[data-acceleration-key]", (button) => activeKeys.has(button.dataset.accelerationKey));
 }
 
 function syncModePanels(root, activeMode) {
-  for (const button of root.querySelectorAll("[data-controller-mode]")) {
-    const isActive = button.dataset.controllerMode === activeMode;
-    button.classList.toggle("is-active", isActive);
-    button.setAttribute("aria-pressed", String(isActive));
-  }
+  syncToggleButtons(root, "[data-controller-mode]", (button) => button.dataset.controllerMode === activeMode);
 
   for (const panel of root.querySelectorAll("[data-controller-panel]")) {
     const isDisabled = panel.dataset.controllerPanel !== activeMode;
@@ -278,11 +260,7 @@ function syncModePanels(root, activeMode) {
 }
 
 function syncDirectionButtons(root, activeDirection) {
-  for (const button of root.querySelectorAll("[data-direction-order]")) {
-    const isActive = button.dataset.directionOrder === activeDirection;
-    button.classList.toggle("is-active", isActive);
-    button.setAttribute("aria-pressed", String(isActive));
-  }
+  syncToggleButtons(root, "[data-direction-order]", (button) => button.dataset.directionOrder === activeDirection);
 }
 
 function setAccelerationKeyActive(input, code, enabled) {
@@ -307,5 +285,5 @@ function getDirectionAngle(directionOrder) {
 }
 
 function clampSpeed(value) {
-  return Math.max(0, Math.min(maxConfiguredSpeedLevel, Number.isFinite(value) ? value : 0));
+  return clamp(value, 0, MaxSpeedLevel);
 }

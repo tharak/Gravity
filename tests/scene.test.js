@@ -4,7 +4,7 @@ import { BodyKind, Component } from "../src/ecs/components.js";
 import { getComponent, getComponents } from "../src/ecs/world.js";
 import { createGravityTestScene } from "../src/scenes/gravityTestScene.js";
 import { createLevelSelectScene } from "../src/scenes/levelSelectScene.js";
-import { createStarterScene } from "../src/scenes/starterScene.js";
+import { createShipMovementScene } from "../src/scenes/shipMovementScene.js";
 import { getTestMap, TestMapId, testMaps } from "../src/scenes/testMaps.js";
 
 test("LevelSelect map is an empty first screen", () => {
@@ -14,7 +14,7 @@ test("LevelSelect map is an empty first screen", () => {
 });
 
 test("ShipMovement map is a single-ship thruster debug map", () => {
-  const world = createStarterScene();
+  const world = createShipMovementScene();
   const kinds = [...getComponents(world, Component.BodyKind).values()].map((kind) => kind.value);
   const thrusters = getComponents(world, Component.Thruster);
 

@@ -2,6 +2,7 @@ import { LabelConfig } from "../config/labelConfig.js";
 import { BodyKind, Component } from "../ecs/components.js";
 import { getComponent, queryEntities } from "../ecs/world.js";
 import { WORLD_NORTH_VECTOR } from "../game/navigation.js";
+import { getShipSolarPanels, getShipThrusters } from "../game/shipParts.js";
 import { bodyColors } from "./colors.js";
 import { worldToScreen } from "./camera.js";
 
@@ -139,12 +140,7 @@ function drawShip(context, world, ship, screen, frame, camera, rotation) {
 }
 
 function drawSolarPanels(context, world, ship, camera) {
-  for (const entity of queryEntities(world, [Component.SolarPanel])) {
-    const solarPanel = getComponent(world, entity, Component.SolarPanel);
-    if (solarPanel.shipEntity !== ship) {
-      continue;
-    }
-
+  for (const solarPanel of getShipSolarPanels(world, ship)) {
     const x = solarPanel.localX * camera.scale;
     const y = solarPanel.localY * camera.scale;
     const radius = Math.max(solarPanel.radius * camera.scale, 4);
@@ -159,12 +155,7 @@ function drawSolarPanels(context, world, ship, camera) {
 }
 
 function drawThrusters(context, world, ship, camera) {
-  for (const entity of queryEntities(world, [Component.Thruster])) {
-    const thruster = getComponent(world, entity, Component.Thruster);
-    if (thruster.shipEntity !== ship) {
-      continue;
-    }
-
+  for (const thruster of getShipThrusters(world, ship)) {
     const x = thruster.localX * camera.scale;
     const y = thruster.localY * camera.scale;
     const visualPower = Math.max(0, thruster.power);

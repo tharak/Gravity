@@ -1,5 +1,4 @@
 import { SimulationConfig } from "../config/simulationConfig.js";
-import { Component } from "../ecs/components.js";
 import { applyGravity } from "../systems/gravitySystem.js";
 import { resolveCollisions } from "../systems/collisionSystem.js";
 import { integrateMotion } from "../systems/integrationSystem.js";
@@ -31,16 +30,4 @@ export function createSimulation(world, config = {}) {
       }
     }
   };
-}
-
-export function totalKineticEnergy(world) {
-  let total = 0;
-  const masses = world.components.get(Component.Mass) ?? new Map();
-  for (const [entity, mass] of masses) {
-    const velocity = world.components.get(Component.Velocity)?.get(entity);
-    if (velocity) {
-      total += 0.5 * mass.value * (velocity.x * velocity.x + velocity.y * velocity.y);
-    }
-  }
-  return total;
 }

@@ -14,8 +14,6 @@ export const testMaps = Object.freeze([
   Object.freeze({ ...GravityTestScene, createWorld: createGravityTestScene })
 ]);
 
-export const playableTestMaps = Object.freeze(testMaps.filter((map) => !map.isMenu));
-
 export function getTestMap(mapId) {
   return testMaps.find((map) => map.id === mapId) ?? testMaps[0];
 }

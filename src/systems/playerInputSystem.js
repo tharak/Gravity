@@ -1,6 +1,10 @@
+import { FlightControlConfig } from "../config/flightControlConfig.js";
+import { MaxSpeedLevel } from "../config/speedOrderConfig.js";
+import { clamp, clamp01, cross, normalizeAngle, rotate } from "../core/vector.js";
 import { Component, ThrusterSlot } from "../ecs/components.js";
-import { getComponent, queryEntities } from "../ecs/world.js";
+import { getComponent, getComponents, queryEntities } from "../ecs/world.js";
 import { SHIP_FACING_UP } from "../game/factory.js";
+import { getShipThrusters } from "../game/shipParts.js";
 import { ControllerMode, SpeedOrder } from "../input/playerInput.js";
 
 export function applyPlayerInput(world, inputById, deltaSeconds = 0) {
@@ -56,13 +60,13 @@ function createStopThrusterCommand(world, ship, input) {
   const speed = Math.hypot(velocity.x, velocity.y);
   const hasTargetHeading = input?.controllerMode === ControllerMode.Automatic && Number.isFinite(input?.targetAngle);
 
-  if (speed > 1) {
+  if (speed > FlightControlConfig.stop.minLinearSpeed) {
     const desired = { x: -velocity.x / speed, y: -velocity.y / speed };
-    const linearPower = clamp01(speed / 45);
+    const linearPower = clamp01(speed / FlightControlConfig.stop.fullPowerSpeed);
     for (const thruster of getShipThrusters(world, ship)) {
       const direction = localToWorld(thruster, rotation);
       const alignment = direction.x * desired.x + direction.y * desired.y;
-      if (alignment > 0.35) {
+      if (alignment > FlightControlConfig.stop.alignmentThreshold) {
         setSlotPower(powerBySlot, thruster.slot, alignment * linearPower);
       }
     }
@@ -84,14 +88,12 @@ function createAutomaticThrusterCommand(world, ship, input) {
   const angularVelocity = getComponent(world, ship, Component.AngularVelocity)?.value ?? 0;
   const targetAngle = Number.isFinite(input?.targetAngle) ? input.targetAngle : SHIP_FACING_UP;
   const angleError = normalizeAngle(targetAngle - rotation);
-  const turnSignal = getTurnSignal(angleError, angularVelocity);
-  const turnPower = clamp01(Math.abs(turnSignal));
   const alignment = Math.max(0, Math.cos(angleError));
   const mainPower = requestedSpeed * alignment;
 
-  applyTurnSignal(powerBySlot, turnSignal);
+  applyTurnSignal(powerBySlot, getTurnSignal(angleError, angularVelocity));
 
-  if (mainPower > 0.02) {
+  if (mainPower > FlightControlConfig.minMainThrusterPower) {
     powerBySlot.set(ThrusterSlot.MainBack, mainPower);
   }
 
@@ -104,16 +106,17 @@ function addTurnStabilization(powerBySlot, targetAngle, rotation, angularVelocit
 }
 
 function addAngularDamping(powerBySlot, angularVelocity) {
-  applyTurnSignal(powerBySlot, -angularVelocity * 0.8);
+  applyTurnSignal(powerBySlot, -angularVelocity * FlightControlConfig.turn.dampingGain);
 }
 
 function getTurnSignal(angleError, angularVelocity) {
-  return angleError * 1.45 - angularVelocity * 0.35;
+  return angleError * FlightControlConfig.turn.angleErrorGain
+    - angularVelocity * FlightControlConfig.turn.angularVelocityGain;
 }
 
 function applyTurnSignal(powerBySlot, turnSignal) {
   const turnPower = clamp01(Math.abs(turnSignal));
-  if (turnPower <= 0.04) {
+  if (turnPower <= FlightControlConfig.turn.minPower) {
     return;
   }
 
@@ -151,12 +154,6 @@ function applyBatteryLimitToCommand(battery, thrusters, command, deltaSeconds) {
   return createThrusterCommand(scaledPowerBySlot, command.stabilizing, command.powerConsumptionWeight);
 }
 
-function getShipThrusters(world, ship) {
-  return queryEntities(world, [Component.Thruster])
-    .map((entity) => getComponent(world, entity, Component.Thruster))
-    .filter((thruster) => thruster.shipEntity === ship);
-}
-
 function rechargeBattery(battery, deltaSeconds) {
   if (!battery) {
     return;
@@ -182,7 +179,6 @@ function drainBattery(battery, energyPerSecond, deltaSeconds) {
   battery.charge = Math.max(0, battery.charge - energyUsed);
   setBatteryOutput(battery, energyPerSecond);
 }
-
 
 function setBatteryOutput(battery, energyPerSecond) {
   if (battery) {
@@ -215,12 +211,7 @@ function applyThrusterCommandToShip(world, ship, command, rotation) {
     angularAcceleration.value = 0;
   }
 
-  for (const thrusterEntity of queryEntities(world, [Component.Thruster])) {
-    const thruster = getComponent(world, thrusterEntity, Component.Thruster);
-    if (thruster.shipEntity !== ship) {
-      continue;
-    }
-
+  for (const thruster of getShipThrusters(world, ship)) {
     const power = command.powerBySlot.get(thruster.slot) ?? 0;
     const direction = localToWorld(thruster, rotation);
     const force = {
@@ -233,72 +224,24 @@ function applyThrusterCommandToShip(world, ship, command, rotation) {
     acceleration.y += force.y;
 
     if (angularAcceleration && mass && momentOfInertia) {
-      const offset = rotatePoint(thruster.localX, thruster.localY, rotation);
+      const offset = rotate(thruster.localX, thruster.localY, rotation);
       const worldForce = { x: force.x * mass.value, y: force.y * mass.value };
-      angularAcceleration.value += cross2(offset, worldForce) / momentOfInertia.value;
+      angularAcceleration.value += cross(offset, worldForce) / momentOfInertia.value;
     }
   }
 }
 
 function resetThrusterPower(world) {
-  for (const thrusterEntity of queryEntities(world, [Component.Thruster])) {
-    const thruster = getComponent(world, thrusterEntity, Component.Thruster);
+  for (const thruster of getComponents(world, Component.Thruster).values()) {
     thruster.power = 0;
     thruster.stabilizing = false;
   }
 }
 
-function rotatePoint(x, y, rotation) {
-  const cos = Math.cos(rotation);
-  const sin = Math.sin(rotation);
-  return {
-    x: x * cos - y * sin,
-    y: x * sin + y * cos
-  };
-}
-
-function cross2(a, b) {
-  return a.x * b.y - a.y * b.x;
-}
-
-function localToWorld(vector, rotation) {
-  const cos = Math.cos(rotation);
-  const sin = Math.sin(rotation);
-  return {
-    x: vector.directionX * cos - vector.directionY * sin,
-    y: vector.directionX * sin + vector.directionY * cos
-  };
-}
-
-export function getThrusterSlotByNumber(number) {
-  switch (number) {
-    case 1:
-      return ThrusterSlot.MainBack;
-    case 2:
-      return ThrusterSlot.FrontLeft;
-    case 3:
-      return ThrusterSlot.FrontRight;
-    case 4:
-      return ThrusterSlot.TopLeft;
-    case 5:
-      return ThrusterSlot.TopRight;
-    case 6:
-      return ThrusterSlot.BottomLeft;
-    case 7:
-      return ThrusterSlot.BottomRight;
-    default:
-      return undefined;
-  }
+function localToWorld(thruster, rotation) {
+  return rotate(thruster.directionX, thruster.directionY, rotation);
 }
 
 function clampSpeed(value) {
-  return Math.max(0, Math.min(1.25, Number.isFinite(value) ? value : 0));
-}
-
-function clamp01(value) {
-  return Math.max(0, Math.min(1, Number.isFinite(value) ? value : 0));
-}
-
-function normalizeAngle(angle) {
-  return Math.atan2(Math.sin(angle), Math.cos(angle));
+  return clamp(value, 0, MaxSpeedLevel);
 }

@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { CollisionConfig } from "../src/config/collisionConfig.js";
 import { BatteryConfig } from "../src/config/batteryConfig.js";
+import { FlightControlConfig } from "../src/config/flightControlConfig.js";
 import { LabelConfig } from "../src/config/labelConfig.js";
 import { DefaultShipModelConfig, DefaultShipViewConfig, GravityTestShipModelConfig, GravityTestShipViewConfig, StarterShipModelConfig, StarterShipViewConfig, ThrusterModelConfig, ThrusterViewConfig } from "../src/config/shipConfig.js";
 import { MaterialStressConfig } from "../src/config/materialStressConfig.js";
@@ -19,8 +20,8 @@ test("label config centralizes visible UI text", () => {
   assert.equal(LabelConfig.speedOrders.Flank.label, "FLANK");
   assert.equal(LabelConfig.controls.acceleration, "Acceleration");
   assert.equal(LabelConfig.controls.accelerationOrder, "Acceleration order");
-  assert.equal(LabelConfig.controls.shipEcs, "Ship ECs");
-  assert.equal(LabelConfig.ecs.solarPanelShort, "SP");
+  assert.equal(LabelConfig.controls.shipEcList, "Ship Components");
+  assert.equal(LabelConfig.ecs.solarPanel, "Solar panel");
   assert.equal(LabelConfig.controls.locked, "LOCKED");
   assert.equal(LabelConfig.controllerModes.manualShort, "MAN");
   assert.equal(LabelConfig.directions.NorthEast.ariaLabel, "North east");
@@ -82,4 +83,12 @@ test("simulation and collision config expose tuning values", () => {
   assert.equal(CollisionConfig.damageThreshold, 6);
   assert.equal(CollisionConfig.damageScale, 0.35);
   assert.equal(CollisionConfig.restitution, 0.45);
+});
+
+test("flight control config exposes stabilization tuning values", () => {
+  assert.equal(FlightControlConfig.stop.fullPowerSpeed, 45);
+  assert.equal(FlightControlConfig.stop.alignmentThreshold, 0.35);
+  assert.equal(FlightControlConfig.turn.angleErrorGain, 1.45);
+  assert.equal(FlightControlConfig.turn.dampingGain, 0.8);
+  assert.equal(FlightControlConfig.minMainThrusterPower, 0.02);
 });

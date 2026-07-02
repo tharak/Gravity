@@ -1,26 +1,20 @@
-import { LabelConfig } from "./config/labelConfig.js";
-import { Component } from "./ecs/components.js";
-import { getComponent, queryEntities } from "./ecs/world.js";
 import { createSimulation } from "./game/simulation.js";
 import { sunlight } from "./game/lighting.js";
-import { ControllerMode, DirectionOrders, SpeedOrders, clearPlayerInput, createPlayerInput, bindThrusterControls, setKeyboardAcceleration, setKeyboardThrusters, syncPlayerInputControls } from "./input/playerInput.js";
+import { clearPlayerInput, createPlayerInput, bindThrusterControls, setKeyboardAcceleration, setKeyboardThrusters, syncPlayerInputControls } from "./input/playerInput.js";
 import { getTestMap, TestMapId } from "./scenes/testMaps.js";
 import { createCamera, fitCameraToWorld } from "./rendering/camera.js";
 import { renderWorld } from "./rendering/canvasRenderer.js";
+import { createHudView, updateHud } from "./ui/hud.js";
+import { applyConfiguredLabels } from "./ui/labels.js";
+import { createShipStatusView, updateShipStatus } from "./ui/shipStatusPanel.js";
+import { syncToggleButtons } from "./ui/toggles.js";
 
 const canvas = document.querySelector("#gravity-canvas");
 const context = canvas.getContext("2d");
-const hudTime = document.querySelector("#hud-time");
-const hudEntities = document.querySelector("#hud-entities");
-const hudStatus = document.querySelector("#hud-status");
-const hudMap = document.querySelector("#hud-map");
-const mapButtons = [...document.querySelectorAll("[data-test-map]")];
+const hudView = createHudView();
+const shipStatusView = createShipStatusView();
 const levelMenu = document.querySelector("#level-menu");
 const thrusterControls = document.querySelector("#thruster-controls");
-const batteryPercent = document.querySelector("#battery-percent");
-const shipHealth = document.querySelector("#ship-health");
-const shipEcList = document.querySelector("#ship-ec-list");
-const batteryBars = [...document.querySelectorAll(".battery-widget__bar")];
 
 const playerInput = createPlayerInput();
 const camera = createCamera();
@@ -45,40 +39,13 @@ function tick(timestamp) {
 
   simulation.step(deltaSeconds);
   renderWorld(context, canvas, world, camera, { lightPosition: sunlight });
-  updateHud();
-  updateControls();
+  updatePanels();
   requestAnimationFrame(tick);
 }
 
-function updateHud() {
-  hudTime.textContent = `${world.time.toFixed(1)}s`;
-  hudEntities.textContent = String(world.entities.size);
-  hudStatus.textContent = getStatusText();
-  hudMap.textContent = activeMap.label;
-}
-
-function getStatusText() {
-  if (activeMap.isMenu) {
-    return LabelConfig.status.chooseLevel;
-  }
-
-  if (playerInput.controllerMode === ControllerMode.Automatic) {
-    const speed = SpeedOrders.find((order) => order.id === playerInput.speedOrder)?.label ?? playerInput.speedOrder;
-    const direction = DirectionOrders.find((order) => order.id === playerInput.targetDirection)?.label ?? playerInput.targetDirection;
-    return LabelConfig.status.auto + " " + speed + " " + direction;
-  }
-
-  if (playerInput.activeSlots.size > 0) {
-    return LabelConfig.status.thrusting;
-  }
-
-  const player = queryEntities(world, [Component.PlayerControlled, Component.Velocity])[0];
-  if (player === undefined) {
-    return LabelConfig.status.running;
-  }
-
-  const velocity = getComponent(world, player, Component.Velocity);
-  return Math.hypot(velocity.x, velocity.y) > 2 ? LabelConfig.status.coasting : LabelConfig.status.running;
+function updatePanels() {
+  updateHud(hudView, world, activeMap, playerInput);
+  updateShipStatus(shipStatusView, world);
 }
 
 function switchTestMap(mapId) {
@@ -90,16 +57,11 @@ function switchTestMap(mapId) {
   syncMapButtons();
   syncLevelMenu();
   resizeCanvas();
-  updateHud();
-  updateControls();
+  updatePanels();
 }
 
 function syncMapButtons() {
-  for (const button of mapButtons) {
-    const isActive = button.dataset.testMap === activeMap.id;
-    button.classList.toggle("is-active", isActive);
-    button.setAttribute("aria-pressed", String(isActive));
-  }
+  syncToggleButtons(document, "[data-test-map]", (button) => button.dataset.testMap === activeMap.id);
 }
 
 function syncLevelMenu() {
@@ -108,7 +70,7 @@ function syncLevelMenu() {
 }
 
 function bindMapMenu() {
-  for (const button of mapButtons) {
+  for (const button of document.querySelectorAll("[data-test-map]")) {
     button.addEventListener("click", () => {
       switchTestMap(button.dataset.testMap);
     });
@@ -116,149 +78,23 @@ function bindMapMenu() {
 }
 
 function bindKeyboardThrusterControls() {
-  window.addEventListener("keydown", (event) => {
-    if (!event.repeat && setKeyboardAcceleration(playerInput, event.code, true)) {
-      event.preventDefault();
-      syncPlayerInputControls(thrusterControls, playerInput);
-      return;
-    }
+  window.addEventListener("keydown", (event) => handleThrusterKey(event, true, !event.repeat));
+  window.addEventListener("keyup", (event) => handleThrusterKey(event, false, true));
+}
 
-    if (event.repeat || !setKeyboardThrusters(playerInput, event.code, true)) {
-      return;
-    }
-
+function handleThrusterKey(event, pressed, allowAcceleration) {
+  if (allowAcceleration && setKeyboardAcceleration(playerInput, event.code, pressed)) {
     event.preventDefault();
     syncPlayerInputControls(thrusterControls, playerInput);
-  });
-
-  window.addEventListener("keyup", (event) => {
-    if (setKeyboardAcceleration(playerInput, event.code, false)) {
-      event.preventDefault();
-      syncPlayerInputControls(thrusterControls, playerInput);
-      return;
-    }
-
-    if (!setKeyboardThrusters(playerInput, event.code, false)) {
-      return;
-    }
-
-    event.preventDefault();
-    syncPlayerInputControls(thrusterControls, playerInput);
-  });
-}
-
-function applyConfiguredLabels(root = document) {
-  document.title = LabelConfig.appTitle;
-  for (const element of root.querySelectorAll("[data-label]")) {
-    element.textContent = getLabelValue(element.dataset.label) ?? element.textContent;
-  }
-  for (const element of root.querySelectorAll("[data-aria-label]")) {
-    element.setAttribute("aria-label", getLabelValue(element.dataset.ariaLabel) ?? element.getAttribute("aria-label"));
-  }
-  document.documentElement.style.setProperty("--label-locked", JSON.stringify(LabelConfig.controls.locked));
-  document.documentElement.style.setProperty("--label-manual-short", JSON.stringify(LabelConfig.controllerModes.manualShort));
-}
-
-function getLabelValue(path) {
-  return path.split(".").reduce((value, key) => value?.[key], LabelConfig);
-}
-
-function formatHealthValue(value) {
-  return Number.isInteger(value) ? String(value) : value.toFixed(1);
-}
-
-function updateControls() {
-  const player = queryEntities(world, [Component.PlayerControlled, Component.Battery])[0];
-  if (player === undefined) {
-    batteryPercent.textContent = "--%";
-    shipHealth.textContent = "--/--";
-    batteryBars.forEach((bar) => bar.classList.remove("is-filled"));
-    updateShipEcList(undefined);
     return;
   }
 
-  const health = getComponent(world, player, Component.Health);
-  shipHealth.textContent = health
-    ? formatHealthValue(health.current) + "/" + formatHealthValue(health.max)
-    : "--/--";
-
-
-  const battery = getComponent(world, player, Component.Battery);
-  const percent = battery.capacity > 0 ? Math.round((battery.charge / battery.capacity) * 100) : 0;
-  const filledBars = Math.ceil(percent / 20);
-  batteryPercent.textContent = String(percent) + "%";
-  batteryBars.forEach((bar, index) => {
-    bar.classList.toggle("is-filled", index < filledBars);
-  });
-  updateShipEcList(player);
-}
-
-function updateShipEcList(player) {
-  const ecs = player === undefined ? [] : getShipEcRows(player);
-  shipEcList.replaceChildren(...ecs.map(createShipEcRow));
-
-  if (ecs.length === 0) {
-    const empty = document.createElement("div");
-    empty.className = "ship-ec-row";
-    const label = document.createElement("span");
-    label.className = "ship-ec-row__name";
-    label.textContent = LabelConfig.ecs.empty;
-    empty.append(label);
-    shipEcList.append(empty);
-  }
-}
-
-function getShipEcRows(ship) {
-  return queryEntities(world, [Component.Parent, Component.Health])
-    .filter((entity) => getComponent(world, entity, Component.Parent).entity === ship)
-    .map((entity) => ({
-      entity,
-      label: getEcLabel(entity),
-      health: getComponent(world, entity, Component.Health)
-    }))
-    .sort((a, b) => getEcSortValue(a.entity) - getEcSortValue(b.entity));
-}
-
-function createShipEcRow(ec) {
-  const row = document.createElement("div");
-  row.className = "ship-ec-row";
-
-  const name = document.createElement("span");
-  name.className = "ship-ec-row__name";
-  name.textContent = ec.label;
-
-  const hp = document.createElement("span");
-  hp.className = "ship-ec-row__hp";
-  hp.textContent = formatHealthValue(ec.health.current) + "/" + formatHealthValue(ec.health.max);
-
-  row.append(name, hp);
-  return row;
-}
-
-function getEcLabel(entity) {
-  const thruster = getComponent(world, entity, Component.Thruster);
-  if (thruster) {
-    return LabelConfig.ecs.thruster + " " + thruster.number;
+  if (event.repeat || !setKeyboardThrusters(playerInput, event.code, pressed)) {
+    return;
   }
 
-  if (getComponent(world, entity, Component.SolarPanel)) {
-    return LabelConfig.ecs.solarPanel;
-  }
-
-  return String(entity);
-}
-
-function getEcSortValue(entity) {
-  const thruster = getComponent(world, entity, Component.Thruster);
-  if (thruster) {
-    return thruster.number;
-  }
-
-  if (getComponent(world, entity, Component.SolarPanel)) {
-    return 100;
-  }
-
-  return 1000;
+  event.preventDefault();
+  syncPlayerInputControls(thrusterControls, playerInput);
 }
 
 window.addEventListener("resize", resizeCanvas);
