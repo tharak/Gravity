@@ -340,7 +340,7 @@ test("main back thruster has three times the baseline power", () => {
   createShip(world, { x: 0, y: 0, thrusterAcceleration: 100 });
 
   const main = getThruster(world, ThrusterSlot.MainBack);
-  assert.equal(main.accelerationMultiplier, 3);
+  assert.equal(main.size, 3);
   for (const slot of [
     ThrusterSlot.FrontLeft,
     ThrusterSlot.FrontRight,

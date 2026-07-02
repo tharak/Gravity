@@ -145,11 +145,11 @@ function drawThrusters(context, world, ship, camera) {
     const x = thruster.localX * camera.scale;
     const y = thruster.localY * camera.scale;
     const visualPower = Math.max(0, thruster.power);
-    const accelerationScale = Math.max(0.25, thruster.accelerationMultiplier ?? 1);
+    const sizeScale = Math.max(0.25, thruster.size ?? 1);
     const baseLength = Math.max(28 * camera.scale, 18);
     const baseWidth = Math.max(18 * camera.scale, 12);
-    const length = baseLength * accelerationScale;
-    const width = baseWidth * accelerationScale;
+    const length = baseLength * sizeScale;
+    const width = baseWidth * sizeScale;
 
     if (thruster.power > 0) {
       const pulse = thruster.stabilizing ? 0.65 + 0.35 * Math.sin(world.time * 18 + thruster.number) : 1;

@@ -32,7 +32,7 @@ test("ShipMovement map is a single-ship thruster debug map", () => {
     .map(([entity]) => getComponent(world, entity, Component.Thruster))
     .find((thruster) => thruster.number === 1);
   assert.equal(mainThruster.maxAcceleration, 45);
-  assert.equal(mainThruster.accelerationMultiplier, 3);
+  assert.equal(mainThruster.size, 3);
 });
 
 test("GravityTest map has static planets and multiple ships", () => {

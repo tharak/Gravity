@@ -34,7 +34,7 @@ test("ship config contains defaults and thruster layout tuning", () => {
 
   const main = ThrusterLayoutConfig.find((thruster) => thruster.slot === ThrusterSlot.MainBack);
   const topLeft = ThrusterLayoutConfig.find((thruster) => thruster.slot === ThrusterSlot.TopLeft);
-  assert.equal(main.accelerationMultiplier, 3);
+  assert.equal(main.size, 3);
   assert.equal(main.energyUsePerSecond, 3);
   assert.equal(topLeft.energyUsePerSecond, 1);
 });
