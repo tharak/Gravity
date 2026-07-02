@@ -57,8 +57,8 @@ test("manual controller toggles thrusters and sets speed orders", () => {
   clearPlayerInput(input);
   assert.equal(input.activeSlots.size, 0);
   assert.equal(input.controllerMode, ControllerMode.Manual);
-  assert.equal(input.speedOrder, SpeedOrder.Standard);
-  assert.equal(input.speedLevel, 0.82);
+  assert.equal(input.speedOrder, SpeedOrder.Stop);
+  assert.equal(input.speedLevel, 0);
   assert.equal(input.targetDirection, DirectionOrder.North);
 });
 

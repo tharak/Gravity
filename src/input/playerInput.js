@@ -53,8 +53,8 @@ export function createPlayerInput() {
   return {
     controllerMode: ControllerMode.Manual,
     activeSlots: new Set(),
-    speedOrder: SpeedOrder.Standard,
-    speedLevel: getSpeedLevel(SpeedOrder.Standard),
+    speedOrder: SpeedOrder.Stop,
+    speedLevel: getSpeedLevel(SpeedOrder.Stop),
     targetDirection: DirectionOrder.North,
     targetAngle: getDirectionAngle(DirectionOrder.North)
   };
@@ -151,7 +151,7 @@ export function setSpeedLevel(input, speedLevel) {
 export function clearPlayerInput(input) {
   setControllerMode(input, ControllerMode.Manual);
   input.activeSlots.clear();
-  setSpeedOrder(input, SpeedOrder.Standard);
+  setSpeedOrder(input, SpeedOrder.Stop);
   setAutomaticDirection(input, DirectionOrder.North);
   setControllerMode(input, ControllerMode.Manual);
 }
