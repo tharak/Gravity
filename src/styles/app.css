@@ -655,6 +655,36 @@ body {
   font-weight: 800;
 }
 
+.acceleration-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.acceleration-stepper {
+  display: flex;
+  gap: 6px;
+}
+
+.acceleration-step-button {
+  width: 34px;
+  height: 30px;
+  border: 1px solid rgba(125, 211, 252, 0.42);
+  border-radius: 8px;
+  background: rgba(7, 17, 31, 0.8);
+  color: #7dd3fc;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 900;
+  touch-action: manipulation;
+}
+
+.acceleration-step-button:active {
+  border-color: #ffb454;
+  color: #ffb454;
+}
+
 .speed-button {
   min-width: 0;
   height: 34px;

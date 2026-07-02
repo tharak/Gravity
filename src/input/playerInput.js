@@ -46,6 +46,7 @@ export const DirectionOrders = Object.freeze([
 
 const speedLevelByOrder = new Map(SpeedOrders.map((order) => [order.id, order.speedLevel]));
 const powerConsumptionWeightByOrder = new Map(SpeedOrders.map((order) => [order.id, order.powerConsumptionWeight]));
+const speedOrderIndexById = new Map(SpeedOrders.map((order, index) => [order.id, index]));
 const angleByDirection = new Map(DirectionOrders.map((direction) => [direction.id, direction.angle]));
 const maxConfiguredSpeedLevel = Math.max(...SpeedOrders.map((order) => order.speedLevel));
 
@@ -80,6 +81,13 @@ export function bindThrusterControls(root, input) {
   for (const button of root.querySelectorAll("[data-speed-order]")) {
     button.addEventListener("click", () => {
       setSpeedOrder(input, button.dataset.speedOrder);
+      syncSpeedButtons(root, input.speedOrder);
+    });
+  }
+
+  for (const button of root.querySelectorAll("[data-acceleration-step]")) {
+    button.addEventListener("click", () => {
+      changeAccelerationOrder(input, Number(button.dataset.accelerationStep));
       syncSpeedButtons(root, input.speedOrder);
     });
   }
@@ -143,6 +151,20 @@ export function setKeyboardThrusters(input, code, enabled) {
   return true;
 }
 
+export function setKeyboardAcceleration(input, code) {
+  if (code === "KeyQ") {
+    changeAccelerationOrder(input, -1);
+    return true;
+  }
+
+  if (code === "KeyE") {
+    changeAccelerationOrder(input, 1);
+    return true;
+  }
+
+  return false;
+}
+
 export function setControllerMode(input, controllerMode) {
   input.controllerMode = controllerMode === ControllerMode.Automatic ? ControllerMode.Automatic : ControllerMode.Manual;
   if (input.controllerMode === ControllerMode.Automatic) {
@@ -166,6 +188,12 @@ export function setSpeedLevel(input, speedLevel) {
   input.speedOrder = undefined;
   input.speedLevel = clampSpeed(speedLevel);
   input.powerConsumptionWeight = 1;
+}
+
+export function changeAccelerationOrder(input, step) {
+  const currentIndex = speedOrderIndexById.get(input.speedOrder) ?? speedOrderIndexById.get(SpeedOrder.Stop);
+  const nextIndex = Math.max(0, Math.min(SpeedOrders.length - 1, currentIndex + Math.sign(step || 0)));
+  setSpeedOrder(input, SpeedOrders[nextIndex].id);
 }
 
 export function clearPlayerInput(input) {

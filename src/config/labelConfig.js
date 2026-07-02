@@ -38,8 +38,10 @@ export const LabelConfig = Object.freeze({
     shipController: "Ship controller",
     shipHealth: "Ship health",
     simulatorData: "Simulator data",
-    speed: "Speed",
-    speedOrder: "Speed order",
+    acceleration: "Acceleration",
+    accelerationDown: "Decrease acceleration",
+    accelerationOrder: "Acceleration order",
+    accelerationUp: "Increase acceleration",
     testMaps: "Test maps",
     levelSelect: "Level select",
     locked: "LOCKED",
@@ -48,11 +50,11 @@ export const LabelConfig = Object.freeze({
   }),
   speedOrders: Object.freeze({
     Stop: Object.freeze({ label: "STOP", ariaLabel: "Stop and stabilize" }),
-    OneThird: Object.freeze({ label: "1/3", ariaLabel: "One-third speed" }),
-    TwoThirds: Object.freeze({ label: "2/3", ariaLabel: "Two-thirds speed" }),
-    Standard: Object.freeze({ label: "STD", ariaLabel: "Standard speed" }),
-    Full: Object.freeze({ label: "FULL", ariaLabel: "Full speed" }),
-    Flank: Object.freeze({ label: "FLANK", ariaLabel: "Flank speed" })
+    OneThird: Object.freeze({ label: "1/3", ariaLabel: "One-third acceleration" }),
+    TwoThirds: Object.freeze({ label: "2/3", ariaLabel: "Two-thirds acceleration" }),
+    Standard: Object.freeze({ label: "STD", ariaLabel: "Standard acceleration" }),
+    Full: Object.freeze({ label: "FULL", ariaLabel: "Full acceleration" }),
+    Flank: Object.freeze({ label: "FLANK", ariaLabel: "Flank acceleration" })
   }),
   directions: Object.freeze({
     North: Object.freeze({ label: "N", ariaLabel: "North" }),

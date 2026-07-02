@@ -17,6 +17,8 @@ test("label config centralizes visible UI text", () => {
   assert.equal(LabelConfig.levelSelectTitle, "Choose Test Map");
   assert.equal(LabelConfig.readouts.worldNorthCanvas, "WORLD N");
   assert.equal(LabelConfig.speedOrders.Flank.label, "FLANK");
+  assert.equal(LabelConfig.controls.acceleration, "Acceleration");
+  assert.equal(LabelConfig.controls.accelerationOrder, "Acceleration order");
   assert.equal(LabelConfig.controls.locked, "LOCKED");
   assert.equal(LabelConfig.controllerModes.manualShort, "MAN");
   assert.equal(LabelConfig.directions.NorthEast.ariaLabel, "North east");
@@ -25,6 +27,7 @@ test("label config centralizes visible UI text", () => {
 test("speed order config is the source for exported speed orders", () => {
   assert.equal(SpeedOrder.Full, SpeedOrderConfig.Full.id);
   assert.equal(SpeedOrder.Flank, SpeedOrderConfig.Flank.id);
+  assert.equal(SpeedOrderConfig.Full.ariaLabel, "Full acceleration");
   assert.equal(SpeedOrderConfig.Full.powerConsumptionWeight, 1.25);
   assert.equal(SpeedOrderConfig.Flank.powerConsumptionWeight, 1.5);
   assert.deepEqual(SpeedOrders, SpeedOrderList);

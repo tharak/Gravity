@@ -14,6 +14,7 @@ import {
   createPlayerInput,
   setAutomaticDirection,
   setControllerMode,
+  setKeyboardAcceleration,
   setSpeedLevel,
   setSpeedOrder,
   setKeyboardThrusters,
@@ -91,6 +92,25 @@ test("WASD keyboard input activates manual thruster groups", () => {
   assert.equal(setKeyboardThrusters(input, "KeyQ", true), false);
 });
 
+test("Q and E keyboard input changes acceleration order", () => {
+  const input = createPlayerInput();
+
+  assert.equal(setKeyboardAcceleration(input, "KeyE"), true);
+  assert.equal(input.speedOrder, SpeedOrder.OneThird);
+  assert.equal(input.speedLevel, 1 / 3);
+
+  setKeyboardAcceleration(input, "KeyE");
+  assert.equal(input.speedOrder, SpeedOrder.TwoThirds);
+
+  setKeyboardAcceleration(input, "KeyQ");
+  assert.equal(input.speedOrder, SpeedOrder.OneThird);
+
+  setKeyboardAcceleration(input, "KeyQ");
+  setKeyboardAcceleration(input, "KeyQ");
+  assert.equal(input.speedOrder, SpeedOrder.Stop);
+  assert.equal(setKeyboardAcceleration(input, "KeyR"), false);
+});
+
 test("world north is the shared ship and automatic north reference", () => {
   const input = createPlayerInput();
 
@@ -127,7 +147,12 @@ test("manual control panel shows battery, speed orders, and one switch per thrus
   assert.ok(html.includes('aria-disabled="true"'));
   assert.equal(html.includes('data-controller-panel="automatic" hidden'), false);
   assert.ok(html.includes('data-speed-order="stop" aria-label="Stop and stabilize" aria-pressed="true" data-label="speedOrders.Stop.label"'));
-  assert.ok(html.includes('data-speed-order="standard" aria-label="Standard speed" aria-pressed="false" data-label="speedOrders.Standard.label"'));
+  assert.ok(html.includes('aria-label="Acceleration order"'));
+  assert.ok(html.includes('data-label="controls.acceleration"'));
+  assert.ok(html.includes('data-acceleration-step="-1" aria-label="Decrease acceleration"'));
+  assert.ok(html.includes('data-acceleration-step="1" aria-label="Increase acceleration"'));
+  assert.ok(html.includes('data-speed-order="standard" aria-label="Standard acceleration" aria-pressed="false" data-label="speedOrders.Standard.label"'));
+  assert.equal(html.includes('>Speed</legend>'), false);
   assert.ok(html.includes('class="compass-control"'));
   assert.ok(html.includes('class="speed-control"'));
   assert.ok(html.includes('class="keyboard-control"'));
