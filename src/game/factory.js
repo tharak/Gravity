@@ -163,6 +163,7 @@ export function createGun(world, gun) {
     fireCooldownSeconds: gun.fireCooldownSeconds,
     energyPerShot: gun.energyPerShot,
     heatPerShot: gun.heatPerShot,
+    heatResumeRatio: gun.heatResumeRatio,
     projectileSpeed: gun.projectileSpeed,
     projectileDamage: gun.projectileDamage,
     projectileMass: gun.projectileMass,
@@ -170,7 +171,8 @@ export function createGun(world, gun) {
     projectileLifetimeSeconds: gun.projectileLifetimeSeconds,
     aimAngle: SHIP_FACING_UP,
     cooldown: 0,
-    firing: false
+    firing: false,
+    overheated: false
   });
   addComponent(world, entity, Component.Health, {
     max: gun.maxHealth ?? MaterialStressConfig.defaultHealth,

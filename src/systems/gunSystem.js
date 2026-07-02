@@ -29,7 +29,11 @@ function updateGun(world, ship, gunEntity, gunInput, deltaSeconds) {
 
   aimGun(gun, gunInput, muzzle, target);
 
-  if (!wantsToShoot(gun, gunInput, target) || gun.cooldown > 0) {
+  const stress = getComponent(world, gunEntity, Component.ComponentStress);
+  const tolerance = getComponent(world, gunEntity, Component.DamageTolerance);
+  updateOverheatHold(gun, stress, tolerance);
+
+  if (gun.overheated || !wantsToShoot(gun, gunInput, target) || gun.cooldown > 0) {
     return;
   }
 
@@ -46,9 +50,20 @@ function updateGun(world, ship, gunEntity, gunInput, deltaSeconds) {
   gun.cooldown = gun.fireCooldownSeconds;
   gun.firing = true;
 
-  const stress = getComponent(world, gunEntity, Component.ComponentStress);
   if (stress) {
     stress.heat += gun.heatPerShot;
+  }
+}
+
+function updateOverheatHold(gun, stress, tolerance) {
+  if (!stress || !tolerance) {
+    return;
+  }
+
+  if (stress.heat + gun.heatPerShot > tolerance.heat) {
+    gun.overheated = true;
+  } else if (stress.heat <= tolerance.heat * gun.heatResumeRatio) {
+    gun.overheated = false;
   }
 }
 

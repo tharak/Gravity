@@ -152,7 +152,7 @@ function drawGuns(context, world, ship, camera, shipRotation) {
     context.translate(x, y);
     context.rotate(barrelAngle);
 
-    context.strokeStyle = gun.firing ? "#ffd166" : "rgba(233, 238, 248, 0.9)";
+    context.strokeStyle = gun.overheated ? "#ff667a" : gun.firing ? "#ffd166" : "rgba(233, 238, 248, 0.9)";
     context.lineWidth = Math.max(radius * 0.55, 2);
     context.beginPath();
     context.moveTo(0, 0);

@@ -98,6 +98,46 @@ test("a destroyed or drained gun does not fire", () => {
   assert.equal(queryEntities(world, [Component.Projectile]).length, 0);
 });
 
+test("the gun holds fire when the next shot would exceed heat tolerance", () => {
+  const world = createWorld();
+  createShip(world, { x: 0, y: 0, playerControlled: "player-one" });
+  const input = createPlayerInput();
+  setGunShooting(input, true);
+
+  const gunEntity = [...getComponents(world, Component.Gun).keys()][0];
+  const tolerance = getComponent(world, gunEntity, Component.DamageTolerance);
+  getComponent(world, gunEntity, Component.ComponentStress).heat = tolerance.heat - GunModelConfig.heatPerShot + 1;
+
+  applyGuns(world, { "player-one": input }, 1 / 60);
+
+  const gun = getComponent(world, gunEntity, Component.Gun);
+  assert.equal(gun.overheated, true);
+  assert.equal(queryEntities(world, [Component.Projectile]).length, 0);
+});
+
+test("an overheated gun stays holding fire until it cools to the resume threshold", () => {
+  const world = createWorld();
+  createShip(world, { x: 0, y: 0, playerControlled: "player-one" });
+  const input = createPlayerInput();
+  setGunShooting(input, true);
+
+  const gunEntity = [...getComponents(world, Component.Gun).keys()][0];
+  const gun = getComponent(world, gunEntity, Component.Gun);
+  const stress = getComponent(world, gunEntity, Component.ComponentStress);
+  const tolerance = getComponent(world, gunEntity, Component.DamageTolerance);
+  gun.overheated = true;
+
+  stress.heat = tolerance.heat * GunModelConfig.heatResumeRatio + 10;
+  applyGuns(world, { "player-one": input }, 1 / 60);
+  assert.equal(gun.overheated, true);
+  assert.equal(queryEntities(world, [Component.Projectile]).length, 0);
+
+  stress.heat = tolerance.heat * GunModelConfig.heatResumeRatio;
+  applyGuns(world, { "player-one": input }, 1 / 60);
+  assert.equal(gun.overheated, false);
+  assert.equal(queryEntities(world, [Component.Projectile]).length, 1);
+});
+
 test("automatic aim tracks the nearest ship", () => {
   const world = createWorld();
   createShip(world, { x: 0, y: 0, playerControlled: "player-one" });

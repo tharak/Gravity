@@ -4,6 +4,7 @@ export const GunModelConfig = Object.freeze({
   fireCooldownSeconds: 0.35,
   energyPerShot: 2,
   heatPerShot: 9,
+  heatResumeRatio: 0.5,
   projectileSpeed: 260,
   projectileDamage: 8,
   projectileMass: 0.05,

@@ -90,6 +90,7 @@ test("gun config separates model and view values", () => {
   assert.equal(GunModelConfig.maxHealth, 25);
   assert.equal(GunModelConfig.range, 480);
   assert.equal(GunModelConfig.energyPerShot, 2);
+  assert.equal(GunModelConfig.heatResumeRatio, 0.5);
   assert.equal(GunModelConfig.projectileDamage, 8);
   assert.equal(GunModelConfig.projectileSpeed, 260);
   assert.equal(GunViewConfig.radius, 6);
