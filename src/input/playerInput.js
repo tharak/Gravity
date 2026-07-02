@@ -1,6 +1,7 @@
 import { LabelConfig } from "../config/labelConfig.js";
 import { SpeedOrderConfig, SpeedOrderList } from "../config/speedOrderConfig.js";
 import { WORLD_NORTH_ANGLE } from "../game/navigation.js";
+import { ThrusterSlot } from "../ecs/components.js";
 import { thrusterColors } from "../game/thrusterPalette.js";
 
 export const ControllerMode = Object.freeze({
@@ -21,6 +22,13 @@ export const DirectionOrder = Object.freeze({
   SouthWest: "south-west",
   West: "west",
   NorthWest: "north-west"
+});
+
+export const ThrusterKeyBindings = Object.freeze({
+  KeyA: Object.freeze([ThrusterSlot.TopLeft, ThrusterSlot.BottomRight]),
+  KeyD: Object.freeze([ThrusterSlot.TopRight, ThrusterSlot.BottomLeft]),
+  KeyW: Object.freeze([ThrusterSlot.MainBack]),
+  KeyS: Object.freeze([ThrusterSlot.FrontLeft, ThrusterSlot.FrontRight])
 });
 
 export const SpeedOrders = SpeedOrderList;
@@ -100,6 +108,7 @@ export function syncPlayerInputControls(root, input) {
   syncSpeedButtons(root, input.speedOrder);
   syncModePanels(root, input.controllerMode);
   syncThrusterButtons(root, input.activeSlots);
+  syncKeyboardButtons(root, input.activeSlots);
   syncDirectionButtons(root, input.targetDirection);
 }
 
@@ -120,6 +129,18 @@ export function setThrusterEnabled(input, slot, enabled) {
   }
 
   input.activeSlots.delete(slot);
+}
+
+export function setKeyboardThrusters(input, code, enabled) {
+  const slots = ThrusterKeyBindings[code];
+  if (!slots) {
+    return false;
+  }
+
+  for (const slot of slots) {
+    setThrusterEnabled(input, slot, enabled);
+  }
+  return true;
 }
 
 export function setControllerMode(input, controllerMode) {
@@ -166,6 +187,15 @@ function syncSpeedButtons(root, activeOrder) {
 function syncThrusterButtons(root, activeSlots) {
   for (const button of root.querySelectorAll("[data-thruster-slot]")) {
     const isActive = activeSlots.has(button.dataset.thrusterSlot);
+    button.classList.toggle("is-active", isActive);
+    button.setAttribute("aria-pressed", String(isActive));
+  }
+}
+
+function syncKeyboardButtons(root, activeSlots) {
+  for (const button of root.querySelectorAll("[data-key-code]")) {
+    const slots = ThrusterKeyBindings[button.dataset.keyCode] ?? [];
+    const isActive = slots.length > 0 && slots.every((slot) => activeSlots.has(slot));
     button.classList.toggle("is-active", isActive);
     button.setAttribute("aria-pressed", String(isActive));
   }

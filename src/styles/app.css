@@ -490,6 +490,59 @@ body {
   color: #07111f;
 }
 
+.keyboard-control {
+  position: absolute;
+  right: 8px;
+  bottom: 8px;
+  display: grid;
+  grid-template-columns: repeat(3, 28px);
+  grid-template-rows: repeat(2, 28px);
+  gap: 4px;
+}
+
+.keyboard-key {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 1px solid rgba(233, 238, 248, 0.28);
+  border-radius: 6px;
+  background: rgba(16, 23, 37, 0.92);
+  color: #d7dfed;
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.keyboard-key-w {
+  grid-column: 2;
+}
+
+.keyboard-key-a {
+  grid-column: 1;
+  grid-row: 2;
+}
+
+.keyboard-key-s {
+  grid-column: 2;
+  grid-row: 2;
+}
+
+.keyboard-key-d {
+  grid-column: 3;
+  grid-row: 2;
+}
+
+.keyboard-key.is-active,
+.keyboard-key[aria-pressed="true"] {
+  border-color: #ffb454;
+  background: #ffb454;
+  box-shadow: 0 0 14px rgba(255, 180, 84, 0.72);
+  color: #07111f;
+}
+
 .compass-control {
   position: relative;
   width: 160px;

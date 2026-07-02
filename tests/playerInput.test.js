@@ -16,6 +16,7 @@ import {
   setControllerMode,
   setSpeedLevel,
   setSpeedOrder,
+  setKeyboardThrusters,
   setThrusterEnabled,
   toggleThruster
 } from "../src/input/playerInput.js";
@@ -67,6 +68,27 @@ test("manual controller toggles thrusters and sets speed orders", () => {
   assert.equal(input.targetDirection, DirectionOrder.North);
 });
 
+test("WASD keyboard input activates manual thruster groups", () => {
+  const input = createPlayerInput();
+
+  assert.equal(setKeyboardThrusters(input, "KeyA", true), true);
+  assert.deepEqual([...input.activeSlots].sort(), [ThrusterSlot.BottomRight, ThrusterSlot.TopLeft].sort());
+  setKeyboardThrusters(input, "KeyA", false);
+  assert.equal(input.activeSlots.size, 0);
+
+  setKeyboardThrusters(input, "KeyD", true);
+  assert.deepEqual([...input.activeSlots].sort(), [ThrusterSlot.BottomLeft, ThrusterSlot.TopRight].sort());
+  setKeyboardThrusters(input, "KeyD", false);
+
+  setKeyboardThrusters(input, "KeyW", true);
+  assert.deepEqual([...input.activeSlots], [ThrusterSlot.MainBack]);
+  setKeyboardThrusters(input, "KeyW", false);
+
+  setKeyboardThrusters(input, "KeyS", true);
+  assert.deepEqual([...input.activeSlots].sort(), [ThrusterSlot.FrontLeft, ThrusterSlot.FrontRight].sort());
+  assert.equal(setKeyboardThrusters(input, "KeyQ", true), false);
+});
+
 test("world north is the shared ship and automatic north reference", () => {
   const input = createPlayerInput();
 
@@ -106,6 +128,10 @@ test("manual control panel shows battery, speed orders, and one switch per thrus
   assert.ok(html.includes('data-speed-order="standard" aria-label="Standard speed" aria-pressed="false" data-label="speedOrders.Standard.label"'));
   assert.ok(html.includes('class="compass-control"'));
   assert.ok(html.includes('class="speed-control"'));
+  assert.ok(html.includes('class="keyboard-control"'));
+  assert.ok(html.includes('data-key-code="KeyW"'));
+  assert.ok(fs.readFileSync(new URL("../src/main.js", import.meta.url), "utf8").includes("bindKeyboardThrusterControls"));
+  assert.ok(fs.readFileSync(new URL("../src/input/playerInput.js", import.meta.url), "utf8").includes("syncKeyboardButtons"));
   assert.equal(html.includes('thruster-power'), false);
   assert.equal(html.includes('Power'), false);
   assert.equal(html.includes('<small>'), false);
