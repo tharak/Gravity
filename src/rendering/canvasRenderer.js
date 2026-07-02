@@ -123,7 +123,6 @@ function drawShip(context, world, ship, screen, frame, camera, rotation) {
   context.translate(screen.x, screen.y);
   context.rotate(rotation);
   drawThrusters(context, world, ship, camera);
-  drawSolarPanels(context, world, ship, camera);
 
   context.fillStyle = bodyColors[BodyKind.Ship];
   context.strokeStyle = isPlayer ? "#ffffff" : "rgba(255, 255, 255, 0.35)";
@@ -132,6 +131,9 @@ function drawShip(context, world, ship, screen, frame, camera, rotation) {
   context.rect(-width / 2, -height / 2, width, height);
   context.fill();
   context.stroke();
+
+  drawSolarPanels(context, world, ship, camera);
+
 
   context.restore();
 }

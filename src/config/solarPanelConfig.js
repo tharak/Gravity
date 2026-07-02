@@ -5,6 +5,6 @@ export const SolarPanelModelConfig = Object.freeze({
 
 export const SolarPanelViewConfig = Object.freeze({
   localX: 0,
-  localY: -34,
+  localY: 0,
   radius: 8
 });
