@@ -1,7 +1,7 @@
 import { LabelConfig } from "../config/labelConfig.js";
 import { GravityTestPlanetModelConfig, GravityTestPlanetViewConfig } from "../config/planetConfig.js";
 import { GravityTestShipModelConfig, GravityTestShipViewConfig } from "../config/shipConfig.js";
-import { createBody, createShip, setShipFuelFromMapSize } from "../game/factory.js";
+import { createBody, createShip, setShipBatteryFromMapSize } from "../game/factory.js";
 import { createWorld } from "../ecs/world.js";
 
 export const GravityTestScene = Object.freeze({
@@ -20,7 +20,7 @@ export function createGravityTestScene() {
     createShip(world, ship);
   }
 
-  setShipFuelFromMapSize(world);
+  setShipBatteryFromMapSize(world);
   return world;
 }
 

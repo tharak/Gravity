@@ -18,7 +18,6 @@ export function applyPlayerInput(world, inputById, deltaSeconds = 0) {
 
 function createPilotThrusterCommand(world, ship, input, deltaSeconds) {
   const battery = getComponent(world, ship, Component.Battery);
-  const fuel = getComponent(world, ship, Component.Fuel);
   const thrusters = getShipThrusters(world, ship);
 
   rechargeBattery(battery, deltaSeconds);
@@ -30,7 +29,7 @@ function createPilotThrusterCommand(world, ship, input, deltaSeconds) {
       : createManualThrusterCommand(input);
   const weightedCommand = setPowerConsumptionWeight(command, input?.powerConsumptionWeight ?? 1);
 
-  return applyResourceLimitsToCommand(battery, fuel, thrusters, weightedCommand, deltaSeconds);
+  return applyBatteryLimitToCommand(battery, thrusters, weightedCommand, deltaSeconds);
 }
 
 function createManualThrusterCommand(input) {
@@ -126,27 +125,19 @@ function applyTurnSignal(powerBySlot, turnSignal) {
   }
 }
 
-function applyResourceLimitsToCommand(battery, fuel, thrusters, command, deltaSeconds) {
+function applyBatteryLimitToCommand(battery, thrusters, command, deltaSeconds) {
   const requestedEnergyPerSecond = thrusters.reduce(
     (total, thruster) => total + thruster.energyConsumption * (command.powerBySlot.get(thruster.slot) ?? 0),
     0
   ) * command.powerConsumptionWeight;
-  const requestedFuelPerSecond = thrusters.reduce(
-    (total, thruster) => total + thruster.fuelConsumption * (command.powerBySlot.get(thruster.slot) ?? 0),
-    0
-  ) * command.powerConsumptionWeight;
 
-  if (requestedEnergyPerSecond <= 0 && requestedFuelPerSecond <= 0) {
+  if (requestedEnergyPerSecond <= 0) {
     setBatteryOutput(battery, 0);
-    setFuelOutput(fuel, 0);
     return command;
   }
 
-  const batteryScale = getBatteryPowerScale(battery, requestedEnergyPerSecond, deltaSeconds);
-  const fuelScale = getFuelPowerScale(fuel, requestedFuelPerSecond, deltaSeconds);
-  const availableScale = Math.min(batteryScale, fuelScale);
+  const availableScale = getBatteryPowerScale(battery, requestedEnergyPerSecond, deltaSeconds);
   drainBattery(battery, requestedEnergyPerSecond * availableScale, deltaSeconds);
-  drainFuel(fuel, requestedFuelPerSecond * availableScale, deltaSeconds);
 
   if (availableScale >= 1) {
     return command;
@@ -192,29 +183,6 @@ function drainBattery(battery, energyPerSecond, deltaSeconds) {
   setBatteryOutput(battery, energyPerSecond);
 }
 
-function getFuelPowerScale(fuel, fuelPerSecond, deltaSeconds) {
-  if (!fuel || fuelPerSecond <= 0 || deltaSeconds <= 0) {
-    return 1;
-  }
-
-  return Math.min(1, fuel.current / (fuelPerSecond * deltaSeconds));
-}
-
-function drainFuel(fuel, fuelPerSecond, deltaSeconds) {
-  if (!fuel) {
-    return;
-  }
-
-  const fuelUsed = fuelPerSecond * deltaSeconds;
-  fuel.current = Math.max(0, fuel.current - fuelUsed);
-  setFuelOutput(fuel, fuelPerSecond);
-}
-
-function setFuelOutput(fuel, fuelPerSecond) {
-  if (fuel) {
-    fuel.outputRate = fuelPerSecond;
-  }
-}
 
 function setBatteryOutput(battery, energyPerSecond) {
   if (battery) {

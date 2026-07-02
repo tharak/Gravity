@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { CollisionConfig } from "../src/config/collisionConfig.js";
-import { FuelConfig } from "../src/config/fuelConfig.js";
+import { BatteryConfig } from "../src/config/batteryConfig.js";
 import { LabelConfig } from "../src/config/labelConfig.js";
 import { DefaultShipModelConfig, DefaultShipViewConfig, GravityTestShipModelConfig, GravityTestShipViewConfig, StarterShipModelConfig, StarterShipViewConfig, ThrusterModelConfig, ThrusterViewConfig } from "../src/config/shipConfig.js";
 import { MaterialStressConfig } from "../src/config/materialStressConfig.js";
@@ -16,7 +16,6 @@ test("label config centralizes visible UI text", () => {
   assert.equal(LabelConfig.appTitle, "Gravity");
   assert.equal(LabelConfig.levelSelectTitle, "Choose Test Map");
   assert.equal(LabelConfig.readouts.worldNorthCanvas, "WORLD N");
-  assert.equal(LabelConfig.readouts.fuel, "FUEL");
   assert.equal(LabelConfig.speedOrders.Flank.label, "FLANK");
   assert.equal(LabelConfig.controls.locked, "LOCKED");
   assert.equal(LabelConfig.controllerModes.manualShort, "MAN");
@@ -33,7 +32,6 @@ test("speed order config is the source for exported speed orders", () => {
 
 test("ship and thruster configs separate model and view values", () => {
   assert.equal(DefaultShipModelConfig.maxHealth, 100);
-  assert.equal(DefaultShipModelConfig.batteryCapacity, 100);
   assert.equal(DefaultShipViewConfig.radius, 48);
   assert.equal(DefaultShipViewConfig.frame.width, 88);
   assert.deepEqual(Object.keys(StarterShipModelConfig), ["mass", "playerControlled"]);
@@ -42,11 +40,10 @@ test("ship and thruster configs separate model and view values", () => {
   const mainModel = ThrusterModelConfig.find((thruster) => thruster.slot === ThrusterSlot.MainBack);
   const mainView = ThrusterViewConfig.placements.find((thruster) => thruster.slot === ThrusterSlot.MainBack);
   const topLeftModel = ThrusterModelConfig.find((thruster) => thruster.slot === ThrusterSlot.TopLeft);
-  assert.deepEqual(Object.keys(mainModel), ["number", "slot", "size", "acceleration", "energyConsumption", "fuelConsumption"]);
+  assert.deepEqual(Object.keys(mainModel), ["number", "slot", "size", "acceleration", "energyConsumption"]);
   assert.equal(mainModel.size, 3);
   assert.equal(mainModel.acceleration, 15);
   assert.equal(mainModel.energyConsumption, 3);
-  assert.equal(mainModel.fuelConsumption, 3);
   assert.equal(topLeftModel.energyConsumption, 1);
   assert.equal(ThrusterViewConfig.sizeMultiplier, 0.5);
   assert.equal(mainView.localX, -50);
@@ -64,8 +61,9 @@ test("scene body configs separate model and view values", () => {
   assert.equal(GravityTestShipViewConfig[1].radius, 50);
 });
 
-test("fuel, solar panel, and material stress configs expose tuning values", () => {
-  assert.equal(FuelConfig.capacityMapDiagonalRatio, 0.2);
+test("battery, solar panel, and material stress configs expose tuning values", () => {
+  assert.equal(BatteryConfig.capacityMapDiagonalRatio, 0.2);
+  assert.equal(BatteryConfig.minimumCapacity, 25);
   assert.equal(SolarPanelModelConfig.batteryRechargeRate, 3);
   assert.equal(SolarPanelViewConfig.radius, 8);
   assert.equal(MaterialStressConfig.tolerances.heat, 100);

@@ -5,7 +5,6 @@ export const Component = Object.freeze({
   Battery: "battery",
   ComponentStress: "componentStress",
   DamageTolerance: "damageTolerance",
-  Fuel: "fuel",
   BodyKind: "bodyKind",
   DamagePopup: "damagePopup",
   Health: "health",

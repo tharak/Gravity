@@ -117,7 +117,6 @@ test("manual control panel shows battery, speed orders, and one switch per thrus
   assert.ok(html.includes('data-controller-mode="automatic"'));
   assert.ok(html.includes('class="health-readout"'));
   assert.ok(html.includes('id="ship-health"'));
-  assert.ok(html.includes('id="ship-fuel"'));
   assert.ok(html.includes('100/100'));
   assert.ok(html.includes('class="battery-widget"'));
   assert.ok(html.includes('class="north-readout"'));
@@ -164,7 +163,7 @@ test("automatic full speed north fires the main thruster when aligned", () => {
   const acceleration = getComponent(world, ship, Component.Acceleration);
   assert.equal(Math.abs(acceleration.x) < 1e-12, true);
   assert.equal(acceleration.y, -300);
-  assert.equal(battery.charge, 96.25);
+  assert.equal(battery.charge, 21.25);
   assert.equal(battery.outputRate, 3.75);
 });
 
@@ -254,7 +253,7 @@ test("each thruster uses one shared unique color", () => {
 
 test("ships start with HP, battery, and thruster energy consumption", () => {
   const world = createWorld();
-  const ship = createShip(world, { x: 0, y: 0 });
+  createShip(world, { x: 0, y: 0 });
 
   const batteries = queryEntities(world, [Component.Battery]);
   const health = queryEntities(world, [Component.Health]);
@@ -265,15 +264,11 @@ test("ships start with HP, battery, and thruster energy consumption", () => {
     current: 100
   });
   assert.deepEqual(getComponent(world, batteries[0], Component.Battery), {
-    capacity: 100,
-    charge: 100,
+    capacity: 25,
+    charge: 25,
     rechargeRate: 1
   });
-  const fuel = getComponent(world, ship, Component.Fuel);
-  assert.equal(fuel.capacity, 25);
-  assert.equal(fuel.current, 25);
   assert.equal(getThruster(world, ThrusterSlot.MainBack).energyConsumption, 3);
-  assert.equal(getThruster(world, ThrusterSlot.MainBack).fuelConsumption, 3);
   assert.equal(getThruster(world, ThrusterSlot.TopLeft).energyConsumption, 1);
 });
 
@@ -288,10 +283,8 @@ test("main back thruster uses battery power and applies throttle", () => {
   const acceleration = getComponent(world, ship, Component.Acceleration);
   assert.equal(getThruster(world, ThrusterSlot.MainBack).power, 0.5);
   assert.equal(acceleration.y, -150);
-  assert.equal(battery.charge, 98.5);
+  assert.equal(battery.charge, 23.5);
   assert.equal(battery.outputRate, 1.5);
-  assert.equal(getComponent(world, ship, Component.Fuel).current, 23.5);
-  assert.equal(getComponent(world, ship, Component.Fuel).outputRate, 1.5);
   assertAngularAcceleration(world, ship, 0);
 });
 
@@ -326,16 +319,15 @@ test("secondary thrusters drain one unit per second at full power", () => {
 
   const battery = getComponent(world, ship, Component.Battery);
   assert.equal(getThruster(world, ThrusterSlot.TopLeft).power, 1);
-  assert.equal(battery.charge, 99);
+  assert.equal(battery.charge, 24);
   assert.equal(battery.outputRate, 1);
   assert.notEqual(getComponent(world, ship, Component.AngularAcceleration).value, 0);
 });
 
 test("battery recharge runs when no thrusters are selected", () => {
   const world = createWorld();
-  const ship = createShip(world, { x: 0, y: 0, playerControlled: "player-one" });
+  const ship = createShip(world, { x: 0, y: 0, playerControlled: "player-one", batteryCapacity: 100, batteryCharge: 50 });
   const battery = getComponent(world, ship, Component.Battery);
-  battery.charge = 50;
 
   applyPlayerInput(world, { "player-one": createInput([], 1) }, 2);
 
@@ -361,6 +353,7 @@ test("disabled thrusters do not auto-stabilize the ship", () => {
   const world = createWorld();
   const ship = createShip(world, { x: 0, y: 0, vx: 0, vy: -90, playerControlled: "player-one" });
   const battery = getComponent(world, ship, Component.Battery);
+  battery.capacity = 100;
   battery.charge = 80;
 
   applyPlayerInput(world, { "player-one": createInput([], 1) }, 1);
@@ -390,25 +383,11 @@ test("main back thruster has three times the baseline power", () => {
   }
 });
 
-test("fuel limits thrust when there is not enough propellant", () => {
-  const world = createWorld();
-  const ship = createShip(world, { x: 0, y: 0, playerControlled: "player-one", thrusterModels: createTestThrusterModels(100) });
-  const fuel = getComponent(world, ship, Component.Fuel);
-  fuel.current = 1;
-  const input = createInput([ThrusterSlot.MainBack], 1);
-
-  applyPlayerInput(world, { "player-one": input }, 1);
-
-  assert.equal(getThruster(world, ThrusterSlot.MainBack).power, 1 / 3);
-  assert.equal(fuel.current, 0);
-  assert.equal(fuel.outputRate, 1);
-});
 
 test("solar panels recharge ship batteries", () => {
   const world = createWorld();
-  const ship = createShip(world, { x: 0, y: 0 });
+  const ship = createShip(world, { x: 0, y: 0, batteryCapacity: 100, batteryCharge: 50 });
   const battery = getComponent(world, ship, Component.Battery);
-  battery.charge = 50;
 
   applySolarPanels(world, 2);
 

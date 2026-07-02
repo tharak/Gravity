@@ -1,4 +1,4 @@
-import { FuelConfig } from "../config/fuelConfig.js";
+import { BatteryConfig } from "../config/batteryConfig.js";
 import { MaterialStressConfig } from "../config/materialStressConfig.js";
 import { DefaultShipModelConfig, DefaultShipViewConfig, StarterShipModelConfig, StarterShipViewConfig, ThrusterModelConfig, ThrusterViewConfig } from "../config/shipConfig.js";
 import { SolarPanelModelConfig, SolarPanelViewConfig } from "../config/solarPanelConfig.js";
@@ -75,15 +75,11 @@ export function createShip(world, ship) {
     current: Math.min(maxHealth, ship.health ?? maxHealth)
   });
 
+  const batteryCapacity = ship.batteryCapacity ?? BatteryConfig.minimumCapacity;
   addComponent(world, entity, Component.Battery, {
-    capacity: ship.batteryCapacity ?? DefaultShipModelConfig.batteryCapacity,
-    charge: ship.batteryCharge ?? ship.batteryCapacity ?? DefaultShipModelConfig.batteryCapacity,
+    capacity: batteryCapacity,
+    charge: Math.min(ship.batteryCharge ?? batteryCapacity, batteryCapacity),
     rechargeRate: ship.batteryRechargeRate ?? DefaultShipModelConfig.batteryRechargeRate
-  });
-
-  addComponent(world, entity, Component.Fuel, {
-    capacity: ship.fuelCapacity ?? FuelConfig.minimumCapacity,
-    current: Math.min(ship.fuel ?? ship.fuelCapacity ?? FuelConfig.minimumCapacity, ship.fuelCapacity ?? FuelConfig.minimumCapacity)
   });
 
   for (const thruster of createDefaultThrusters(
@@ -115,7 +111,6 @@ export function createThruster(world, thruster) {
     maxAcceleration: thruster.maxAcceleration,
     size: thruster.size,
     energyConsumption: thruster.energyConsumption,
-    fuelConsumption: thruster.fuelConsumption,
     number: thruster.number,
     power: 0,
     stabilizing: false,
@@ -173,7 +168,6 @@ function createDefaultThrusters(shipEntity, thrusterModels) {
       size: model.size,
       viewSizeMultiplier: ThrusterViewConfig.sizeMultiplier,
       energyConsumption: model.energyConsumption,
-      fuelConsumption: model.fuelConsumption,
       color: thrusterColors[model.slot]
     };
   });
@@ -191,20 +185,20 @@ export function seedStarterSystem(world) {
 }
 
 
-export function setShipFuelFromMapSize(world) {
+export function setShipBatteryFromMapSize(world) {
   const diagonal = getWorldDiagonal(world);
-  const capacity = Math.max(FuelConfig.minimumCapacity, diagonal * FuelConfig.capacityMapDiagonalRatio);
-  for (const ship of queryShipFuelEntities(world)) {
-    const fuel = addOrGetFuel(world, ship, capacity);
-    fuel.capacity = capacity;
-    fuel.current = Math.min(fuel.current, capacity);
-    if (fuel.current <= FuelConfig.minimumCapacity) {
-      fuel.current = capacity;
+  const capacity = Math.max(BatteryConfig.minimumCapacity, diagonal * BatteryConfig.capacityMapDiagonalRatio);
+  for (const ship of queryShipBatteryEntities(world)) {
+    const battery = addOrGetBattery(world, ship, capacity);
+    battery.capacity = capacity;
+    battery.charge = Math.min(battery.charge, capacity);
+    if (battery.charge <= BatteryConfig.minimumCapacity) {
+      battery.charge = capacity;
     }
   }
 }
 
-function queryShipFuelEntities(world) {
+function queryShipBatteryEntities(world) {
   const ships = [];
   const bodyKinds = world.components.get(Component.BodyKind) ?? new Map();
   for (const [entity, bodyKind] of bodyKinds) {
@@ -215,13 +209,17 @@ function queryShipFuelEntities(world) {
   return ships;
 }
 
-function addOrGetFuel(world, ship, capacity) {
-  const existing = world.components.get(Component.Fuel)?.get(ship);
+function addOrGetBattery(world, ship, capacity) {
+  const existing = world.components.get(Component.Battery)?.get(ship);
   if (existing) {
     return existing;
   }
 
-  return addComponent(world, ship, Component.Fuel, { capacity, current: capacity });
+  return addComponent(world, ship, Component.Battery, {
+    capacity,
+    charge: capacity,
+    rechargeRate: DefaultShipModelConfig.batteryRechargeRate
+  });
 }
 
 function getWorldDiagonal(world) {
