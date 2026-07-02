@@ -168,6 +168,8 @@ test("manual control panel shows battery, speed orders, and one switch per thrus
   assert.ok(fs.readFileSync(new URL("../src/main.js", import.meta.url), "utf8").includes("bindKeyboardThrusterControls"));
   const playerInputSource = fs.readFileSync(new URL("../src/input/playerInput.js", import.meta.url), "utf8");
   assert.ok(playerInputSource.includes("syncKeyboardButtons"));
+  assert.ok(playerInputSource.includes("pointerdown"));
+  assert.ok(playerInputSource.includes("lostpointercapture"));
   assert.ok(playerInputSource.includes("syncAccelerationButtons"));
   assert.equal(html.includes('thruster-power'), false);
   assert.equal(html.includes('Power'), false);

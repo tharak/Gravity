@@ -93,6 +93,23 @@ export function bindThrusterControls(root, input) {
     });
   }
 
+  for (const button of root.querySelectorAll("[data-key-code]")) {
+    button.addEventListener("pointerdown", (event) => {
+      event.preventDefault();
+      button.setPointerCapture?.(event.pointerId);
+      setKeyboardThrusters(input, button.dataset.keyCode, true);
+      syncPlayerInputControls(root, input);
+    });
+
+    for (const eventName of ["pointerup", "pointercancel", "lostpointercapture"]) {
+      button.addEventListener(eventName, (event) => {
+        event.preventDefault();
+        setKeyboardThrusters(input, button.dataset.keyCode, false);
+        syncPlayerInputControls(root, input);
+      });
+    }
+  }
+
   for (const button of root.querySelectorAll("[data-controller-mode]")) {
     button.addEventListener("click", () => {
       setControllerMode(input, button.dataset.controllerMode);
