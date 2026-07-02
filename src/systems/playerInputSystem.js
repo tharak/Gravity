@@ -27,7 +27,8 @@ function createPilotThrusterCommand(world, ship, input, deltaSeconds) {
     : input?.controllerMode === ControllerMode.Automatic
       ? createAutomaticThrusterCommand(world, ship, input)
       : createManualThrusterCommand(input);
-  const speedLimitedCommand = limitCommandByThrusterMaxSpeed(world, ship, thrusters, command);
+  const weightedCommand = setPowerConsumptionWeight(command, input?.powerConsumptionWeight ?? 1);
+  const speedLimitedCommand = limitCommandByThrusterMaxSpeed(world, ship, thrusters, weightedCommand);
 
   return applyBatteryLimitToCommand(battery, thrusters, speedLimitedCommand, deltaSeconds);
 }
@@ -143,12 +144,12 @@ function limitCommandByThrusterMaxSpeed(world, ship, thrusters, command) {
     }
   }
 
-  return createThrusterCommand(limitedPowerBySlot, command.stabilizing);
+  return createThrusterCommand(limitedPowerBySlot, command.stabilizing, command.powerConsumptionWeight);
 }
 
 function getSpeedLimitedPower(thruster, velocity, rotation, power) {
   if (!Number.isFinite(thruster.maxSpeed) || thruster.maxSpeed <= 0 || power <= 0) {
-    return clamp01(power);
+    return sanitizeThrusterPower(power);
   }
 
   const direction = localToWorld(thruster, rotation);
@@ -157,14 +158,18 @@ function getSpeedLimitedPower(thruster, velocity, rotation, power) {
     return 0;
   }
 
-  return clamp01(power);
+  return sanitizeThrusterPower(power);
+}
+
+function sanitizeThrusterPower(value) {
+  return Math.max(0, Number.isFinite(value) ? value : 0);
 }
 
 function applyBatteryLimitToCommand(battery, thrusters, command, deltaSeconds) {
   const requestedEnergyPerSecond = thrusters.reduce(
     (total, thruster) => total + thruster.energyUsePerSecond * (command.powerBySlot.get(thruster.slot) ?? 0),
     0
-  );
+  ) * command.powerConsumptionWeight;
 
   if (requestedEnergyPerSecond <= 0) {
     setBatteryOutput(battery, 0);
@@ -183,7 +188,7 @@ function applyBatteryLimitToCommand(battery, thrusters, command, deltaSeconds) {
     scaledPowerBySlot.set(slot, power * availableScale);
   }
 
-  return createThrusterCommand(scaledPowerBySlot, command.stabilizing);
+  return createThrusterCommand(scaledPowerBySlot, command.stabilizing, command.powerConsumptionWeight);
 }
 
 function getShipThrusters(world, ship) {
@@ -224,8 +229,16 @@ function setBatteryOutput(battery, energyPerSecond) {
   }
 }
 
-function createThrusterCommand(powerBySlot, stabilizing) {
-  return { powerBySlot, stabilizing };
+function createThrusterCommand(powerBySlot, stabilizing, powerConsumptionWeight = 1) {
+  return { powerBySlot, stabilizing, powerConsumptionWeight: sanitizePowerConsumptionWeight(powerConsumptionWeight) };
+}
+
+function setPowerConsumptionWeight(command, powerConsumptionWeight) {
+  return createThrusterCommand(command.powerBySlot, command.stabilizing, powerConsumptionWeight);
+}
+
+function sanitizePowerConsumptionWeight(value) {
+  return Number.isFinite(value) && value > 0 ? value : 1;
 }
 
 function setSlotPower(powerBySlot, slot, power) {

@@ -38,15 +38,18 @@ test("manual controller toggles thrusters and sets speed orders", () => {
   assert.equal(input.controllerMode, ControllerMode.Manual);
   assert.equal(input.speedOrder, SpeedOrder.Flank);
   assert.equal(input.speedLevel, 1.25);
+  assert.equal(input.powerConsumptionWeight, 1.5);
 
   setSpeedOrder(input, SpeedOrder.Stop);
   assert.equal(input.speedOrder, SpeedOrder.Stop);
   assert.equal(input.speedLevel, 0);
+  assert.equal(input.powerConsumptionWeight, 1);
   setSpeedOrder(input, SpeedOrder.Flank);
   assert.equal(input.activeSlots.has(ThrusterSlot.TopLeft), true);
 
   setSpeedLevel(input, 2);
   assert.equal(input.speedLevel, 1.25);
+  assert.equal(input.powerConsumptionWeight, 1);
 
   setAutomaticDirection(input, DirectionOrder.West);
   assert.equal(input.controllerMode, ControllerMode.Automatic);
@@ -59,6 +62,7 @@ test("manual controller toggles thrusters and sets speed orders", () => {
   assert.equal(input.controllerMode, ControllerMode.Manual);
   assert.equal(input.speedOrder, SpeedOrder.Stop);
   assert.equal(input.speedLevel, 0);
+  assert.equal(input.powerConsumptionWeight, 1);
   assert.equal(input.targetDirection, DirectionOrder.North);
 });
 
@@ -130,8 +134,8 @@ test("automatic full speed north fires the main thruster when aligned", () => {
   const acceleration = getComponent(world, ship, Component.Acceleration);
   assert.equal(Math.abs(acceleration.x) < 1e-12, true);
   assert.equal(acceleration.y, -1000);
-  assert.equal(battery.charge, 97);
-  assert.equal(battery.outputRate, 3);
+  assert.equal(battery.charge, 96.25);
+  assert.equal(battery.outputRate, 3.75);
 });
 
 test("automatic mode rotates toward the selected direction", () => {
@@ -253,6 +257,28 @@ test("main back thruster uses battery power and applies throttle", () => {
   assert.equal(battery.charge, 98.5);
   assert.equal(battery.outputRate, 1.5);
   assertAngularAcceleration(world, ship, 0);
+});
+
+test("full and flank speed orders increase battery drain without changing thrust", () => {
+  const fullWorld = createWorld();
+  const fullShip = createShip(fullWorld, { x: 0, y: 0, playerControlled: "player-one", thrusterAcceleration: 100 });
+  const fullInput = createInput([ThrusterSlot.MainBack], 1);
+  setSpeedOrder(fullInput, SpeedOrder.Full);
+
+  applyPlayerInput(fullWorld, { "player-one": fullInput }, 1);
+
+  assert.equal(getThruster(fullWorld, ThrusterSlot.MainBack).power, 1);
+  assert.equal(getComponent(fullWorld, fullShip, Component.Battery).outputRate, 3.75);
+
+  const flankWorld = createWorld();
+  const flankShip = createShip(flankWorld, { x: 0, y: 0, playerControlled: "player-one", thrusterAcceleration: 100 });
+  const flankInput = createInput([ThrusterSlot.MainBack], 1);
+  setSpeedOrder(flankInput, SpeedOrder.Flank);
+
+  applyPlayerInput(flankWorld, { "player-one": flankInput }, 1);
+
+  assert.equal(getThruster(flankWorld, ThrusterSlot.MainBack).power, 1.25);
+  assert.equal(getComponent(flankWorld, flankShip, Component.Battery).outputRate, 5.625);
 });
 
 test("secondary thrusters drain one unit per second at full power", () => {

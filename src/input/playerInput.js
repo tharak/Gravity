@@ -27,12 +27,12 @@ export const DirectionOrder = Object.freeze({
 });
 
 export const SpeedOrders = Object.freeze([
-  Object.freeze({ id: SpeedOrder.Stop, label: "STOP", speedLevel: 0 }),
-  Object.freeze({ id: SpeedOrder.OneThird, label: "1/3", speedLevel: 1 / 3 }),
-  Object.freeze({ id: SpeedOrder.TwoThirds, label: "2/3", speedLevel: 2 / 3 }),
-  Object.freeze({ id: SpeedOrder.Standard, label: "STD", speedLevel: 0.82 }),
-  Object.freeze({ id: SpeedOrder.Full, label: "FULL", speedLevel: 1 }),
-  Object.freeze({ id: SpeedOrder.Flank, label: "FLANK", speedLevel: 1.25 })
+  Object.freeze({ id: SpeedOrder.Stop, label: "STOP", speedLevel: 0, powerConsumptionWeight: 1 }),
+  Object.freeze({ id: SpeedOrder.OneThird, label: "1/3", speedLevel: 1 / 3, powerConsumptionWeight: 1 }),
+  Object.freeze({ id: SpeedOrder.TwoThirds, label: "2/3", speedLevel: 2 / 3, powerConsumptionWeight: 1 }),
+  Object.freeze({ id: SpeedOrder.Standard, label: "STD", speedLevel: 0.82, powerConsumptionWeight: 1 }),
+  Object.freeze({ id: SpeedOrder.Full, label: "FULL", speedLevel: 1, powerConsumptionWeight: 1.25 }),
+  Object.freeze({ id: SpeedOrder.Flank, label: "FLANK", speedLevel: 1.25, powerConsumptionWeight: 1.5 })
 ]);
 
 export const DirectionOrders = Object.freeze([
@@ -47,6 +47,7 @@ export const DirectionOrders = Object.freeze([
 ]);
 
 const speedLevelByOrder = new Map(SpeedOrders.map((order) => [order.id, order.speedLevel]));
+const powerConsumptionWeightByOrder = new Map(SpeedOrders.map((order) => [order.id, order.powerConsumptionWeight]));
 const angleByDirection = new Map(DirectionOrders.map((direction) => [direction.id, direction.angle]));
 
 export function createPlayerInput() {
@@ -55,6 +56,7 @@ export function createPlayerInput() {
     activeSlots: new Set(),
     speedOrder: SpeedOrder.Stop,
     speedLevel: getSpeedLevel(SpeedOrder.Stop),
+    powerConsumptionWeight: getPowerConsumptionWeight(SpeedOrder.Stop),
     targetDirection: DirectionOrder.North,
     targetAngle: getDirectionAngle(DirectionOrder.North)
   };
@@ -145,11 +147,13 @@ export function setAutomaticDirection(input, directionOrder) {
 export function setSpeedOrder(input, speedOrder) {
   input.speedOrder = speedLevelByOrder.has(speedOrder) ? speedOrder : SpeedOrder.Standard;
   input.speedLevel = getSpeedLevel(input.speedOrder);
+  input.powerConsumptionWeight = getPowerConsumptionWeight(input.speedOrder);
 }
 
 export function setSpeedLevel(input, speedLevel) {
   input.speedOrder = undefined;
   input.speedLevel = clampSpeed(speedLevel);
+  input.powerConsumptionWeight = 1;
 }
 
 export function clearPlayerInput(input) {
@@ -200,6 +204,10 @@ function syncDirectionButtons(root, activeDirection) {
 
 function getSpeedLevel(speedOrder) {
   return speedLevelByOrder.get(speedOrder) ?? speedLevelByOrder.get(SpeedOrder.Standard);
+}
+
+function getPowerConsumptionWeight(speedOrder) {
+  return powerConsumptionWeightByOrder.get(speedOrder) ?? powerConsumptionWeightByOrder.get(SpeedOrder.Standard);
 }
 
 function getDirectionAngle(directionOrder) {
