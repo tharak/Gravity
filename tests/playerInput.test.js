@@ -86,6 +86,8 @@ test("manual control panel shows battery, speed orders, and one switch per thrus
   assert.ok(html.includes('aria-label="Ship controller"'));
   assert.ok(html.includes('data-controller-mode="manual"'));
   assert.ok(html.includes('data-controller-mode="automatic"'));
+  assert.ok(html.includes('class="health-readout"'));
+  assert.ok(html.includes('id="ship-health"'));
   assert.ok(html.includes('class="battery-widget"'));
   assert.ok(html.includes('class="north-readout"'));
   assert.ok(html.includes('World N'));
@@ -215,12 +217,18 @@ test("each thruster uses one shared unique color", () => {
   }
 });
 
-test("ships start with battery and thruster energy costs", () => {
+test("ships start with HP, battery, and thruster energy costs", () => {
   const world = createWorld();
   createShip(world, { x: 0, y: 0 });
 
   const batteries = queryEntities(world, [Component.Battery]);
+  const health = queryEntities(world, [Component.Health]);
   assert.equal(batteries.length, 1);
+  assert.equal(health.length, 1);
+  assert.deepEqual(getComponent(world, health[0], Component.Health), {
+    max: 100,
+    current: 100
+  });
   assert.deepEqual(getComponent(world, batteries[0], Component.Battery), {
     capacity: 100,
     charge: 100,

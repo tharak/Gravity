@@ -4,6 +4,7 @@ export const Component = Object.freeze({
   AngularVelocity: "angularVelocity",
   Battery: "battery",
   BodyKind: "bodyKind",
+  Health: "health",
   Mass: "mass",
   MomentOfInertia: "momentOfInertia",
   OrbitTrail: "orbitTrail",

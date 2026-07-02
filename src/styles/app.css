@@ -218,10 +218,28 @@ body {
   gap: 12px;
 }
 
+.health-readout,
 .battery-widget {
   display: flex;
   align-items: center;
   gap: 10px;
+}
+
+.health-readout {
+  min-height: 28px;
+  padding: 0 9px;
+  border: 1px solid rgba(255, 102, 122, 0.38);
+  border-radius: 8px;
+  background: rgba(10, 13, 20, 0.7);
+  color: #ff667a;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.health-readout strong {
+  color: #e9eef8;
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
 }
 
 .battery-widget__shell {

@@ -65,6 +65,12 @@ export function createShip(world, ship) {
     shipFrame: ship.shipFrame ?? { width: 88, height: 42 }
   });
 
+  const maxHealth = ship.maxHealth ?? 100;
+  addComponent(world, entity, Component.Health, {
+    max: maxHealth,
+    current: Math.min(maxHealth, ship.health ?? maxHealth)
+  });
+
   addComponent(world, entity, Component.Battery, {
     capacity: ship.batteryCapacity ?? 100,
     charge: ship.batteryCharge ?? ship.batteryCapacity ?? 100,

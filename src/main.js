@@ -17,6 +17,7 @@ const mapButtons = [...document.querySelectorAll("[data-test-map]")];
 const levelMenu = document.querySelector("#level-menu");
 const thrusterControls = document.querySelector("#thruster-controls");
 const batteryPercent = document.querySelector("#battery-percent");
+const shipHealth = document.querySelector("#ship-health");
 const batteryBars = [...document.querySelectorAll(".battery-widget__bar")];
 
 const playerInput = createPlayerInput();
@@ -113,8 +114,15 @@ function bindMapMenu() {
 function updateControls() {
   const player = queryEntities(world, [Component.PlayerControlled, Component.Battery])[0];
   if (player === undefined) {
+    batteryPercent.textContent = "--%";
+    shipHealth.textContent = "--%";
+    batteryBars.forEach((bar) => bar.classList.remove("is-filled"));
     return;
   }
+
+  const health = getComponent(world, player, Component.Health);
+  const healthPercent = health?.max > 0 ? Math.round((health.current / health.max) * 100) : 0;
+  shipHealth.textContent = String(healthPercent) + "%";
 
   const battery = getComponent(world, player, Component.Battery);
   const percent = battery.capacity > 0 ? Math.round((battery.charge / battery.capacity) * 100) : 0;
