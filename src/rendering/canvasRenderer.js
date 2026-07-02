@@ -144,11 +144,16 @@ function drawThrusters(context, world, ship, camera) {
 
     const x = thruster.localX * camera.scale;
     const y = thruster.localY * camera.scale;
-    const length = Math.max((18 + thruster.power * 5) * camera.scale, 16);
-    const width = Math.max((13 + thruster.power * 4) * camera.scale, 11);
+    const visualPower = Math.max(0, thruster.power);
+    const powerScale = 0.45 + visualPower;
+    const baseLength = Math.max(28 * camera.scale, 18);
+    const baseWidth = Math.max(18 * camera.scale, 12);
+    const length = baseLength * powerScale;
+    const width = baseWidth * powerScale;
 
     if (thruster.power > 0) {
       const pulse = thruster.stabilizing ? 0.65 + 0.35 * Math.sin(world.time * 18 + thruster.number) : 1;
+      const glowScale = powerScale + (0.35 + 0.25 * pulse) * visualPower;
       context.fillStyle = thruster.color + (thruster.stabilizing ? "77" : "55");
       drawThrusterCone(
         context,
@@ -156,8 +161,8 @@ function drawThrusters(context, world, ship, camera) {
         y,
         thruster.directionX,
         thruster.directionY,
-        length + (12 + 8 * pulse) * camera.scale * thruster.power,
-        width + (9 + 6 * pulse) * camera.scale * thruster.power
+        baseLength * glowScale,
+        baseWidth * glowScale
       );
     }
 
