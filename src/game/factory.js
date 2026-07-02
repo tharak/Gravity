@@ -1,4 +1,4 @@
-import { DefaultShipConfig, StarterShipConfig, ThrusterLayoutConfig } from "../config/shipConfig.js";
+import { DefaultShipModelConfig, DefaultShipViewConfig, StarterShipModelConfig, StarterShipViewConfig, ThrusterModelConfig, ThrusterViewConfig } from "../config/shipConfig.js";
 import { BodyKind, Component } from "../ecs/components.js";
 import { addComponent, createEntity } from "../ecs/world.js";
 import { WORLD_NORTH_ANGLE } from "./navigation.js";
@@ -53,35 +53,35 @@ export function createShip(world, ship) {
     y: ship.y,
     vx: ship.vx ?? 0,
     vy: ship.vy ?? 0,
-    mass: ship.mass ?? DefaultShipConfig.mass,
-    radius: ship.radius ?? DefaultShipConfig.radius,
+    mass: ship.mass ?? DefaultShipModelConfig.mass,
+    radius: ship.radius ?? DefaultShipViewConfig.radius,
     rotation: ship.rotation ?? SHIP_FACING_UP,
     angular: true,
     angularVelocity: ship.angularVelocity ?? 0,
     momentOfInertia: ship.momentOfInertia ?? getShipMomentOfInertia(
-      ship.mass ?? DefaultShipConfig.mass,
-      ship.shipFrame ?? DefaultShipConfig.frame
+      ship.mass ?? DefaultShipModelConfig.mass,
+      ship.shipFrame ?? ship.frame ?? DefaultShipViewConfig.frame
     ),
     playerControlled: ship.playerControlled,
-    shipFrame: ship.shipFrame ?? DefaultShipConfig.frame
+    shipFrame: ship.shipFrame ?? ship.frame ?? DefaultShipViewConfig.frame
   });
 
-  const maxHealth = ship.maxHealth ?? DefaultShipConfig.maxHealth;
+  const maxHealth = ship.maxHealth ?? DefaultShipModelConfig.maxHealth;
   addComponent(world, entity, Component.Health, {
     max: maxHealth,
     current: Math.min(maxHealth, ship.health ?? maxHealth)
   });
 
   addComponent(world, entity, Component.Battery, {
-    capacity: ship.batteryCapacity ?? DefaultShipConfig.batteryCapacity,
-    charge: ship.batteryCharge ?? ship.batteryCapacity ?? DefaultShipConfig.batteryCapacity,
-    rechargeRate: ship.batteryRechargeRate ?? DefaultShipConfig.batteryRechargeRate
+    capacity: ship.batteryCapacity ?? DefaultShipModelConfig.batteryCapacity,
+    charge: ship.batteryCharge ?? ship.batteryCapacity ?? DefaultShipModelConfig.batteryCapacity,
+    rechargeRate: ship.batteryRechargeRate ?? DefaultShipModelConfig.batteryRechargeRate
   });
 
   for (const thruster of createDefaultThrusters(
     entity,
-    ship.thrusterAcceleration ?? DefaultShipConfig.thrusterAcceleration,
-    ship.maxThrusterSpeed ?? DefaultShipConfig.maxThrusterSpeed
+    ship.thrusterAcceleration ?? DefaultShipModelConfig.thrusterAcceleration,
+    ship.maxThrusterSpeed ?? DefaultShipModelConfig.maxThrusterSpeed
   )) {
     createThruster(world, thruster);
   }
@@ -102,7 +102,7 @@ export function createThruster(world, thruster) {
     maxAcceleration: thruster.maxAcceleration,
     size: thruster.size,
     maxSpeed: thruster.maxSpeed,
-    energyUsePerSecond: thruster.energyUsePerSecond,
+    energyConsumption: thruster.energyConsumption,
     number: thruster.number,
     power: 0,
     stabilizing: false,
@@ -116,30 +116,37 @@ function getShipMomentOfInertia(mass, frame) {
 }
 
 function createDefaultThrusters(shipEntity, maxAcceleration, maxSpeed) {
-  return ThrusterLayoutConfig.map((thruster) => ({
-    shipEntity,
-    number: thruster.number,
-    slot: thruster.slot,
-    localX: thruster.localX,
-    localY: thruster.localY,
-    directionX: thruster.directionX,
-    directionY: thruster.directionY,
-    maxAcceleration: maxAcceleration * thruster.size,
-    size: thruster.size,
-    maxSpeed,
-    energyUsePerSecond: thruster.energyUsePerSecond,
-    color: thrusterColors[thruster.slot]
-  }));
+  return ThrusterModelConfig.map((model) => {
+    const view = ThrusterViewConfig.find((candidate) => candidate.slot === model.slot);
+    if (!view) {
+      throw new Error("Missing thruster view config for " + model.slot);
+    }
+
+    return {
+      shipEntity,
+      number: model.number,
+      slot: model.slot,
+      localX: view.localX,
+      localY: view.localY,
+      directionX: view.directionX,
+      directionY: view.directionY,
+      maxAcceleration: maxAcceleration * model.size,
+      size: model.size,
+      maxSpeed,
+      energyConsumption: model.energyConsumption,
+      color: thrusterColors[model.slot]
+    };
+  });
 }
 
 export function seedStarterSystem(world) {
   createShip(world, {
     x: 0,
     y: 0,
-    mass: StarterShipConfig.mass,
-    radius: StarterShipConfig.radius,
-    playerControlled: StarterShipConfig.playerControlled,
-    thrusterAcceleration: StarterShipConfig.thrusterAcceleration,
-    shipFrame: StarterShipConfig.frame
+    mass: StarterShipModelConfig.mass,
+    radius: StarterShipViewConfig.radius,
+    playerControlled: StarterShipModelConfig.playerControlled,
+    thrusterAcceleration: StarterShipModelConfig.thrusterAcceleration,
+    shipFrame: StarterShipViewConfig.frame
   });
 }

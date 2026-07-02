@@ -167,7 +167,7 @@ function sanitizeThrusterPower(value) {
 
 function applyBatteryLimitToCommand(battery, thrusters, command, deltaSeconds) {
   const requestedEnergyPerSecond = thrusters.reduce(
-    (total, thruster) => total + thruster.energyUsePerSecond * (command.powerBySlot.get(thruster.slot) ?? 0),
+    (total, thruster) => total + thruster.energyConsumption * (command.powerBySlot.get(thruster.slot) ?? 0),
     0
   ) * command.powerConsumptionWeight;
 

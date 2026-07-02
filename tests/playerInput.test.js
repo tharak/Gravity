@@ -222,7 +222,7 @@ test("each thruster uses one shared unique color", () => {
   }
 });
 
-test("ships start with HP, battery, and thruster energy costs", () => {
+test("ships start with HP, battery, and thruster energy consumption", () => {
   const world = createWorld();
   createShip(world, { x: 0, y: 0 });
 
@@ -239,8 +239,8 @@ test("ships start with HP, battery, and thruster energy costs", () => {
     charge: 100,
     rechargeRate: 1
   });
-  assert.equal(getThruster(world, ThrusterSlot.MainBack).energyUsePerSecond, 3);
-  assert.equal(getThruster(world, ThrusterSlot.TopLeft).energyUsePerSecond, 1);
+  assert.equal(getThruster(world, ThrusterSlot.MainBack).energyConsumption, 3);
+  assert.equal(getThruster(world, ThrusterSlot.TopLeft).energyConsumption, 1);
 });
 
 test("main back thruster uses battery power and applies throttle", () => {
