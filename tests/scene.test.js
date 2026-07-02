@@ -3,8 +3,15 @@ import test from "node:test";
 import { BodyKind, Component } from "../src/ecs/components.js";
 import { getComponent, getComponents } from "../src/ecs/world.js";
 import { createGravityTestScene } from "../src/scenes/gravityTestScene.js";
+import { createLevelSelectScene } from "../src/scenes/levelSelectScene.js";
 import { createStarterScene } from "../src/scenes/starterScene.js";
 import { getTestMap, TestMapId, testMaps } from "../src/scenes/testMaps.js";
+
+test("LevelSelect map is an empty first screen", () => {
+  const world = createLevelSelectScene();
+
+  assert.equal(world.entities.size, 0);
+});
 
 test("ShipMovement map is a single-ship thruster debug map", () => {
   const world = createStarterScene();
@@ -40,8 +47,9 @@ test("GravityTest map has static planets and multiple ships", () => {
 });
 
 test("test maps are selectable by stable ids", () => {
-  assert.deepEqual(testMaps.map((map) => map.id), [TestMapId.ShipMovement, TestMapId.GravityTest]);
+  assert.deepEqual(testMaps.map((map) => map.id), [TestMapId.LevelSelect, TestMapId.ShipMovement, TestMapId.GravityTest]);
+  assert.equal(getTestMap(TestMapId.LevelSelect).id, "LevelSelect");
   assert.equal(getTestMap(TestMapId.ShipMovement).id, "ShipMovement");
   assert.equal(getTestMap(TestMapId.GravityTest).id, "GravityTest");
-  assert.equal(getTestMap("missing").id, "ShipMovement");
+  assert.equal(getTestMap("missing").id, "LevelSelect");
 });

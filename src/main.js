@@ -14,6 +14,7 @@ const hudEntities = document.querySelector("#hud-entities");
 const hudStatus = document.querySelector("#hud-status");
 const hudMap = document.querySelector("#hud-map");
 const mapButtons = [...document.querySelectorAll("[data-test-map]")];
+const levelMenu = document.querySelector("#level-menu");
 const thrusterControls = document.querySelector("#thruster-controls");
 const batteryPercent = document.querySelector("#battery-percent");
 const batteryBars = [...document.querySelectorAll(".battery-widget__bar")];
@@ -21,7 +22,7 @@ const batteryBars = [...document.querySelectorAll(".battery-widget__bar")];
 const playerInput = createPlayerInput();
 const camera = createCamera();
 
-let activeMap = getTestMap(TestMapId.ShipMovement);
+let activeMap = getTestMap(TestMapId.LevelSelect);
 let world = activeMap.createWorld();
 let simulation = createSimulation(world, { inputById: { "player-one": playerInput } });
 let previousTimestamp = performance.now();
@@ -54,6 +55,10 @@ function updateHud() {
 }
 
 function getStatusText() {
+  if (activeMap.isMenu) {
+    return "Choose level";
+  }
+
   if (playerInput.controllerMode === ControllerMode.Automatic) {
     return "Auto " + playerInput.speedOrder + " " + playerInput.targetDirection;
   }
@@ -78,6 +83,7 @@ function switchTestMap(mapId) {
   clearPlayerInput(playerInput);
   syncPlayerInputControls(thrusterControls, playerInput);
   syncMapButtons();
+  syncLevelMenu();
   resizeCanvas();
   updateHud();
   updateControls();
@@ -89,6 +95,11 @@ function syncMapButtons() {
     button.classList.toggle("is-active", isActive);
     button.setAttribute("aria-pressed", String(isActive));
   }
+}
+
+function syncLevelMenu() {
+  levelMenu.classList.toggle("is-hidden", !activeMap.isMenu);
+  thrusterControls.classList.toggle("is-hidden", Boolean(activeMap.isMenu));
 }
 
 function bindMapMenu() {
@@ -118,5 +129,6 @@ window.addEventListener("resize", resizeCanvas);
 bindThrusterControls(thrusterControls, playerInput);
 bindMapMenu();
 syncMapButtons();
+syncLevelMenu();
 resizeCanvas();
 requestAnimationFrame(tick);

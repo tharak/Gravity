@@ -73,10 +73,16 @@ test("world north is the shared ship and automatic north reference", () => {
 test("manual control panel shows battery, speed orders, and one switch per thruster", () => {
   const html = readIndexHtml();
 
+  assert.ok(html.includes('id="level-menu"'));
+  assert.ok(html.includes('aria-label="Level select"'));
+  assert.ok(html.includes('class="thruster-controls is-hidden"'));
   assert.ok(html.includes('aria-label="Test maps"'));
+  assert.ok(html.includes('data-test-map="LevelSelect"'));
   assert.ok(html.includes('data-test-map="ShipMovement"'));
   assert.ok(html.includes('data-test-map="GravityTest"'));
   assert.ok(html.includes('id="hud-map"'));
+  assert.ok(html.includes('<dd id="hud-map">LevelSelect</dd>'));
+  assert.ok(html.includes('<dd id="hud-status">Choose level</dd>'));
   assert.ok(html.includes('aria-label="Ship controller"'));
   assert.ok(html.includes('data-controller-mode="manual"'));
   assert.ok(html.includes('data-controller-mode="automatic"'));

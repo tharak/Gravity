@@ -10,7 +10,16 @@
     <main class="app-shell">
       <section class="sim-panel" aria-label="Gravity simulator">
         <canvas id="gravity-canvas" width="1280" height="720"></canvas>
-        <div id="thruster-controls" class="thruster-controls" aria-label="Ship controller">
+        <div id="level-menu" class="level-menu" aria-label="Level select">
+          <div class="level-menu__panel">
+            <h2>Choose Test Map</h2>
+            <div class="level-menu__actions">
+              <button class="level-menu__button" type="button" data-test-map="ShipMovement">ShipMovement</button>
+              <button class="level-menu__button" type="button" data-test-map="GravityTest">GravityTest</button>
+            </div>
+          </div>
+        </div>
+        <div id="thruster-controls" class="thruster-controls is-hidden" aria-label="Ship controller">
           <div class="cockpit-readouts">
             <div class="battery-widget" aria-label="Ship battery">
               <div class="battery-widget__shell" aria-hidden="true">
@@ -71,13 +80,14 @@
       <aside class="hud" aria-label="Simulator data">
         <h1>Gravity</h1>
         <nav class="map-menu" aria-label="Test maps">
-          <button class="map-menu__button is-active" type="button" data-test-map="ShipMovement" aria-pressed="true">ShipMovement</button>
+          <button class="map-menu__button is-active" type="button" data-test-map="LevelSelect" aria-pressed="true">LevelSelect</button>
+          <button class="map-menu__button" type="button" data-test-map="ShipMovement" aria-pressed="false">ShipMovement</button>
           <button class="map-menu__button" type="button" data-test-map="GravityTest" aria-pressed="false">GravityTest</button>
         </nav>
         <dl>
           <div>
             <dt>Map</dt>
-            <dd id="hud-map">ShipMovement</dd>
+            <dd id="hud-map">LevelSelect</dd>
           </div>
           <div>
             <dt>Time</dt>
@@ -89,7 +99,7 @@
           </div>
           <div>
             <dt>Status</dt>
-            <dd id="hud-status">Running</dd>
+            <dd id="hud-status">Choose level</dd>
           </div>
         </dl>
         <div class="legend" aria-label="Entity colors">
