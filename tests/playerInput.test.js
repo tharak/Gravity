@@ -23,6 +23,7 @@ import { SHIP_FACING_UP } from "../src/game/factory.js";
 import { WORLD_NORTH_ANGLE } from "../src/game/navigation.js";
 import { applyPlayerInput } from "../src/systems/playerInputSystem.js";
 import { thrusterColors } from "../src/game/thrusterPalette.js";
+import { ThrusterModelConfig } from "../src/config/shipConfig.js";
 
 test("manual controller toggles thrusters and sets speed orders", () => {
   const input = createPlayerInput();
@@ -121,7 +122,7 @@ test("manual control panel shows battery, speed orders, and one switch per thrus
 
 test("automatic full speed north fires the main thruster when aligned", () => {
   const world = createWorld();
-  const ship = createShip(world, { x: 0, y: 0, playerControlled: "player-one", thrusterAcceleration: 100 });
+  const ship = createShip(world, { x: 0, y: 0, playerControlled: "player-one", thrusterModels: createTestThrusterModels(100) });
   const input = createPlayerInput();
   setControllerMode(input, ControllerMode.Automatic);
   setAutomaticDirection(input, DirectionOrder.North);
@@ -140,7 +141,7 @@ test("automatic full speed north fires the main thruster when aligned", () => {
 
 test("automatic mode rotates toward the selected direction", () => {
   const world = createWorld();
-  const ship = createShip(world, { x: 0, y: 0, playerControlled: "player-one", thrusterAcceleration: 100 });
+  const ship = createShip(world, { x: 0, y: 0, playerControlled: "player-one", thrusterModels: createTestThrusterModels(100) });
   const input = createPlayerInput();
   setControllerMode(input, ControllerMode.Automatic);
   setAutomaticDirection(input, DirectionOrder.East);
@@ -156,7 +157,7 @@ test("automatic mode rotates toward the selected direction", () => {
 
 test("stop speed stabilizes linear movement", () => {
   const world = createWorld();
-  const ship = createShip(world, { x: 0, y: 0, vy: -30, playerControlled: "player-one", thrusterAcceleration: 100 });
+  const ship = createShip(world, { x: 0, y: 0, vy: -30, playerControlled: "player-one", thrusterModels: createTestThrusterModels(100) });
   const input = createPlayerInput();
   setSpeedOrder(input, SpeedOrder.Stop);
 
@@ -171,7 +172,7 @@ test("stop speed stabilizes linear movement", () => {
 
 test("stop speed stabilizes angular movement", () => {
   const world = createWorld();
-  const ship = createShip(world, { x: 0, y: 0, playerControlled: "player-one", angularVelocity: 0.5, thrusterAcceleration: 100 });
+  const ship = createShip(world, { x: 0, y: 0, playerControlled: "player-one", angularVelocity: 0.5, thrusterModels: createTestThrusterModels(100) });
   const input = createPlayerInput();
   setSpeedOrder(input, SpeedOrder.Stop);
 
@@ -184,7 +185,7 @@ test("stop speed stabilizes angular movement", () => {
 
 test("manual stop does not align with world north when already stable", () => {
   const world = createWorld();
-  const ship = createShip(world, { x: 0, y: 0, rotation: 0, playerControlled: "player-one", thrusterAcceleration: 100 });
+  const ship = createShip(world, { x: 0, y: 0, rotation: 0, playerControlled: "player-one", thrusterModels: createTestThrusterModels(100) });
   const input = createPlayerInput();
   setSpeedOrder(input, SpeedOrder.Stop);
 
@@ -197,7 +198,7 @@ test("manual stop does not align with world north when already stable", () => {
 
 test("automatic stop stabilizes ship heading to selected direction", () => {
   const world = createWorld();
-  const ship = createShip(world, { x: 0, y: 0, playerControlled: "player-one", thrusterAcceleration: 100 });
+  const ship = createShip(world, { x: 0, y: 0, playerControlled: "player-one", thrusterModels: createTestThrusterModels(100) });
   const input = createPlayerInput();
   setControllerMode(input, ControllerMode.Automatic);
   setAutomaticDirection(input, DirectionOrder.East);
@@ -245,7 +246,7 @@ test("ships start with HP, battery, and thruster energy consumption", () => {
 
 test("main back thruster uses battery power and applies throttle", () => {
   const world = createWorld();
-  const ship = createShip(world, { x: 0, y: 0, playerControlled: "player-one", thrusterAcceleration: 100 });
+  const ship = createShip(world, { x: 0, y: 0, playerControlled: "player-one", thrusterModels: createTestThrusterModels(100) });
   const input = createInput([ThrusterSlot.MainBack], 0.5);
 
   applyPlayerInput(world, { "player-one": input }, 1);
@@ -261,7 +262,7 @@ test("main back thruster uses battery power and applies throttle", () => {
 
 test("full and flank speed orders increase battery drain without changing thrust", () => {
   const fullWorld = createWorld();
-  const fullShip = createShip(fullWorld, { x: 0, y: 0, playerControlled: "player-one", thrusterAcceleration: 100 });
+  const fullShip = createShip(fullWorld, { x: 0, y: 0, playerControlled: "player-one", thrusterModels: createTestThrusterModels(100) });
   const fullInput = createInput([ThrusterSlot.MainBack], 1);
   setSpeedOrder(fullInput, SpeedOrder.Full);
 
@@ -271,7 +272,7 @@ test("full and flank speed orders increase battery drain without changing thrust
   assert.equal(getComponent(fullWorld, fullShip, Component.Battery).outputRate, 3.75);
 
   const flankWorld = createWorld();
-  const flankShip = createShip(flankWorld, { x: 0, y: 0, playerControlled: "player-one", thrusterAcceleration: 100 });
+  const flankShip = createShip(flankWorld, { x: 0, y: 0, playerControlled: "player-one", thrusterModels: createTestThrusterModels(100) });
   const flankInput = createInput([ThrusterSlot.MainBack], 1);
   setSpeedOrder(flankInput, SpeedOrder.Flank);
 
@@ -283,7 +284,7 @@ test("full and flank speed orders increase battery drain without changing thrust
 
 test("secondary thrusters drain one unit per second at full power", () => {
   const world = createWorld();
-  const ship = createShip(world, { x: 0, y: 0, playerControlled: "player-one", thrusterAcceleration: 100 });
+  const ship = createShip(world, { x: 0, y: 0, playerControlled: "player-one", thrusterModels: createTestThrusterModels(100) });
   const input = createInput([ThrusterSlot.TopLeft], 1);
 
   applyPlayerInput(world, { "player-one": input }, 1);
@@ -337,7 +338,7 @@ test("disabled thrusters do not auto-stabilize the ship", () => {
 
 test("main back thruster has three times the baseline power", () => {
   const world = createWorld();
-  createShip(world, { x: 0, y: 0, thrusterAcceleration: 100 });
+  createShip(world, { x: 0, y: 0, thrusterModels: createTestThrusterModels(100) });
 
   const main = getThruster(world, ThrusterSlot.MainBack);
   assert.equal(main.size, 3);
@@ -370,7 +371,7 @@ test("thrusters stop accelerating once their max speed is reached", () => {
     y: 0,
     vy: -20,
     playerControlled: "player-one",
-    thrusterAcceleration: 100,
+    thrusterModels: createTestThrusterModels(100),
     maxThrusterSpeed: 20
   });
   const input = createInput([ThrusterSlot.MainBack], 1);
@@ -389,7 +390,7 @@ test("reverse thrusters can brake while the ship is over forward max speed", () 
     y: 0,
     vy: -40,
     playerControlled: "player-one",
-    thrusterAcceleration: 100,
+    thrusterModels: createTestThrusterModels(100),
     maxThrusterSpeed: 20
   });
   const input = createInput([ThrusterSlot.FrontLeft, ThrusterSlot.FrontRight], 1);
@@ -410,6 +411,13 @@ test("thruster entities keep parent-relative view attachment", () => {
     assert.equal(getComponent(world, entity, Component.Parent).entity, ship);
   }
 });
+
+function createTestThrusterModels(baselineAcceleration) {
+  return ThrusterModelConfig.map((thruster) => ({
+    ...thruster,
+    maxAcceleration: baselineAcceleration * thruster.size
+  }));
+}
 
 function createInput(slots, powerLevel) {
   const input = createPlayerInput();

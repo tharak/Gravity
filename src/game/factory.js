@@ -80,8 +80,8 @@ export function createShip(world, ship) {
 
   for (const thruster of createDefaultThrusters(
     entity,
-    ship.thrusterAcceleration ?? DefaultShipModelConfig.thrusterAcceleration,
-    ship.maxThrusterSpeed ?? DefaultShipModelConfig.maxThrusterSpeed
+    ship.maxThrusterSpeed ?? DefaultShipModelConfig.maxThrusterSpeed,
+    ship.thrusterModels ?? ThrusterModelConfig
   )) {
     createThruster(world, thruster);
   }
@@ -116,8 +116,8 @@ function getShipMomentOfInertia(mass, frame) {
   return mass * (frame.width * frame.width + frame.height * frame.height) / 12;
 }
 
-function createDefaultThrusters(shipEntity, maxAcceleration, maxSpeed) {
-  return ThrusterModelConfig.map((model) => {
+function createDefaultThrusters(shipEntity, maxSpeed, thrusterModels) {
+  return thrusterModels.map((model) => {
     const view = ThrusterViewConfig.placements.find((candidate) => candidate.slot === model.slot);
     if (!view) {
       throw new Error("Missing thruster view config for " + model.slot);
@@ -131,7 +131,7 @@ function createDefaultThrusters(shipEntity, maxAcceleration, maxSpeed) {
       localY: view.localY,
       directionX: view.directionX,
       directionY: view.directionY,
-      maxAcceleration: maxAcceleration * model.size,
+      maxAcceleration: model.maxAcceleration,
       size: model.size,
       viewSizeMultiplier: ThrusterViewConfig.sizeMultiplier,
       maxSpeed,
@@ -148,7 +148,6 @@ export function seedStarterSystem(world) {
     mass: StarterShipModelConfig.mass,
     radius: StarterShipViewConfig.radius,
     playerControlled: StarterShipModelConfig.playerControlled,
-    thrusterAcceleration: StarterShipModelConfig.thrusterAcceleration,
     shipFrame: StarterShipViewConfig.frame
   });
 }

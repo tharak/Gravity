@@ -33,14 +33,15 @@ test("ship and thruster configs separate model and view values", () => {
   assert.equal(DefaultShipModelConfig.maxThrusterSpeed, 120);
   assert.equal(DefaultShipViewConfig.radius, 48);
   assert.equal(DefaultShipViewConfig.frame.width, 88);
-  assert.equal(StarterShipModelConfig.thrusterAcceleration, 15);
+  assert.deepEqual(Object.keys(StarterShipModelConfig), ["mass", "playerControlled"]);
   assert.equal(StarterShipViewConfig.frame.width, 94);
 
   const mainModel = ThrusterModelConfig.find((thruster) => thruster.slot === ThrusterSlot.MainBack);
   const mainView = ThrusterViewConfig.placements.find((thruster) => thruster.slot === ThrusterSlot.MainBack);
   const topLeftModel = ThrusterModelConfig.find((thruster) => thruster.slot === ThrusterSlot.TopLeft);
-  assert.deepEqual(Object.keys(mainModel), ["number", "slot", "size", "energyConsumption"]);
+  assert.deepEqual(Object.keys(mainModel), ["number", "slot", "size", "maxAcceleration", "energyConsumption"]);
   assert.equal(mainModel.size, 3);
+  assert.equal(mainModel.maxAcceleration, 45);
   assert.equal(mainModel.energyConsumption, 3);
   assert.equal(topLeftModel.energyConsumption, 1);
   assert.equal(ThrusterViewConfig.sizeMultiplier, 0.5);
@@ -53,7 +54,7 @@ test("scene body configs separate model and view values", () => {
   assert.equal(GravityTestPlanetModelConfig[0].resources.minerals, 1200);
   assert.equal(GravityTestPlanetViewConfig[0].radius, 48);
   assert.equal(GravityTestPlanetViewConfig[0].x, -280);
-  assert.equal(GravityTestShipModelConfig[0].thrusterAcceleration, 15);
+  assert.deepEqual(Object.keys(GravityTestShipModelConfig[0]), ["id", "mass", "vx", "vy", "playerControlled"]);
   assert.equal(GravityTestShipModelConfig[1].vx, -4);
   assert.equal(GravityTestShipViewConfig[0].frame.width, 94);
   assert.equal(GravityTestShipViewConfig[1].radius, 50);
