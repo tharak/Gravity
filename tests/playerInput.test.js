@@ -341,6 +341,7 @@ test("main back thruster has three times the baseline power", () => {
 
   const main = getThruster(world, ThrusterSlot.MainBack);
   assert.equal(main.size, 3);
+  assert.equal(main.viewSizeMultiplier, 0.5);
   for (const slot of [
     ThrusterSlot.FrontLeft,
     ThrusterSlot.FrontRight,

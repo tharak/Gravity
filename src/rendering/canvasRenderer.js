@@ -145,7 +145,7 @@ function drawThrusters(context, world, ship, camera) {
     const x = thruster.localX * camera.scale;
     const y = thruster.localY * camera.scale;
     const visualPower = Math.max(0, thruster.power);
-    const sizeScale = Math.max(0.25, thruster.size ?? 1);
+    const sizeScale = Math.max(0.25, (thruster.size ?? 1) * (thruster.viewSizeMultiplier ?? 1));
     const baseLength = Math.max(28 * camera.scale, 18);
     const baseWidth = Math.max(18 * camera.scale, 12);
     const length = baseLength * sizeScale;

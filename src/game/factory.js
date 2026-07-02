@@ -106,6 +106,7 @@ export function createThruster(world, thruster) {
     number: thruster.number,
     power: 0,
     stabilizing: false,
+    viewSizeMultiplier: thruster.viewSizeMultiplier,
     color: thruster.color
   });
   return entity;
@@ -117,7 +118,7 @@ function getShipMomentOfInertia(mass, frame) {
 
 function createDefaultThrusters(shipEntity, maxAcceleration, maxSpeed) {
   return ThrusterModelConfig.map((model) => {
-    const view = ThrusterViewConfig.find((candidate) => candidate.slot === model.slot);
+    const view = ThrusterViewConfig.placements.find((candidate) => candidate.slot === model.slot);
     if (!view) {
       throw new Error("Missing thruster view config for " + model.slot);
     }
@@ -132,6 +133,7 @@ function createDefaultThrusters(shipEntity, maxAcceleration, maxSpeed) {
       directionY: view.directionY,
       maxAcceleration: maxAcceleration * model.size,
       size: model.size,
+      viewSizeMultiplier: ThrusterViewConfig.sizeMultiplier,
       maxSpeed,
       energyConsumption: model.energyConsumption,
       color: thrusterColors[model.slot]
