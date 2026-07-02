@@ -22,7 +22,9 @@ import {
 } from "../src/input/playerInput.js";
 import { SHIP_FACING_UP } from "../src/game/factory.js";
 import { WORLD_NORTH_ANGLE } from "../src/game/navigation.js";
+import { applyMaterialStress } from "../src/systems/materialStressSystem.js";
 import { applyPlayerInput } from "../src/systems/playerInputSystem.js";
+import { applySolarPanels } from "../src/systems/solarPanelSystem.js";
 import { thrusterColors } from "../src/game/thrusterPalette.js";
 import { ThrusterModelConfig } from "../src/config/shipConfig.js";
 
@@ -115,6 +117,7 @@ test("manual control panel shows battery, speed orders, and one switch per thrus
   assert.ok(html.includes('data-controller-mode="automatic"'));
   assert.ok(html.includes('class="health-readout"'));
   assert.ok(html.includes('id="ship-health"'));
+  assert.ok(html.includes('id="ship-fuel"'));
   assert.ok(html.includes('100/100'));
   assert.ok(html.includes('class="battery-widget"'));
   assert.ok(html.includes('class="north-readout"'));
@@ -251,12 +254,12 @@ test("each thruster uses one shared unique color", () => {
 
 test("ships start with HP, battery, and thruster energy consumption", () => {
   const world = createWorld();
-  createShip(world, { x: 0, y: 0 });
+  const ship = createShip(world, { x: 0, y: 0 });
 
   const batteries = queryEntities(world, [Component.Battery]);
   const health = queryEntities(world, [Component.Health]);
   assert.equal(batteries.length, 1);
-  assert.equal(health.length, 1);
+  assert.equal(health.length, 9);
   assert.deepEqual(getComponent(world, health[0], Component.Health), {
     max: 100,
     current: 100
@@ -266,7 +269,11 @@ test("ships start with HP, battery, and thruster energy consumption", () => {
     charge: 100,
     rechargeRate: 1
   });
+  const fuel = getComponent(world, ship, Component.Fuel);
+  assert.equal(fuel.capacity, 25);
+  assert.equal(fuel.current, 25);
   assert.equal(getThruster(world, ThrusterSlot.MainBack).energyConsumption, 3);
+  assert.equal(getThruster(world, ThrusterSlot.MainBack).fuelConsumption, 3);
   assert.equal(getThruster(world, ThrusterSlot.TopLeft).energyConsumption, 1);
 });
 
@@ -283,6 +290,8 @@ test("main back thruster uses battery power and applies throttle", () => {
   assert.equal(acceleration.y, -150);
   assert.equal(battery.charge, 98.5);
   assert.equal(battery.outputRate, 1.5);
+  assert.equal(getComponent(world, ship, Component.Fuel).current, 23.5);
+  assert.equal(getComponent(world, ship, Component.Fuel).outputRate, 1.5);
   assertAngularAcceleration(world, ship, 0);
 });
 
@@ -381,52 +390,43 @@ test("main back thruster has three times the baseline power", () => {
   }
 });
 
-test("thrusters have a configurable max speed", () => {
+test("fuel limits thrust when there is not enough propellant", () => {
   const world = createWorld();
-  createShip(world, { x: 0, y: 0, maxThrusterSpeed: 42 });
-
-  for (const entity of queryEntities(world, [Component.Thruster])) {
-    assert.equal(getComponent(world, entity, Component.Thruster).maxSpeed, 42);
-  }
-});
-
-test("thrusters stop accelerating once their max speed is reached", () => {
-  const world = createWorld();
-  const ship = createShip(world, {
-    x: 0,
-    y: 0,
-    vy: -20,
-    playerControlled: "player-one",
-    thrusterModels: createTestThrusterModels(100),
-    maxThrusterSpeed: 20
-  });
+  const ship = createShip(world, { x: 0, y: 0, playerControlled: "player-one", thrusterModels: createTestThrusterModels(100) });
+  const fuel = getComponent(world, ship, Component.Fuel);
+  fuel.current = 1;
   const input = createInput([ThrusterSlot.MainBack], 1);
 
   applyPlayerInput(world, { "player-one": input }, 1);
 
-  assert.equal(getThruster(world, ThrusterSlot.MainBack).power, 0);
-  assert.equal(getComponent(world, ship, Component.Acceleration).y, 0);
-  assert.equal(getComponent(world, ship, Component.Battery).outputRate, 0);
+  assert.equal(getThruster(world, ThrusterSlot.MainBack).power, 1 / 3);
+  assert.equal(fuel.current, 0);
+  assert.equal(fuel.outputRate, 1);
 });
 
-test("reverse thrusters can brake while the ship is over forward max speed", () => {
+test("solar panels recharge ship batteries", () => {
   const world = createWorld();
-  const ship = createShip(world, {
-    x: 0,
-    y: 0,
-    vy: -40,
-    playerControlled: "player-one",
-    thrusterModels: createTestThrusterModels(100),
-    maxThrusterSpeed: 20
-  });
-  const input = createInput([ThrusterSlot.FrontLeft, ThrusterSlot.FrontRight], 1);
+  const ship = createShip(world, { x: 0, y: 0 });
+  const battery = getComponent(world, ship, Component.Battery);
+  battery.charge = 50;
 
-  applyPlayerInput(world, { "player-one": input }, 1);
+  applySolarPanels(world, 2);
 
-  assert.equal(getThruster(world, ThrusterSlot.FrontLeft).power, 1);
-  assert.equal(getThruster(world, ThrusterSlot.FrontRight).power, 1);
-  assert.equal(getComponent(world, ship, Component.Acceleration).y > 0, true);
-  assert.equal(getComponent(world, ship, Component.Battery).outputRate, 2);
+  assert.equal(battery.charge, 56);
+  assert.equal(battery.solarRechargeRate, 3);
+});
+
+test("material stress damages EC health", () => {
+  const world = createWorld();
+  const ship = createShip(world, { x: 0, y: 0 });
+  const thrusterEntity = getThrusterEntity(world, ThrusterSlot.MainBack);
+  const stress = getComponent(world, thrusterEntity, Component.ComponentStress);
+  const health = getComponent(world, thrusterEntity, Component.Health);
+  stress.heat = 130;
+
+  applyMaterialStress(world, 1);
+
+  assert.equal(health.current < health.max, true);
 });
 
 test("thruster entities keep parent-relative view attachment", () => {
@@ -452,6 +452,17 @@ function createInput(slots, powerLevel) {
   }
   setSpeedLevel(input, powerLevel);
   return input;
+}
+
+function getThrusterEntity(world, slot) {
+  for (const entity of queryEntities(world, [Component.Thruster])) {
+    const thruster = getComponent(world, entity, Component.Thruster);
+    if (thruster.slot === slot) {
+      return entity;
+    }
+  }
+
+  throw new Error("Missing thruster " + slot);
 }
 
 function getThruster(world, slot) {

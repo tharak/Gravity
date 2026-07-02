@@ -219,13 +219,15 @@ body {
 }
 
 .health-readout,
+.fuel-readout,
 .battery-widget {
   display: flex;
   align-items: center;
   gap: 10px;
 }
 
-.health-readout {
+.health-readout,
+.fuel-readout {
   min-height: 28px;
   padding: 0 9px;
   border: 1px solid rgba(255, 102, 122, 0.38);
@@ -236,7 +238,8 @@ body {
   font-weight: 900;
 }
 
-.health-readout strong {
+.health-readout strong,
+.fuel-readout strong {
   color: #e9eef8;
   font-size: 14px;
   font-variant-numeric: tabular-nums;
@@ -810,4 +813,9 @@ body {
     border-top: 1px solid rgba(151, 169, 202, 0.18);
     padding: 18px;
   }
+}
+
+.fuel-readout {
+  border-color: rgba(255, 180, 84, 0.38);
+  color: #ffb454;
 }

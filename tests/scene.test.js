@@ -26,7 +26,9 @@ test("ShipMovement map is a single-ship thruster debug map", () => {
   assert.equal(getComponents(world, Component.AngularAcceleration).size, 1);
   assert.equal(getComponents(world, Component.MomentOfInertia).size, 1);
   assert.equal(getComponents(world, Component.Battery).size, 1);
-  assert.equal(getComponents(world, Component.Parent).size, 7);
+  assert.equal(getComponents(world, Component.Fuel).size, 1);
+  assert.equal(getComponents(world, Component.SolarPanel).size, 1);
+  assert.equal(getComponents(world, Component.Parent).size, 8);
 
   const mainThruster = [...thrusters.entries()]
     .map(([entity]) => getComponent(world, entity, Component.Thruster))
@@ -45,6 +47,8 @@ test("GravityTest map has static planets and multiple ships", () => {
   assert.equal(getComponents(world, Component.StaticBody).size, 3);
   assert.equal(getComponents(world, Component.PlayerControlled).size, 1);
   assert.equal(getComponents(world, Component.Thruster).size, 21);
+  assert.equal(getComponents(world, Component.SolarPanel).size, 3);
+  assert.equal(getComponents(world, Component.Fuel).size, 3);
 });
 
 test("test maps are selectable by stable ids", () => {

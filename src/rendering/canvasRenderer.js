@@ -123,6 +123,7 @@ function drawShip(context, world, ship, screen, frame, camera, rotation) {
   context.translate(screen.x, screen.y);
   context.rotate(rotation);
   drawThrusters(context, world, ship, camera);
+  drawSolarPanels(context, world, ship, camera);
 
   context.fillStyle = bodyColors[BodyKind.Ship];
   context.strokeStyle = isPlayer ? "#ffffff" : "rgba(255, 255, 255, 0.35)";
@@ -133,6 +134,26 @@ function drawShip(context, world, ship, screen, frame, camera, rotation) {
   context.stroke();
 
   context.restore();
+}
+
+function drawSolarPanels(context, world, ship, camera) {
+  for (const entity of queryEntities(world, [Component.SolarPanel])) {
+    const solarPanel = getComponent(world, entity, Component.SolarPanel);
+    if (solarPanel.shipEntity !== ship) {
+      continue;
+    }
+
+    const x = solarPanel.localX * camera.scale;
+    const y = solarPanel.localY * camera.scale;
+    const radius = Math.max(solarPanel.radius * camera.scale, 4);
+    context.fillStyle = "#7dd3fc";
+    context.strokeStyle = "rgba(233, 238, 248, 0.72)";
+    context.lineWidth = 1;
+    context.beginPath();
+    context.rect(x - radius * 1.6, y - radius * 0.55, radius * 3.2, radius * 1.1);
+    context.fill();
+    context.stroke();
+  }
 }
 
 function drawThrusters(context, world, ship, camera) {

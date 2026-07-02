@@ -1,4 +1,5 @@
 import { CollisionConfig } from "../config/collisionConfig.js";
+import { MaterialStressConfig } from "../config/materialStressConfig.js";
 import { Component } from "../ecs/components.js";
 import { addComponent, createEntity, getComponent, queryEntities } from "../ecs/world.js";
 
@@ -108,7 +109,16 @@ function damageEntity(world, entity, damage) {
   const appliedDamage = Math.min(health.current, damage);
   health.current = Math.max(0, health.current - damage);
   if (appliedDamage > 0) {
+    addComponentPressure(world, entity, appliedDamage * MaterialStressConfig.collisionPressurePerDamage);
     createDamagePopup(world, entity, appliedDamage);
+  }
+}
+
+function addComponentPressure(world, parent, pressure) {
+  for (const entity of queryEntities(world, [Component.Parent, Component.ComponentStress])) {
+    if (getComponent(world, entity, Component.Parent).entity === parent) {
+      getComponent(world, entity, Component.ComponentStress).pressure += pressure;
+    }
   }
 }
 

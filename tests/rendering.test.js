@@ -49,3 +49,11 @@ test("renderer scales thruster cones by size", () => {
   assert.ok(source.includes("const length = baseLength * sizeScale;"));
   assert.ok(source.includes("const glowScale = 1 +"));
 });
+
+
+test("renderer draws solar panel ECs", () => {
+  const source = fs.readFileSync(new URL("../src/rendering/canvasRenderer.js", import.meta.url), "utf8");
+
+  assert.ok(source.includes("drawSolarPanels"));
+  assert.ok(source.includes("Component.SolarPanel"));
+});

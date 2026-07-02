@@ -12,6 +12,7 @@ export const LabelConfig = Object.freeze({
     automatic: "Auto"
   }),
   readouts: Object.freeze({
+    fuel: "FUEL",
     hp: "HP",
     worldNorth: "World N",
     worldNorthCanvas: "WORLD N"
@@ -36,6 +37,7 @@ export const LabelConfig = Object.freeze({
     controllerMode: "Controller mode",
     shipBattery: "Ship battery",
     shipController: "Ship controller",
+    shipFuel: "Ship fuel",
     shipHealth: "Ship health",
     simulatorData: "Simulator data",
     speed: "Speed",

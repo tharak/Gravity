@@ -19,6 +19,7 @@ const levelMenu = document.querySelector("#level-menu");
 const thrusterControls = document.querySelector("#thruster-controls");
 const batteryPercent = document.querySelector("#battery-percent");
 const shipHealth = document.querySelector("#ship-health");
+const shipFuel = document.querySelector("#ship-fuel");
 const batteryBars = [...document.querySelectorAll(".battery-widget__bar")];
 
 const playerInput = createPlayerInput();
@@ -159,6 +160,7 @@ function updateControls() {
   if (player === undefined) {
     batteryPercent.textContent = "--%";
     shipHealth.textContent = "--/--";
+    shipFuel.textContent = "--%";
     batteryBars.forEach((bar) => bar.classList.remove("is-filled"));
     return;
   }
@@ -167,6 +169,10 @@ function updateControls() {
   shipHealth.textContent = health
     ? formatHealthValue(health.current) + "/" + formatHealthValue(health.max)
     : "--/--";
+
+  const fuel = getComponent(world, player, Component.Fuel);
+  const fuelPercent = fuel && fuel.capacity > 0 ? Math.round((fuel.current / fuel.capacity) * 100) : 0;
+  shipFuel.textContent = String(fuelPercent) + "%";
 
   const battery = getComponent(world, player, Component.Battery);
   const percent = battery.capacity > 0 ? Math.round((battery.charge / battery.capacity) * 100) : 0;

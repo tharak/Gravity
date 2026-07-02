@@ -3,6 +3,9 @@ export const Component = Object.freeze({
   AngularAcceleration: "angularAcceleration",
   AngularVelocity: "angularVelocity",
   Battery: "battery",
+  ComponentStress: "componentStress",
+  DamageTolerance: "damageTolerance",
+  Fuel: "fuel",
   BodyKind: "bodyKind",
   DamagePopup: "damagePopup",
   Health: "health",
@@ -16,6 +19,7 @@ export const Component = Object.freeze({
   Resource: "resource",
   Rotation: "rotation",
   ShipFrame: "shipFrame",
+  SolarPanel: "solarPanel",
   StaticBody: "staticBody",
   Thruster: "thruster",
   Velocity: "velocity"

@@ -18,6 +18,7 @@ export function applyPlayerInput(world, inputById, deltaSeconds = 0) {
 
 function createPilotThrusterCommand(world, ship, input, deltaSeconds) {
   const battery = getComponent(world, ship, Component.Battery);
+  const fuel = getComponent(world, ship, Component.Fuel);
   const thrusters = getShipThrusters(world, ship);
 
   rechargeBattery(battery, deltaSeconds);
@@ -28,9 +29,8 @@ function createPilotThrusterCommand(world, ship, input, deltaSeconds) {
       ? createAutomaticThrusterCommand(world, ship, input)
       : createManualThrusterCommand(input);
   const weightedCommand = setPowerConsumptionWeight(command, input?.powerConsumptionWeight ?? 1);
-  const speedLimitedCommand = limitCommandByThrusterMaxSpeed(world, ship, thrusters, weightedCommand);
 
-  return applyBatteryLimitToCommand(battery, thrusters, speedLimitedCommand, deltaSeconds);
+  return applyResourceLimitsToCommand(battery, fuel, thrusters, weightedCommand, deltaSeconds);
 }
 
 function createManualThrusterCommand(input) {
@@ -126,58 +126,27 @@ function applyTurnSignal(powerBySlot, turnSignal) {
   }
 }
 
-function limitCommandByThrusterMaxSpeed(world, ship, thrusters, command) {
-  const velocity = getComponent(world, ship, Component.Velocity);
-  const rotation = getComponent(world, ship, Component.Rotation)?.angle ?? SHIP_FACING_UP;
-  if (!velocity) {
-    return command;
-  }
-
-  const limitedPowerBySlot = new Map();
-  for (const [slot, power] of command.powerBySlot) {
-    const thruster = thrusters.find((candidate) => candidate.slot === slot);
-    const limitedPower = thruster
-      ? getSpeedLimitedPower(thruster, velocity, rotation, power)
-      : power;
-    if (limitedPower > 0) {
-      limitedPowerBySlot.set(slot, limitedPower);
-    }
-  }
-
-  return createThrusterCommand(limitedPowerBySlot, command.stabilizing, command.powerConsumptionWeight);
-}
-
-function getSpeedLimitedPower(thruster, velocity, rotation, power) {
-  if (!Number.isFinite(thruster.maxSpeed) || thruster.maxSpeed <= 0 || power <= 0) {
-    return sanitizeThrusterPower(power);
-  }
-
-  const direction = localToWorld(thruster, rotation);
-  const speedInThrustDirection = velocity.x * direction.x + velocity.y * direction.y;
-  if (speedInThrustDirection >= thruster.maxSpeed) {
-    return 0;
-  }
-
-  return sanitizeThrusterPower(power);
-}
-
-function sanitizeThrusterPower(value) {
-  return Math.max(0, Number.isFinite(value) ? value : 0);
-}
-
-function applyBatteryLimitToCommand(battery, thrusters, command, deltaSeconds) {
+function applyResourceLimitsToCommand(battery, fuel, thrusters, command, deltaSeconds) {
   const requestedEnergyPerSecond = thrusters.reduce(
     (total, thruster) => total + thruster.energyConsumption * (command.powerBySlot.get(thruster.slot) ?? 0),
     0
   ) * command.powerConsumptionWeight;
+  const requestedFuelPerSecond = thrusters.reduce(
+    (total, thruster) => total + thruster.fuelConsumption * (command.powerBySlot.get(thruster.slot) ?? 0),
+    0
+  ) * command.powerConsumptionWeight;
 
-  if (requestedEnergyPerSecond <= 0) {
+  if (requestedEnergyPerSecond <= 0 && requestedFuelPerSecond <= 0) {
     setBatteryOutput(battery, 0);
+    setFuelOutput(fuel, 0);
     return command;
   }
 
-  const availableScale = getBatteryPowerScale(battery, requestedEnergyPerSecond, deltaSeconds);
+  const batteryScale = getBatteryPowerScale(battery, requestedEnergyPerSecond, deltaSeconds);
+  const fuelScale = getFuelPowerScale(fuel, requestedFuelPerSecond, deltaSeconds);
+  const availableScale = Math.min(batteryScale, fuelScale);
   drainBattery(battery, requestedEnergyPerSecond * availableScale, deltaSeconds);
+  drainFuel(fuel, requestedFuelPerSecond * availableScale, deltaSeconds);
 
   if (availableScale >= 1) {
     return command;
@@ -221,6 +190,30 @@ function drainBattery(battery, energyPerSecond, deltaSeconds) {
   const energyUsed = energyPerSecond * deltaSeconds;
   battery.charge = Math.max(0, battery.charge - energyUsed);
   setBatteryOutput(battery, energyPerSecond);
+}
+
+function getFuelPowerScale(fuel, fuelPerSecond, deltaSeconds) {
+  if (!fuel || fuelPerSecond <= 0 || deltaSeconds <= 0) {
+    return 1;
+  }
+
+  return Math.min(1, fuel.current / (fuelPerSecond * deltaSeconds));
+}
+
+function drainFuel(fuel, fuelPerSecond, deltaSeconds) {
+  if (!fuel) {
+    return;
+  }
+
+  const fuelUsed = fuelPerSecond * deltaSeconds;
+  fuel.current = Math.max(0, fuel.current - fuelUsed);
+  setFuelOutput(fuel, fuelPerSecond);
+}
+
+function setFuelOutput(fuel, fuelPerSecond) {
+  if (fuel) {
+    fuel.outputRate = fuelPerSecond;
+  }
 }
 
 function setBatteryOutput(battery, energyPerSecond) {
