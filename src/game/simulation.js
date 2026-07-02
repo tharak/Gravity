@@ -1,8 +1,11 @@
 import { SimulationConfig } from "../config/simulationConfig.js";
+import { removeExpiredDamagePopups } from "./damage.js";
 import { applyGravity } from "../systems/gravitySystem.js";
 import { resolveCollisions } from "../systems/collisionSystem.js";
+import { applyGuns } from "../systems/gunSystem.js";
 import { integrateMotion } from "../systems/integrationSystem.js";
 import { applyMaterialStress } from "../systems/materialStressSystem.js";
+import { updateProjectiles } from "../systems/projectileSystem.js";
 import { applySolarPanels } from "../systems/solarPanelSystem.js";
 import { applyPlayerInput } from "../systems/playerInputSystem.js";
 import { recordTrails } from "../systems/trailSystem.js";
@@ -22,9 +25,12 @@ export function createSimulation(world, config = {}) {
         applyGravity(world, settings);
         applySolarPanels(world, settings.fixedDeltaSeconds);
         applyPlayerInput(world, inputById, settings.fixedDeltaSeconds);
+        applyGuns(world, inputById, settings.fixedDeltaSeconds);
         applyMaterialStress(world, settings.fixedDeltaSeconds);
         integrateMotion(world, settings.fixedDeltaSeconds);
+        updateProjectiles(world);
         resolveCollisions(world);
+        removeExpiredDamagePopups(world);
         recordTrails(world, settings.maxTrailLength);
         accumulator -= settings.fixedDeltaSeconds;
       }

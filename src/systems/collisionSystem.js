@@ -1,15 +1,15 @@
 import { CollisionConfig } from "../config/collisionConfig.js";
-import { MaterialStressConfig } from "../config/materialStressConfig.js";
 import { Component } from "../ecs/components.js";
-import { addComponent, createEntity, getComponent, queryEntities } from "../ecs/world.js";
-import { getShipPartEntities } from "../game/shipParts.js";
+import { getComponent, queryEntities } from "../ecs/world.js";
+import { applyDamage } from "../game/damage.js";
 
 export function resolveCollisions(world) {
   const bodies = queryEntities(world, [
     Component.Position,
     Component.Radius,
     Component.Mass
-  ]).filter((entity) => getComponent(world, entity, Component.Velocity) !== undefined || getComponent(world, entity, Component.StaticBody) !== undefined);
+  ]).filter((entity) => getComponent(world, entity, Component.Projectile) === undefined
+    && (getComponent(world, entity, Component.Velocity) !== undefined || getComponent(world, entity, Component.StaticBody) !== undefined));
 
   for (let i = 0; i < bodies.length; i += 1) {
     for (let j = i + 1; j < bodies.length; j += 1) {
@@ -97,43 +97,6 @@ function applyCollisionDamage(world, a, b, closingSpeed) {
     return;
   }
 
-  damageEntity(world, a, damage);
-  damageEntity(world, b, damage);
-}
-
-function damageEntity(world, entity, damage) {
-  const health = getComponent(world, entity, Component.Health);
-  if (!health) {
-    return;
-  }
-
-  const appliedDamage = Math.min(health.current, damage);
-  health.current = Math.max(0, health.current - damage);
-  if (appliedDamage > 0) {
-    addComponentPressure(world, entity, appliedDamage * MaterialStressConfig.collisionPressurePerDamage);
-    createDamagePopup(world, entity, appliedDamage);
-  }
-}
-
-function addComponentPressure(world, parent, pressure) {
-  for (const entity of getShipPartEntities(world, parent, [Component.ComponentStress])) {
-    getComponent(world, entity, Component.ComponentStress).pressure += pressure;
-  }
-}
-
-function createDamagePopup(world, entity, damage) {
-  const position = getComponent(world, entity, Component.Position);
-  const radius = getComponent(world, entity, Component.Radius)?.value ?? 0;
-  if (!position) {
-    return;
-  }
-
-  const popup = createEntity(world);
-  addComponent(world, popup, Component.DamagePopup, {
-    x: position.x,
-    y: position.y - radius - CollisionConfig.damagePopupRadiusOffset,
-    damage,
-    createdAt: world.time,
-    duration: CollisionConfig.damagePopupDuration
-  });
+  applyDamage(world, a, damage);
+  applyDamage(world, b, damage);
 }

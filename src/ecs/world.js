@@ -14,6 +14,13 @@ export function createEntity(world) {
   return entity;
 }
 
+export function removeEntity(world, entity) {
+  world.entities.delete(entity);
+  for (const components of world.components.values()) {
+    components.delete(entity);
+  }
+}
+
 export function addComponent(world, entity, type, data) {
   if (!world.components.has(type)) {
     world.components.set(type, new Map());

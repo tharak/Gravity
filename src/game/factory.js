@@ -1,4 +1,5 @@
 import { BatteryConfig } from "../config/batteryConfig.js";
+import { GunModelConfig, GunViewConfig } from "../config/gunConfig.js";
 import { MaterialStressConfig } from "../config/materialStressConfig.js";
 import { DefaultShipModelConfig, DefaultShipViewConfig, StarterShipModelConfig, StarterShipViewConfig, ThrusterModelConfig, ThrusterViewConfig } from "../config/shipConfig.js";
 import { SolarPanelModelConfig, SolarPanelViewConfig } from "../config/solarPanelConfig.js";
@@ -96,6 +97,12 @@ export function createShip(world, ship) {
     ...SolarPanelViewConfig
   });
 
+  createGun(world, {
+    shipEntity: entity,
+    ...GunModelConfig,
+    ...GunViewConfig
+  });
+
   return entity;
 }
 
@@ -141,6 +148,53 @@ export function createSolarPanel(world, solarPanel) {
   });
   addComponent(world, entity, Component.ComponentStress, { heat: 0, pressure: 0, vibration: 0, acceleration: 0 });
   addComponent(world, entity, Component.DamageTolerance, { ...MaterialStressConfig.tolerances });
+  return entity;
+}
+
+export function createGun(world, gun) {
+  const entity = createEntity(world);
+  addComponent(world, entity, Component.Parent, { entity: gun.shipEntity });
+  addComponent(world, entity, Component.Gun, {
+    localX: gun.localX,
+    localY: gun.localY,
+    radius: gun.radius,
+    barrelLength: gun.barrelLength,
+    range: gun.range,
+    fireCooldownSeconds: gun.fireCooldownSeconds,
+    energyPerShot: gun.energyPerShot,
+    heatPerShot: gun.heatPerShot,
+    projectileSpeed: gun.projectileSpeed,
+    projectileDamage: gun.projectileDamage,
+    projectileMass: gun.projectileMass,
+    projectileRadius: gun.projectileRadius,
+    projectileLifetimeSeconds: gun.projectileLifetimeSeconds,
+    aimAngle: SHIP_FACING_UP,
+    cooldown: 0,
+    firing: false
+  });
+  addComponent(world, entity, Component.Health, {
+    max: gun.maxHealth ?? MaterialStressConfig.defaultHealth,
+    current: gun.health ?? gun.maxHealth ?? MaterialStressConfig.defaultHealth
+  });
+  addComponent(world, entity, Component.ComponentStress, { heat: 0, pressure: 0, vibration: 0, acceleration: 0 });
+  addComponent(world, entity, Component.DamageTolerance, { ...MaterialStressConfig.tolerances });
+  return entity;
+}
+
+export function createProjectile(world, projectile) {
+  const entity = createEntity(world);
+  addComponent(world, entity, Component.Projectile, {
+    firedBy: projectile.firedBy,
+    damage: projectile.damage,
+    createdAt: world.time,
+    lifetimeSeconds: projectile.lifetimeSeconds
+  });
+  addComponent(world, entity, Component.Position, { x: projectile.x, y: projectile.y });
+  addComponent(world, entity, Component.Velocity, { x: projectile.vx, y: projectile.vy });
+  addComponent(world, entity, Component.Acceleration, { x: 0, y: 0 });
+  addComponent(world, entity, Component.Mass, { value: projectile.mass });
+  addComponent(world, entity, Component.Radius, { value: projectile.radius });
+  addComponent(world, entity, Component.Health, { max: 1, current: 1 });
   return entity;
 }
 

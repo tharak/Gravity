@@ -91,6 +91,19 @@
             <button class="speed-button" type="button" data-speed-order="full" aria-label="Full acceleration" aria-pressed="false" data-label="speedOrders.Full.label" data-aria-label="speedOrders.Full.ariaLabel">FULL</button>
             <button class="speed-button" type="button" data-speed-order="flank" aria-label="Flank acceleration" aria-pressed="false" data-label="speedOrders.Flank.label" data-aria-label="speedOrders.Flank.ariaLabel">FLANK</button>
           </fieldset>
+          <fieldset class="gun-control" aria-label="Gun control" data-aria-label="controls.gunControl">
+            <legend data-label="controls.gun">Gun</legend>
+            <div class="gun-control__group">
+              <span class="gun-control__label" data-label="controls.gunAim">Aim</span>
+              <button class="speed-button is-active" type="button" data-gun-aim-mode="manual" aria-label="Manual aim" aria-pressed="true" data-label="gunModes.manual" data-aria-label="controls.gunAimManual">MAN</button>
+              <button class="speed-button" type="button" data-gun-aim-mode="automatic" aria-label="Automatic aim" aria-pressed="false" data-label="gunModes.automatic" data-aria-label="controls.gunAimAutomatic">AUTO</button>
+            </div>
+            <div class="gun-control__group">
+              <span class="gun-control__label" data-label="controls.gunShoot">Shoot</span>
+              <button class="speed-button is-active" type="button" data-gun-shoot-mode="manual" aria-label="Manual shoot" aria-pressed="true" data-label="gunModes.manual" data-aria-label="controls.gunShootManual">MAN</button>
+              <button class="speed-button" type="button" data-gun-shoot-mode="automatic" aria-label="Automatic shoot" aria-pressed="false" data-label="gunModes.automatic" data-aria-label="controls.gunShootAutomatic">AUTO</button>
+            </div>
+          </fieldset>
         </div>
       </section>
       <aside class="hud" aria-label="Simulator data" data-aria-label="controls.simulatorData">

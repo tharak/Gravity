@@ -33,3 +33,10 @@ export function worldToScreen(camera, canvas, point) {
     y: canvas.height / 2 + (point.y - camera.y) * camera.scale
   };
 }
+
+export function screenToWorld(camera, canvas, point) {
+  return {
+    x: camera.x + (point.x - canvas.width / 2) / camera.scale,
+    y: camera.y + (point.y - canvas.height / 2) / camera.scale
+  };
+}

@@ -2,7 +2,7 @@ import { LabelConfig } from "../config/labelConfig.js";
 import { BodyKind, Component } from "../ecs/components.js";
 import { getComponent, queryEntities } from "../ecs/world.js";
 import { WORLD_NORTH_VECTOR } from "../game/navigation.js";
-import { getShipSolarPanels, getShipThrusters } from "../game/shipParts.js";
+import { getShipGuns, getShipSolarPanels, getShipThrusters } from "../game/shipParts.js";
 import { bodyColors } from "./colors.js";
 import { worldToScreen } from "./camera.js";
 
@@ -11,6 +11,7 @@ export function renderWorld(context, canvas, world, camera, options = {}) {
   drawGrid(context, canvas, camera);
   drawWorldNorthIndicator(context, canvas);
   drawTrails(context, canvas, world, camera);
+  drawProjectiles(context, canvas, world, camera);
   drawBodies(context, canvas, world, camera, options.lightPosition);
   drawDamagePopups(context, canvas, world, camera);
 }
@@ -134,8 +135,66 @@ function drawShip(context, world, ship, screen, frame, camera, rotation) {
   context.stroke();
 
   drawSolarPanels(context, world, ship, camera);
+  drawGuns(context, world, ship, camera, rotation);
 
+  context.restore();
+}
 
+function drawGuns(context, world, ship, camera, shipRotation) {
+  for (const gun of getShipGuns(world, ship)) {
+    const x = gun.localX * camera.scale;
+    const y = gun.localY * camera.scale;
+    const radius = Math.max(gun.radius * camera.scale, 3);
+    const barrelLength = Math.max(gun.barrelLength * camera.scale, radius * 2);
+    const barrelAngle = gun.aimAngle - shipRotation;
+
+    context.save();
+    context.translate(x, y);
+    context.rotate(barrelAngle);
+
+    context.strokeStyle = gun.firing ? "#ffd166" : "rgba(233, 238, 248, 0.9)";
+    context.lineWidth = Math.max(radius * 0.55, 2);
+    context.beginPath();
+    context.moveTo(0, 0);
+    context.lineTo(barrelLength, 0);
+    context.stroke();
+
+    context.fillStyle = "#b8c2d6";
+    context.strokeStyle = "rgba(7, 17, 31, 0.9)";
+    context.lineWidth = 1;
+    context.beginPath();
+    context.arc(0, 0, radius, 0, Math.PI * 2);
+    context.fill();
+    context.stroke();
+
+    context.restore();
+  }
+}
+
+function drawProjectiles(context, canvas, world, camera) {
+  context.save();
+  for (const entity of queryEntities(world, [Component.Projectile, Component.Position, Component.Radius])) {
+    const position = getComponent(world, entity, Component.Position);
+    const velocity = getComponent(world, entity, Component.Velocity) ?? { x: 0, y: 0 };
+    const radius = Math.max(getComponent(world, entity, Component.Radius).value * camera.scale, 2);
+    const screen = worldToScreen(camera, canvas, position);
+    const tail = worldToScreen(camera, canvas, {
+      x: position.x - velocity.x * 0.04,
+      y: position.y - velocity.y * 0.04
+    });
+
+    context.strokeStyle = "rgba(255, 209, 102, 0.5)";
+    context.lineWidth = radius;
+    context.beginPath();
+    context.moveTo(tail.x, tail.y);
+    context.lineTo(screen.x, screen.y);
+    context.stroke();
+
+    context.fillStyle = "#ffd166";
+    context.beginPath();
+    context.arc(screen.x, screen.y, radius, 0, Math.PI * 2);
+    context.fill();
+  }
   context.restore();
 }
 

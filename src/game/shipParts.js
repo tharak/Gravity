@@ -15,3 +15,8 @@ export function getShipSolarPanels(world, ship) {
   return getShipPartEntities(world, ship, [Component.SolarPanel])
     .map((entity) => getComponent(world, entity, Component.SolarPanel));
 }
+
+export function getShipGuns(world, ship) {
+  return getShipPartEntities(world, ship, [Component.Gun])
+    .map((entity) => getComponent(world, entity, Component.Gun));
+}

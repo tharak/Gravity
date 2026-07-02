@@ -42,6 +42,14 @@ export const LabelConfig = Object.freeze({
     accelerationDown: "Decrease acceleration",
     accelerationOrder: "Acceleration order",
     accelerationUp: "Increase acceleration",
+    gun: "Gun",
+    gunControl: "Gun control",
+    gunAim: "Aim",
+    gunAimManual: "Manual aim",
+    gunAimAutomatic: "Automatic aim",
+    gunShoot: "Shoot",
+    gunShootManual: "Manual shoot",
+    gunShootAutomatic: "Automatic shoot",
     testMaps: "Test maps",
     levelSelect: "Level select",
     locked: "LOCKED",
@@ -50,8 +58,13 @@ export const LabelConfig = Object.freeze({
   }),
   ecs: Object.freeze({
     empty: "No ship ECs",
+    gun: "Gun",
     solarPanel: "Solar panel",
     thruster: "Thruster"
+  }),
+  gunModes: Object.freeze({
+    manual: "MAN",
+    automatic: "AUTO"
   }),
   speedOrders: Object.freeze({
     Stop: Object.freeze({ label: "STOP", ariaLabel: "Stop and stabilize" }),

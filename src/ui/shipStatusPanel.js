@@ -86,6 +86,10 @@ function getEcLabel(world, entity) {
     return LabelConfig.ecs.thruster + " " + thruster.number;
   }
 
+  if (getComponent(world, entity, Component.Gun)) {
+    return LabelConfig.ecs.gun;
+  }
+
   if (getComponent(world, entity, Component.SolarPanel)) {
     return LabelConfig.ecs.solarPanel;
   }
@@ -97,6 +101,10 @@ function getEcSortValue(world, entity) {
   const thruster = getComponent(world, entity, Component.Thruster);
   if (thruster) {
     return thruster.number;
+  }
+
+  if (getComponent(world, entity, Component.Gun)) {
+    return 90;
   }
 
   if (getComponent(world, entity, Component.SolarPanel)) {

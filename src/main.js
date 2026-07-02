@@ -1,8 +1,8 @@
 import { createSimulation } from "./game/simulation.js";
 import { sunlight } from "./game/lighting.js";
-import { clearPlayerInput, createPlayerInput, bindThrusterControls, setKeyboardAcceleration, setKeyboardThrusters, syncPlayerInputControls } from "./input/playerInput.js";
+import { clearPlayerInput, createPlayerInput, bindThrusterControls, setGunAim, setGunShooting, setKeyboardAcceleration, setKeyboardShooting, setKeyboardThrusters, syncPlayerInputControls } from "./input/playerInput.js";
 import { getTestMap, TestMapId } from "./scenes/testMaps.js";
-import { createCamera, fitCameraToWorld } from "./rendering/camera.js";
+import { createCamera, fitCameraToWorld, screenToWorld } from "./rendering/camera.js";
 import { renderWorld } from "./rendering/canvasRenderer.js";
 import { createHudView, updateHud } from "./ui/hud.js";
 import { applyConfiguredLabels } from "./ui/labels.js";
@@ -82,7 +82,33 @@ function bindKeyboardThrusterControls() {
   window.addEventListener("keyup", (event) => handleThrusterKey(event, false, true));
 }
 
+function bindGunPointerControls() {
+  canvas.addEventListener("pointermove", updateGunAimFromPointer);
+  canvas.addEventListener("pointerdown", (event) => {
+    updateGunAimFromPointer(event);
+    setGunShooting(playerInput, true);
+  });
+  for (const eventName of ["pointerup", "pointercancel", "pointerleave"]) {
+    canvas.addEventListener(eventName, () => setGunShooting(playerInput, false));
+  }
+}
+
+function updateGunAimFromPointer(event) {
+  const bounds = canvas.getBoundingClientRect();
+  const pixelRatio = window.devicePixelRatio || 1;
+  const point = screenToWorld(camera, canvas, {
+    x: (event.clientX - bounds.left) * pixelRatio,
+    y: (event.clientY - bounds.top) * pixelRatio
+  });
+  setGunAim(playerInput, point.x, point.y);
+}
+
 function handleThrusterKey(event, pressed, allowAcceleration) {
+  if (setKeyboardShooting(playerInput, event.code, pressed)) {
+    event.preventDefault();
+    return;
+  }
+
   if (allowAcceleration && setKeyboardAcceleration(playerInput, event.code, pressed)) {
     event.preventDefault();
     syncPlayerInputControls(thrusterControls, playerInput);
@@ -101,6 +127,7 @@ window.addEventListener("resize", resizeCanvas);
 applyConfiguredLabels();
 bindThrusterControls(thrusterControls, playerInput);
 bindKeyboardThrusterControls();
+bindGunPointerControls();
 bindMapMenu();
 syncMapButtons();
 syncLevelMenu();

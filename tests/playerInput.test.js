@@ -167,6 +167,11 @@ test("manual control panel shows battery, speed orders, and one switch per thrus
   assert.ok(html.includes('class="speed-control"'));
   assert.ok(html.includes('class="keyboard-control"'));
   assert.ok(html.includes('data-key-code="KeyW"'));
+  assert.ok(html.includes('class="gun-control"'));
+  assert.ok(html.includes('data-gun-aim-mode="manual"'));
+  assert.ok(html.includes('data-gun-aim-mode="automatic"'));
+  assert.ok(html.includes('data-gun-shoot-mode="manual"'));
+  assert.ok(html.includes('data-gun-shoot-mode="automatic"'));
   assert.ok(fs.readFileSync(new URL("../src/main.js", import.meta.url), "utf8").includes("bindKeyboardThrusterControls"));
   const playerInputSource = fs.readFileSync(new URL("../src/input/playerInput.js", import.meta.url), "utf8");
   assert.ok(playerInputSource.includes("syncKeyboardButtons"));
@@ -297,7 +302,7 @@ test("ships start with HP, battery, and thruster energy consumption", () => {
   const batteries = queryEntities(world, [Component.Battery]);
   const health = queryEntities(world, [Component.Health]);
   assert.equal(batteries.length, 1);
-  assert.equal(health.length, 9);
+  assert.equal(health.length, 10);
   assert.deepEqual(getComponent(world, health[0], Component.Health), {
     max: 100,
     current: 100

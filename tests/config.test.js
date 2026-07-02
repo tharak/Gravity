@@ -3,6 +3,7 @@ import test from "node:test";
 import { CollisionConfig } from "../src/config/collisionConfig.js";
 import { BatteryConfig } from "../src/config/batteryConfig.js";
 import { FlightControlConfig } from "../src/config/flightControlConfig.js";
+import { GunModelConfig, GunViewConfig } from "../src/config/gunConfig.js";
 import { LabelConfig } from "../src/config/labelConfig.js";
 import { DefaultShipModelConfig, DefaultShipViewConfig, GravityTestShipModelConfig, GravityTestShipViewConfig, StarterShipModelConfig, StarterShipViewConfig, ThrusterModelConfig, ThrusterViewConfig } from "../src/config/shipConfig.js";
 import { MaterialStressConfig } from "../src/config/materialStressConfig.js";
@@ -83,6 +84,16 @@ test("simulation and collision config expose tuning values", () => {
   assert.equal(CollisionConfig.damageThreshold, 6);
   assert.equal(CollisionConfig.damageScale, 0.35);
   assert.equal(CollisionConfig.restitution, 0.45);
+});
+
+test("gun config separates model and view values", () => {
+  assert.equal(GunModelConfig.maxHealth, 25);
+  assert.equal(GunModelConfig.range, 480);
+  assert.equal(GunModelConfig.energyPerShot, 2);
+  assert.equal(GunModelConfig.projectileDamage, 8);
+  assert.equal(GunModelConfig.projectileSpeed, 260);
+  assert.equal(GunViewConfig.radius, 6);
+  assert.equal(GunViewConfig.projectileRadius, 3);
 });
 
 test("flight control config exposes stabilization tuning values", () => {

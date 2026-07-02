@@ -11,6 +11,16 @@ export const ControllerMode = Object.freeze({
   Manual: "manual"
 });
 
+export const GunAimMode = Object.freeze({
+  Automatic: "automatic",
+  Manual: "manual"
+});
+
+export const GunShootMode = Object.freeze({
+  Automatic: "automatic",
+  Manual: "manual"
+});
+
 export const SpeedOrder = Object.freeze(Object.fromEntries(
   Object.entries(SpeedOrderConfig).map(([name, config]) => [name, config.id])
 ));
@@ -60,7 +70,14 @@ export function createPlayerInput() {
     speedLevel: getSpeedLevel(SpeedOrder.Stop),
     powerConsumptionWeight: getPowerConsumptionWeight(SpeedOrder.Stop),
     targetDirection: DirectionOrder.North,
-    targetAngle: getDirectionAngle(DirectionOrder.North)
+    targetAngle: getDirectionAngle(DirectionOrder.North),
+    gun: {
+      aimMode: GunAimMode.Manual,
+      shootMode: GunShootMode.Manual,
+      aimX: undefined,
+      aimY: undefined,
+      shooting: false
+    }
   };
 }
 
@@ -111,6 +128,20 @@ export function bindThrusterControls(root, input) {
     }
   }
 
+  for (const button of root.querySelectorAll("[data-gun-aim-mode]")) {
+    button.addEventListener("click", () => {
+      setGunAimMode(input, button.dataset.gunAimMode);
+      syncGunButtons(root, input.gun);
+    });
+  }
+
+  for (const button of root.querySelectorAll("[data-gun-shoot-mode]")) {
+    button.addEventListener("click", () => {
+      setGunShootMode(input, button.dataset.gunShootMode);
+      syncGunButtons(root, input.gun);
+    });
+  }
+
   for (const button of root.querySelectorAll("[data-controller-mode]")) {
     button.addEventListener("click", () => {
       setControllerMode(input, button.dataset.controllerMode);
@@ -138,6 +169,36 @@ export function syncPlayerInputControls(root, input) {
   syncKeyboardButtons(root, input.activeSlots);
   syncAccelerationButtons(root, input.activeAccelerationKeys);
   syncDirectionButtons(root, input.targetDirection);
+  syncGunButtons(root, input.gun);
+}
+
+export function setGunAimMode(input, aimMode) {
+  input.gun.aimMode = aimMode === GunAimMode.Automatic ? GunAimMode.Automatic : GunAimMode.Manual;
+}
+
+export function setGunShootMode(input, shootMode) {
+  input.gun.shootMode = shootMode === GunShootMode.Automatic ? GunShootMode.Automatic : GunShootMode.Manual;
+  if (input.gun.shootMode === GunShootMode.Automatic) {
+    input.gun.shooting = false;
+  }
+}
+
+export function setGunAim(input, x, y) {
+  input.gun.aimX = x;
+  input.gun.aimY = y;
+}
+
+export function setGunShooting(input, shooting) {
+  input.gun.shooting = Boolean(shooting);
+}
+
+export function setKeyboardShooting(input, code, enabled) {
+  if (code !== "Space") {
+    return false;
+  }
+
+  setGunShooting(input, enabled);
+  return true;
 }
 
 export function toggleThruster(input, slot) {
@@ -228,6 +289,10 @@ export function clearPlayerInput(input) {
   setSpeedOrder(input, SpeedOrder.Stop);
   setAutomaticDirection(input, DirectionOrder.North);
   setControllerMode(input, ControllerMode.Manual);
+  setGunAimMode(input, GunAimMode.Manual);
+  setGunShootMode(input, GunShootMode.Manual);
+  setGunAim(input, undefined, undefined);
+  setGunShooting(input, false);
 }
 
 function syncSpeedButtons(root, activeOrder) {
@@ -261,6 +326,11 @@ function syncModePanels(root, activeMode) {
 
 function syncDirectionButtons(root, activeDirection) {
   syncToggleButtons(root, "[data-direction-order]", (button) => button.dataset.directionOrder === activeDirection);
+}
+
+function syncGunButtons(root, gun) {
+  syncToggleButtons(root, "[data-gun-aim-mode]", (button) => button.dataset.gunAimMode === gun.aimMode);
+  syncToggleButtons(root, "[data-gun-shoot-mode]", (button) => button.dataset.gunShootMode === gun.shootMode);
 }
 
 function setAccelerationKeyActive(input, code, enabled) {

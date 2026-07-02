@@ -19,7 +19,7 @@ body {
 .app-shell {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 260px;
-  min-height: 100vh;
+  height: 100vh;
 }
 
 .sim-panel {
@@ -93,6 +93,8 @@ body {
 }
 
 .hud {
+  min-height: 0;
+  overflow-y: auto;
   border-left: 1px solid rgba(151, 169, 202, 0.18);
   background: #101725;
   padding: 24px;
@@ -727,6 +729,38 @@ body {
   background: #ff667a;
 }
 
+.gun-control {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.gun-control legend {
+  grid-column: 1 / -1;
+  padding: 0 0 2px;
+  color: #d7dfed;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.gun-control__group {
+  display: grid;
+  grid-template-columns: 42px repeat(2, minmax(0, 1fr));
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.gun-control__label {
+  color: rgba(215, 223, 237, 0.72);
+  font-size: 12px;
+  font-weight: 700;
+}
+
 @media (max-width: 760px) {
   body {
     overflow: auto;
@@ -735,6 +769,12 @@ body {
   .app-shell {
     grid-template-columns: 1fr;
     grid-template-rows: minmax(0, 1fr) auto;
+    height: auto;
+    min-height: 100vh;
+  }
+
+  .hud {
+    overflow-y: visible;
   }
 
   .sim-panel {
