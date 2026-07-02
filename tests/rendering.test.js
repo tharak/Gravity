@@ -41,11 +41,11 @@ test("renderer draws thrusters below the ship hull", () => {
   assert.ok(drawShipSource.indexOf("drawThrusters") < drawShipSource.indexOf("context.rect"));
 });
 
-test("renderer scales thruster cones by power", () => {
+test("renderer scales thruster cones by acceleration multiplier", () => {
   const source = fs.readFileSync(new URL("../src/rendering/canvasRenderer.js", import.meta.url), "utf8");
 
   assert.ok(source.includes("const visualPower = Math.max(0, thruster.power);"));
-  assert.ok(source.includes("const powerScale = 0.45 + visualPower;"));
-  assert.ok(source.includes("const length = baseLength * powerScale;"));
-  assert.ok(source.includes("const glowScale = powerScale +"));
+  assert.ok(source.includes("const accelerationScale = Math.max(0.25, thruster.accelerationMultiplier ?? 1);"));
+  assert.ok(source.includes("const length = baseLength * accelerationScale;"));
+  assert.ok(source.includes("const glowScale = 1 +"));
 });

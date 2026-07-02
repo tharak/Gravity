@@ -100,6 +100,7 @@ export function createThruster(world, thruster) {
     directionX: thruster.directionX,
     directionY: thruster.directionY,
     maxAcceleration: thruster.maxAcceleration,
+    accelerationMultiplier: thruster.accelerationMultiplier,
     maxSpeed: thruster.maxSpeed,
     energyUsePerSecond: thruster.energyUsePerSecond,
     number: thruster.number,
@@ -124,6 +125,7 @@ function createDefaultThrusters(shipEntity, maxAcceleration, maxSpeed) {
     directionX: thruster.directionX,
     directionY: thruster.directionY,
     maxAcceleration: maxAcceleration * thruster.accelerationMultiplier,
+    accelerationMultiplier: thruster.accelerationMultiplier,
     maxSpeed,
     energyUsePerSecond: thruster.energyUsePerSecond,
     color: thrusterColors[thruster.slot]

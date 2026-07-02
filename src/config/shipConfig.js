@@ -20,7 +20,7 @@ export const StarterShipConfig = Object.freeze({
 });
 
 export const ThrusterLayoutConfig = Object.freeze([
-  Object.freeze({ number: 1, slot: ThrusterSlot.MainBack, localX: -50, localY: 0, directionX: 1, directionY: 0, accelerationMultiplier: 10, energyUsePerSecond: 3 }),
+  Object.freeze({ number: 1, slot: ThrusterSlot.MainBack, localX: -50, localY: 0, directionX: 1, directionY: 0, accelerationMultiplier: 3, energyUsePerSecond: 3 }),
   Object.freeze({ number: 2, slot: ThrusterSlot.FrontLeft, localX: 42, localY: -12, directionX: -1, directionY: 0, accelerationMultiplier: 1, energyUsePerSecond: 1 }),
   Object.freeze({ number: 3, slot: ThrusterSlot.FrontRight, localX: 42, localY: 12, directionX: -1, directionY: 0, accelerationMultiplier: 1, energyUsePerSecond: 1 }),
   Object.freeze({ number: 4, slot: ThrusterSlot.TopLeft, localX: -24, localY: -26, directionX: 0, directionY: 1, accelerationMultiplier: 1, energyUsePerSecond: 1 }),

@@ -133,7 +133,7 @@ test("automatic full speed north fires the main thruster when aligned", () => {
   assert.equal(getThruster(world, ThrusterSlot.MainBack).power, 1);
   const acceleration = getComponent(world, ship, Component.Acceleration);
   assert.equal(Math.abs(acceleration.x) < 1e-12, true);
-  assert.equal(acceleration.y, -1000);
+  assert.equal(acceleration.y, -300);
   assert.equal(battery.charge, 96.25);
   assert.equal(battery.outputRate, 3.75);
 });
@@ -253,7 +253,7 @@ test("main back thruster uses battery power and applies throttle", () => {
   const battery = getComponent(world, ship, Component.Battery);
   const acceleration = getComponent(world, ship, Component.Acceleration);
   assert.equal(getThruster(world, ThrusterSlot.MainBack).power, 0.5);
-  assert.equal(acceleration.y, -500);
+  assert.equal(acceleration.y, -150);
   assert.equal(battery.charge, 98.5);
   assert.equal(battery.outputRate, 1.5);
   assertAngularAcceleration(world, ship, 0);
@@ -335,11 +335,12 @@ test("disabled thrusters do not auto-stabilize the ship", () => {
   assertAllThrustersOff(world);
 });
 
-test("main back thruster has ten times the baseline power", () => {
+test("main back thruster has three times the baseline power", () => {
   const world = createWorld();
   createShip(world, { x: 0, y: 0, thrusterAcceleration: 100 });
 
   const main = getThruster(world, ThrusterSlot.MainBack);
+  assert.equal(main.accelerationMultiplier, 3);
   for (const slot of [
     ThrusterSlot.FrontLeft,
     ThrusterSlot.FrontRight,
@@ -348,7 +349,7 @@ test("main back thruster has ten times the baseline power", () => {
     ThrusterSlot.BottomLeft,
     ThrusterSlot.BottomRight
   ]) {
-    assert.equal(main.maxAcceleration, getThruster(world, slot).maxAcceleration * 10);
+    assert.equal(main.maxAcceleration, getThruster(world, slot).maxAcceleration * 3);
   }
 });
 
