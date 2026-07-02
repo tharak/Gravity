@@ -19,6 +19,8 @@ test("label config centralizes visible UI text", () => {
   assert.equal(LabelConfig.speedOrders.Flank.label, "FLANK");
   assert.equal(LabelConfig.controls.acceleration, "Acceleration");
   assert.equal(LabelConfig.controls.accelerationOrder, "Acceleration order");
+  assert.equal(LabelConfig.controls.shipEcs, "Ship ECs");
+  assert.equal(LabelConfig.ecs.solarPanelShort, "SP");
   assert.equal(LabelConfig.controls.locked, "LOCKED");
   assert.equal(LabelConfig.controllerModes.manualShort, "MAN");
   assert.equal(LabelConfig.directions.NorthEast.ariaLabel, "North east");

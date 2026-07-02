@@ -36,6 +36,7 @@ export const LabelConfig = Object.freeze({
     controllerMode: "Controller mode",
     shipBattery: "Ship battery",
     shipController: "Ship controller",
+    shipEcs: "Ship ECs",
     shipHealth: "Ship health",
     simulatorData: "Simulator data",
     acceleration: "Acceleration",
@@ -45,8 +46,11 @@ export const LabelConfig = Object.freeze({
     testMaps: "Test maps",
     levelSelect: "Level select",
     locked: "LOCKED",
-    thrusterSwitches: "Thruster switches",
     worldNorthReference: "World north reference"
+  }),
+  ecs: Object.freeze({
+    solarPanel: "Solar panel",
+    solarPanelShort: "SP"
   }),
   speedOrders: Object.freeze({
     Stop: Object.freeze({ label: "STOP", ariaLabel: "Stop and stabilize" }),

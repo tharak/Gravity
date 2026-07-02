@@ -151,6 +151,9 @@ test("manual control panel shows battery, speed orders, and one switch per thrus
   assert.ok(html.includes('World N'));
   assert.ok(html.includes('class="controller-bay"'));
   assert.ok(html.includes('class="controller-panel manual-panel"'));
+  assert.ok(html.includes('aria-label="Ship ECs"'));
+  assert.ok(html.includes('data-ec-component="solarPanel" aria-label="Solar panel" aria-disabled="true"'));
+  assert.ok(html.includes('data-label="ecs.solarPanelShort"'));
   assert.ok(html.includes('class="controller-panel automatic-panel"'));
   assert.ok(html.includes('aria-disabled="true"'));
   assert.equal(html.includes('data-controller-panel="automatic" hidden'), false);

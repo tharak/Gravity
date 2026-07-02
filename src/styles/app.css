@@ -465,6 +465,11 @@ body {
   top: 58px;
 }
 
+.thruster-switch:nth-child(8) {
+  left: 57px;
+  top: -6px;
+}
+
 .thruster-switches::after {
   content: var(--label-manual-short, "MAN");
   position: absolute;
@@ -488,6 +493,17 @@ body {
   background: var(--thruster-color, #ffb454);
   box-shadow: 0 0 16px var(--thruster-color, #ffb454);
   color: #07111f;
+}
+
+.ec-switch {
+  width: 46px;
+  height: 28px;
+  border-radius: 8px;
+  border-color: rgba(125, 211, 252, 0.72);
+  background: rgba(14, 35, 54, 0.94);
+  color: #7dd3fc;
+  font-size: 11px;
+  pointer-events: none;
 }
 
 .keyboard-control {
@@ -830,6 +846,11 @@ body {
   .thruster-switch:nth-child(7) {
     right: 10px;
     top: 52px;
+  }
+
+  .thruster-switch:nth-child(8) {
+    left: 51px;
+    top: -5px;
   }
 
   .thruster-switches::after,
