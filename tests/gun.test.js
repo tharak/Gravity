@@ -185,6 +185,7 @@ test("projectiles damage what they hit and are removed", () => {
   const world = createWorld();
   const target = createShip(world, { x: 100, y: 0 });
   const health = getComponent(world, target, Component.Health);
+  drainShields(world);
   createProjectile(world, {
     firedBy: 9999,
     x: 60,
@@ -249,6 +250,7 @@ test("projectiles expire after their lifetime", () => {
 test("damage popups expire and are removed from the world", () => {
   const world = createWorld();
   createShip(world, { x: 100, y: 0 });
+  drainShields(world);
   createProjectile(world, {
     firedBy: 9999,
     x: 60,
@@ -290,3 +292,9 @@ test("projectile bodies are entities with physics components", () => {
   assert.notEqual(getComponent(world, projectile, Component.Mass), undefined);
   assert.notEqual(getComponent(world, projectile, Component.Health), undefined);
 });
+
+function drainShields(world) {
+  for (const shield of getComponents(world, Component.Shield).values()) {
+    shield.strength = 0;
+  }
+}

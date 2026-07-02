@@ -1,6 +1,7 @@
 import { Component } from "../ecs/components.js";
 import { getComponent, queryEntities, removeEntity } from "../ecs/world.js";
 import { applyDamage } from "../game/damage.js";
+import { absorbProjectileDamage } from "./shieldSystem.js";
 
 export function updateProjectiles(world) {
   for (const entity of queryEntities(world, [Component.Projectile, Component.Position, Component.Radius])) {
@@ -15,7 +16,10 @@ export function updateProjectiles(world) {
       continue;
     }
 
-    applyDamage(world, hit, projectile.damage);
+    const remainingDamage = absorbProjectileDamage(world, hit, projectile.damage);
+    if (remainingDamage > 0) {
+      applyDamage(world, hit, remainingDamage);
+    }
     removeEntity(world, entity);
   }
 }

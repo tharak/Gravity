@@ -59,6 +59,7 @@ export const LabelConfig = Object.freeze({
   ecs: Object.freeze({
     empty: "No ship ECs",
     gun: "Gun",
+    shield: "Shield",
     solarPanel: "Solar panel",
     thruster: "Thruster"
   }),

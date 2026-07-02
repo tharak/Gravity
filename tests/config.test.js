@@ -4,6 +4,7 @@ import { CollisionConfig } from "../src/config/collisionConfig.js";
 import { BatteryConfig } from "../src/config/batteryConfig.js";
 import { FlightControlConfig } from "../src/config/flightControlConfig.js";
 import { GunModelConfig, GunViewConfig } from "../src/config/gunConfig.js";
+import { ShieldModelConfig, ShieldViewConfig } from "../src/config/shieldConfig.js";
 import { LabelConfig } from "../src/config/labelConfig.js";
 import { DefaultShipModelConfig, DefaultShipViewConfig, GravityTestShipModelConfig, GravityTestShipViewConfig, StarterShipModelConfig, StarterShipViewConfig, ThrusterModelConfig, ThrusterViewConfig } from "../src/config/shipConfig.js";
 import { MaterialStressConfig } from "../src/config/materialStressConfig.js";
@@ -95,6 +96,15 @@ test("gun config separates model and view values", () => {
   assert.equal(GunModelConfig.projectileSpeed, 260);
   assert.equal(GunViewConfig.radius, 6);
   assert.equal(GunViewConfig.projectileRadius, 3);
+});
+
+test("shield config separates model and view values", () => {
+  assert.equal(ShieldModelConfig.maxHealth, 25);
+  assert.equal(ShieldModelConfig.maxStrength, 30);
+  assert.equal(ShieldModelConfig.rechargeRatePerSecond, 2);
+  assert.equal(ShieldModelConfig.energyPerStrength, 1);
+  assert.equal(ShieldModelConfig.heatPerAbsorbedDamage, 2);
+  assert.equal(ShieldViewConfig.radiusOffset, 10);
 });
 
 test("flight control config exposes stabilization tuning values", () => {

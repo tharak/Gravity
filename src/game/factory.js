@@ -1,6 +1,7 @@
 import { BatteryConfig } from "../config/batteryConfig.js";
 import { GunModelConfig, GunViewConfig } from "../config/gunConfig.js";
 import { MaterialStressConfig } from "../config/materialStressConfig.js";
+import { ShieldModelConfig, ShieldViewConfig } from "../config/shieldConfig.js";
 import { DefaultShipModelConfig, DefaultShipViewConfig, StarterShipModelConfig, StarterShipViewConfig, ThrusterModelConfig, ThrusterViewConfig } from "../config/shipConfig.js";
 import { SolarPanelModelConfig, SolarPanelViewConfig } from "../config/solarPanelConfig.js";
 import { BodyKind, Component } from "../ecs/components.js";
@@ -103,6 +104,12 @@ export function createShip(world, ship) {
     ...GunViewConfig
   });
 
+  createShield(world, {
+    shipEntity: entity,
+    ...ShieldModelConfig,
+    ...ShieldViewConfig
+  });
+
   return entity;
 }
 
@@ -177,6 +184,29 @@ export function createGun(world, gun) {
   addComponent(world, entity, Component.Health, {
     max: gun.maxHealth ?? MaterialStressConfig.defaultHealth,
     current: gun.health ?? gun.maxHealth ?? MaterialStressConfig.defaultHealth
+  });
+  addComponent(world, entity, Component.ComponentStress, { heat: 0, pressure: 0, vibration: 0, acceleration: 0 });
+  addComponent(world, entity, Component.DamageTolerance, { ...MaterialStressConfig.tolerances });
+  return entity;
+}
+
+export function createShield(world, shield) {
+  const entity = createEntity(world);
+  addComponent(world, entity, Component.Parent, { entity: shield.shipEntity });
+  addComponent(world, entity, Component.Shield, {
+    localX: shield.localX,
+    localY: shield.localY,
+    radiusOffset: shield.radiusOffset,
+    maxStrength: shield.maxStrength,
+    strength: shield.strength ?? shield.maxStrength,
+    rechargeRatePerSecond: shield.rechargeRatePerSecond,
+    energyPerStrength: shield.energyPerStrength,
+    heatPerAbsorbedDamage: shield.heatPerAbsorbedDamage,
+    lastHitAt: -Infinity
+  });
+  addComponent(world, entity, Component.Health, {
+    max: shield.maxHealth ?? MaterialStressConfig.defaultHealth,
+    current: shield.health ?? shield.maxHealth ?? MaterialStressConfig.defaultHealth
   });
   addComponent(world, entity, Component.ComponentStress, { heat: 0, pressure: 0, vibration: 0, acceleration: 0 });
   addComponent(world, entity, Component.DamageTolerance, { ...MaterialStressConfig.tolerances });

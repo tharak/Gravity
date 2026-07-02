@@ -28,7 +28,8 @@ test("ShipMovement map is a single-ship thruster debug map", () => {
   assert.equal(getComponents(world, Component.Battery).size, 1);
   assert.equal(getComponents(world, Component.SolarPanel).size, 1);
   assert.equal(getComponents(world, Component.Gun).size, 1);
-  assert.equal(getComponents(world, Component.Parent).size, 9);
+  assert.equal(getComponents(world, Component.Shield).size, 1);
+  assert.equal(getComponents(world, Component.Parent).size, 10);
   assert.equal([...getComponents(world, Component.Battery).values()][0].capacity > 25, true);
 
   const mainThruster = [...thrusters.entries()]
@@ -50,6 +51,7 @@ test("GravityTest map has static planets and multiple ships", () => {
   assert.equal(getComponents(world, Component.Thruster).size, 21);
   assert.equal(getComponents(world, Component.SolarPanel).size, 3);
   assert.equal(getComponents(world, Component.Gun).size, 3);
+  assert.equal(getComponents(world, Component.Shield).size, 3);
   assert.equal([...getComponents(world, Component.Battery).values()].every((battery) => battery.capacity > 25), true);
 });
 

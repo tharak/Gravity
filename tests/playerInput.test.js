@@ -302,7 +302,7 @@ test("ships start with HP, battery, and thruster energy consumption", () => {
   const batteries = queryEntities(world, [Component.Battery]);
   const health = queryEntities(world, [Component.Health]);
   assert.equal(batteries.length, 1);
-  assert.equal(health.length, 10);
+  assert.equal(health.length, 11);
   assert.deepEqual(getComponent(world, health[0], Component.Health), {
     max: 100,
     current: 100

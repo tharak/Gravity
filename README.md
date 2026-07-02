@@ -15,6 +15,8 @@ The cockpit has a manual mode and an automatic mode. In manual mode each thruste
 
 Every ship also mounts a gun equipment component (EC). The gun has separate aim and shoot modes: manual aim follows the mouse or touch position on the canvas while automatic aim tracks the nearest ship; manual shoot fires while Space or a touch on the canvas is held, while automatic shoot fires whenever a ship is within range. Projectiles are world entities that inherit the ship's velocity, curve under gravity, and damage whatever they hit — showing damage popups and stressing the target's ECs. Each shot drains battery energy and heats the gun; near its heat tolerance the gun holds fire (the barrel turns red) and resumes shooting once it has cooled down.
 
+Ships also mount a shield EC drawn as a glowing ring around the hull. The shield absorbs projectile damage with its strength pool before any reaches the hull; overflow damage passes through. Absorbing hits heats the shield, and its strength recharges from the ship battery. A destroyed or drained shield stops blocking until it recharges (health never recovers).
+
 The ship battery's capacity scales with the map size. The main thruster consumes 3 units per second at full power, each other thruster consumes 1 unit per second, and the battery recharges from the ship (1 unit per second) plus its solar panel (3 units per second). If the selected thrusters request more energy than the battery has available, thrust is scaled down to match the available charge. Collisions and material stress damage the hull and its equipment components (ECs).
 
 ## Run Locally

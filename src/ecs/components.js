@@ -19,6 +19,7 @@ export const Component = Object.freeze({
   Radius: "radius",
   Resource: "resource",
   Rotation: "rotation",
+  Shield: "shield",
   ShipFrame: "shipFrame",
   SolarPanel: "solarPanel",
   StaticBody: "staticBody",

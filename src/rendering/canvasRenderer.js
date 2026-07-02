@@ -1,6 +1,7 @@
 import { LabelConfig } from "../config/labelConfig.js";
 import { BodyKind, Component } from "../ecs/components.js";
 import { getComponent, queryEntities } from "../ecs/world.js";
+import { getShipPartEntities } from "../game/shipParts.js";
 import { WORLD_NORTH_VECTOR } from "../game/navigation.js";
 import { getShipGuns, getShipSolarPanels, getShipThrusters } from "../game/shipParts.js";
 import { bodyColors } from "./colors.js";
@@ -136,8 +137,38 @@ function drawShip(context, world, ship, screen, frame, camera, rotation) {
 
   drawSolarPanels(context, world, ship, camera);
   drawGuns(context, world, ship, camera, rotation);
+  drawShields(context, world, ship, camera);
 
   context.restore();
+}
+
+function drawShields(context, world, ship, camera) {
+  const shipRadius = getComponent(world, ship, Component.Radius)?.value ?? 0;
+
+  for (const entity of getShipPartEntities(world, ship, [Component.Shield, Component.Health])) {
+    if (getComponent(world, entity, Component.Health).current <= 0) {
+      continue;
+    }
+
+    const shield = getComponent(world, entity, Component.Shield);
+    if (shield.strength <= 0) {
+      continue;
+    }
+
+    const radius = (shipRadius + shield.radiusOffset) * camera.scale;
+    const strengthRatio = shield.strength / shield.maxStrength;
+    const flash = Math.max(0, 1 - (world.time - shield.lastHitAt) / 0.3);
+
+    context.save();
+    context.strokeStyle = `rgba(125, 211, 252, ${0.22 + 0.28 * strengthRatio + 0.4 * flash})`;
+    context.fillStyle = `rgba(125, 211, 252, ${0.04 + 0.05 * strengthRatio + 0.1 * flash})`;
+    context.lineWidth = 2 + 2.5 * flash;
+    context.beginPath();
+    context.arc(0, 0, radius, 0, Math.PI * 2);
+    context.fill();
+    context.stroke();
+    context.restore();
+  }
 }
 
 function drawGuns(context, world, ship, camera, shipRotation) {

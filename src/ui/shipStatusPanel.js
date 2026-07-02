@@ -90,6 +90,10 @@ function getEcLabel(world, entity) {
     return LabelConfig.ecs.gun;
   }
 
+  if (getComponent(world, entity, Component.Shield)) {
+    return LabelConfig.ecs.shield;
+  }
+
   if (getComponent(world, entity, Component.SolarPanel)) {
     return LabelConfig.ecs.solarPanel;
   }
@@ -105,6 +109,10 @@ function getEcSortValue(world, entity) {
 
   if (getComponent(world, entity, Component.Gun)) {
     return 90;
+  }
+
+  if (getComponent(world, entity, Component.Shield)) {
+    return 95;
   }
 
   if (getComponent(world, entity, Component.SolarPanel)) {
