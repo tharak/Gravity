@@ -19,6 +19,7 @@ const levelMenu = document.querySelector("#level-menu");
 const thrusterControls = document.querySelector("#thruster-controls");
 const batteryPercent = document.querySelector("#battery-percent");
 const shipHealth = document.querySelector("#ship-health");
+const shipEcList = document.querySelector("#ship-ec-list");
 const batteryBars = [...document.querySelectorAll(".battery-widget__bar")];
 
 const playerInput = createPlayerInput();
@@ -172,6 +173,7 @@ function updateControls() {
     batteryPercent.textContent = "--%";
     shipHealth.textContent = "--/--";
     batteryBars.forEach((bar) => bar.classList.remove("is-filled"));
+    updateShipEcList(undefined);
     return;
   }
 
@@ -188,6 +190,75 @@ function updateControls() {
   batteryBars.forEach((bar, index) => {
     bar.classList.toggle("is-filled", index < filledBars);
   });
+  updateShipEcList(player);
+}
+
+function updateShipEcList(player) {
+  const ecs = player === undefined ? [] : getShipEcRows(player);
+  shipEcList.replaceChildren(...ecs.map(createShipEcRow));
+
+  if (ecs.length === 0) {
+    const empty = document.createElement("div");
+    empty.className = "ship-ec-row";
+    const label = document.createElement("span");
+    label.className = "ship-ec-row__name";
+    label.textContent = LabelConfig.ecs.empty;
+    empty.append(label);
+    shipEcList.append(empty);
+  }
+}
+
+function getShipEcRows(ship) {
+  return queryEntities(world, [Component.Parent, Component.Health])
+    .filter((entity) => getComponent(world, entity, Component.Parent).entity === ship)
+    .map((entity) => ({
+      entity,
+      label: getEcLabel(entity),
+      health: getComponent(world, entity, Component.Health)
+    }))
+    .sort((a, b) => getEcSortValue(a.entity) - getEcSortValue(b.entity));
+}
+
+function createShipEcRow(ec) {
+  const row = document.createElement("div");
+  row.className = "ship-ec-row";
+
+  const name = document.createElement("span");
+  name.className = "ship-ec-row__name";
+  name.textContent = ec.label;
+
+  const hp = document.createElement("span");
+  hp.className = "ship-ec-row__hp";
+  hp.textContent = formatHealthValue(ec.health.current) + "/" + formatHealthValue(ec.health.max);
+
+  row.append(name, hp);
+  return row;
+}
+
+function getEcLabel(entity) {
+  const thruster = getComponent(world, entity, Component.Thruster);
+  if (thruster) {
+    return LabelConfig.ecs.thruster + " " + thruster.number;
+  }
+
+  if (getComponent(world, entity, Component.SolarPanel)) {
+    return LabelConfig.ecs.solarPanel;
+  }
+
+  return String(entity);
+}
+
+function getEcSortValue(entity) {
+  const thruster = getComponent(world, entity, Component.Thruster);
+  if (thruster) {
+    return thruster.number;
+  }
+
+  if (getComponent(world, entity, Component.SolarPanel)) {
+    return 100;
+  }
+
+  return 1000;
 }
 
 window.addEventListener("resize", resizeCanvas);

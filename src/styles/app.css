@@ -154,43 +154,50 @@ body {
   font-variant-numeric: tabular-nums;
 }
 
-.legend {
+.ship-ec-list {
   display: grid;
   gap: 10px;
   margin-top: 28px;
 }
 
-.legend span {
-  display: flex;
+.ship-ec-list h2 {
+  margin: 0;
+  color: #9ca9bd;
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.ship-ec-list__items {
+  display: grid;
+  gap: 8px;
+}
+
+.ship-ec-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
+  min-height: 30px;
+  padding: 0 9px;
+  border: 1px solid rgba(151, 169, 202, 0.18);
+  border-radius: 8px;
+  background: rgba(10, 13, 20, 0.54);
   color: #c5cfdf;
+  font-size: 12px;
 }
 
-.legend i {
-  width: 11px;
-  height: 11px;
-  border-radius: 50%;
+.ship-ec-row__name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.legend-ship {
-  background: #ff667a;
-}
-
-.legend-main {
-  background: #ffb454;
-}
-
-.legend-reverse {
-  background: #7dd3fc;
-}
-
-.legend-side-up {
-  background: #36d399;
-}
-
-.legend-side-down {
-  background: #c084fc;
+.ship-ec-row__hp {
+  color: #e9eef8;
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
 }
 
 .thruster-controls {
@@ -465,11 +472,6 @@ body {
   top: 58px;
 }
 
-.thruster-switch:nth-child(8) {
-  left: 57px;
-  top: -6px;
-}
-
 .thruster-switches::after {
   content: var(--label-manual-short, "MAN");
   position: absolute;
@@ -493,17 +495,6 @@ body {
   background: var(--thruster-color, #ffb454);
   box-shadow: 0 0 16px var(--thruster-color, #ffb454);
   color: #07111f;
-}
-
-.ec-switch {
-  width: 46px;
-  height: 28px;
-  border-radius: 8px;
-  border-color: rgba(125, 211, 252, 0.72);
-  background: rgba(14, 35, 54, 0.94);
-  color: #7dd3fc;
-  font-size: 11px;
-  pointer-events: none;
 }
 
 .keyboard-control {
@@ -846,11 +837,6 @@ body {
   .thruster-switch:nth-child(7) {
     right: 10px;
     top: 52px;
-  }
-
-  .thruster-switch:nth-child(8) {
-    left: 51px;
-    top: -5px;
   }
 
   .thruster-switches::after,

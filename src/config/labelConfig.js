@@ -31,12 +31,11 @@ export const LabelConfig = Object.freeze({
   }),
   controls: Object.freeze({
     automaticDirection: "Automatic direction",
-    entityColors: "Entity colors",
     gravitySimulator: "Gravity simulator",
     controllerMode: "Controller mode",
     shipBattery: "Ship battery",
     shipController: "Ship controller",
-    shipEcs: "Ship ECs",
+    shipEcList: "Ship Components",
     shipHealth: "Ship health",
     simulatorData: "Simulator data",
     acceleration: "Acceleration",
@@ -46,11 +45,13 @@ export const LabelConfig = Object.freeze({
     testMaps: "Test maps",
     levelSelect: "Level select",
     locked: "LOCKED",
+    thrusterSwitches: "Thruster switches",
     worldNorthReference: "World north reference"
   }),
   ecs: Object.freeze({
+    empty: "No ship ECs",
     solarPanel: "Solar panel",
-    solarPanelShort: "SP"
+    thruster: "Thruster"
   }),
   speedOrders: Object.freeze({
     Stop: Object.freeze({ label: "STOP", ariaLabel: "Stop and stabilize" }),
@@ -69,12 +70,5 @@ export const LabelConfig = Object.freeze({
     SouthWest: Object.freeze({ label: "SW", ariaLabel: "South west" }),
     West: Object.freeze({ label: "W", ariaLabel: "West" }),
     NorthWest: Object.freeze({ label: "NW", ariaLabel: "North west" })
-  }),
-  legend: Object.freeze({
-    ship: "Ship",
-    main: "Main",
-    reverse: "Reverse",
-    sideUp: "Up side",
-    sideDown: "Down side"
   })
 });
