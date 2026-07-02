@@ -54,6 +54,7 @@ export function createPlayerInput() {
   return {
     controllerMode: ControllerMode.Manual,
     activeSlots: new Set(),
+    activeAccelerationKeys: new Set(),
     speedOrder: SpeedOrder.Stop,
     speedLevel: getSpeedLevel(SpeedOrder.Stop),
     powerConsumptionWeight: getPowerConsumptionWeight(SpeedOrder.Stop),
@@ -117,6 +118,7 @@ export function syncPlayerInputControls(root, input) {
   syncModePanels(root, input.controllerMode);
   syncThrusterButtons(root, input.activeSlots);
   syncKeyboardButtons(root, input.activeSlots);
+  syncAccelerationButtons(root, input.activeAccelerationKeys);
   syncDirectionButtons(root, input.targetDirection);
 }
 
@@ -151,14 +153,20 @@ export function setKeyboardThrusters(input, code, enabled) {
   return true;
 }
 
-export function setKeyboardAcceleration(input, code) {
+export function setKeyboardAcceleration(input, code, enabled = true) {
   if (code === "KeyQ") {
-    changeAccelerationOrder(input, -1);
+    setAccelerationKeyActive(input, code, enabled);
+    if (enabled) {
+      changeAccelerationOrder(input, -1);
+    }
     return true;
   }
 
   if (code === "KeyE") {
-    changeAccelerationOrder(input, 1);
+    setAccelerationKeyActive(input, code, enabled);
+    if (enabled) {
+      changeAccelerationOrder(input, 1);
+    }
     return true;
   }
 
@@ -199,6 +207,7 @@ export function changeAccelerationOrder(input, step) {
 export function clearPlayerInput(input) {
   setControllerMode(input, ControllerMode.Manual);
   input.activeSlots.clear();
+  input.activeAccelerationKeys.clear();
   setSpeedOrder(input, SpeedOrder.Stop);
   setAutomaticDirection(input, DirectionOrder.North);
   setControllerMode(input, ControllerMode.Manual);
@@ -229,6 +238,14 @@ function syncKeyboardButtons(root, activeSlots) {
   }
 }
 
+function syncAccelerationButtons(root, activeKeys) {
+  for (const button of root.querySelectorAll("[data-acceleration-key]")) {
+    const isActive = activeKeys.has(button.dataset.accelerationKey);
+    button.classList.toggle("is-active", isActive);
+    button.setAttribute("aria-pressed", String(isActive));
+  }
+}
+
 function syncModePanels(root, activeMode) {
   for (const button of root.querySelectorAll("[data-controller-mode]")) {
     const isActive = button.dataset.controllerMode === activeMode;
@@ -249,6 +266,15 @@ function syncDirectionButtons(root, activeDirection) {
     button.classList.toggle("is-active", isActive);
     button.setAttribute("aria-pressed", String(isActive));
   }
+}
+
+function setAccelerationKeyActive(input, code, enabled) {
+  if (enabled) {
+    input.activeAccelerationKeys.add(code);
+    return;
+  }
+
+  input.activeAccelerationKeys.delete(code);
 }
 
 function getSpeedLevel(speedOrder) {

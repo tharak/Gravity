@@ -116,7 +116,7 @@ function bindMapMenu() {
 
 function bindKeyboardThrusterControls() {
   window.addEventListener("keydown", (event) => {
-    if (!event.repeat && setKeyboardAcceleration(playerInput, event.code)) {
+    if (!event.repeat && setKeyboardAcceleration(playerInput, event.code, true)) {
       event.preventDefault();
       syncPlayerInputControls(thrusterControls, playerInput);
       return;
@@ -131,6 +131,12 @@ function bindKeyboardThrusterControls() {
   });
 
   window.addEventListener("keyup", (event) => {
+    if (setKeyboardAcceleration(playerInput, event.code, false)) {
+      event.preventDefault();
+      syncPlayerInputControls(thrusterControls, playerInput);
+      return;
+    }
+
     if (!setKeyboardThrusters(playerInput, event.code, false)) {
       return;
     }

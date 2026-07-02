@@ -98,12 +98,20 @@ test("Q and E keyboard input changes acceleration order", () => {
   assert.equal(setKeyboardAcceleration(input, "KeyE"), true);
   assert.equal(input.speedOrder, SpeedOrder.OneThird);
   assert.equal(input.speedLevel, 1 / 3);
+  assert.equal(input.activeAccelerationKeys.has("KeyE"), true);
+
+  assert.equal(setKeyboardAcceleration(input, "KeyE", false), true);
+  assert.equal(input.activeAccelerationKeys.has("KeyE"), false);
 
   setKeyboardAcceleration(input, "KeyE");
   assert.equal(input.speedOrder, SpeedOrder.TwoThirds);
 
   setKeyboardAcceleration(input, "KeyQ");
   assert.equal(input.speedOrder, SpeedOrder.OneThird);
+  assert.equal(input.activeAccelerationKeys.has("KeyQ"), true);
+
+  setKeyboardAcceleration(input, "KeyQ", false);
+  assert.equal(input.activeAccelerationKeys.has("KeyQ"), false);
 
   setKeyboardAcceleration(input, "KeyQ");
   setKeyboardAcceleration(input, "KeyQ");
@@ -149,8 +157,8 @@ test("manual control panel shows battery, speed orders, and one switch per thrus
   assert.ok(html.includes('data-speed-order="stop" aria-label="Stop and stabilize" aria-pressed="true" data-label="speedOrders.Stop.label"'));
   assert.ok(html.includes('aria-label="Acceleration order"'));
   assert.ok(html.includes('data-label="controls.acceleration"'));
-  assert.ok(html.includes('data-acceleration-step="-1" aria-label="Decrease acceleration"'));
-  assert.ok(html.includes('data-acceleration-step="1" aria-label="Increase acceleration"'));
+  assert.ok(html.includes('data-acceleration-step="-1" data-acceleration-key="KeyQ" aria-label="Decrease acceleration" aria-pressed="false"'));
+  assert.ok(html.includes('data-acceleration-step="1" data-acceleration-key="KeyE" aria-label="Increase acceleration" aria-pressed="false"'));
   assert.ok(html.includes('data-speed-order="standard" aria-label="Standard acceleration" aria-pressed="false" data-label="speedOrders.Standard.label"'));
   assert.equal(html.includes('>Speed</legend>'), false);
   assert.ok(html.includes('class="compass-control"'));
@@ -158,7 +166,9 @@ test("manual control panel shows battery, speed orders, and one switch per thrus
   assert.ok(html.includes('class="keyboard-control"'));
   assert.ok(html.includes('data-key-code="KeyW"'));
   assert.ok(fs.readFileSync(new URL("../src/main.js", import.meta.url), "utf8").includes("bindKeyboardThrusterControls"));
-  assert.ok(fs.readFileSync(new URL("../src/input/playerInput.js", import.meta.url), "utf8").includes("syncKeyboardButtons"));
+  const playerInputSource = fs.readFileSync(new URL("../src/input/playerInput.js", import.meta.url), "utf8");
+  assert.ok(playerInputSource.includes("syncKeyboardButtons"));
+  assert.ok(playerInputSource.includes("syncAccelerationButtons"));
   assert.equal(html.includes('thruster-power'), false);
   assert.equal(html.includes('Power'), false);
   assert.equal(html.includes('<small>'), false);
