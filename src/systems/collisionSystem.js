@@ -1,5 +1,5 @@
 import { Component } from "../ecs/components.js";
-import { getComponent, queryEntities } from "../ecs/world.js";
+import { addComponent, createEntity, getComponent, queryEntities } from "../ecs/world.js";
 
 const COLLISION_DAMAGE_THRESHOLD = 6;
 const COLLISION_DAMAGE_SCALE = 0.35;
@@ -97,14 +97,36 @@ function applyCollisionDamage(world, a, b, closingSpeed) {
     return;
   }
 
-  damageHealth(getComponent(world, a, Component.Health), damage);
-  damageHealth(getComponent(world, b, Component.Health), damage);
+  damageEntity(world, a, damage);
+  damageEntity(world, b, damage);
 }
 
-function damageHealth(health, damage) {
+function damageEntity(world, entity, damage) {
+  const health = getComponent(world, entity, Component.Health);
   if (!health) {
     return;
   }
 
+  const appliedDamage = Math.min(health.current, damage);
   health.current = Math.max(0, health.current - damage);
+  if (appliedDamage > 0) {
+    createDamagePopup(world, entity, appliedDamage);
+  }
+}
+
+function createDamagePopup(world, entity, damage) {
+  const position = getComponent(world, entity, Component.Position);
+  const radius = getComponent(world, entity, Component.Radius)?.value ?? 0;
+  if (!position) {
+    return;
+  }
+
+  const popup = createEntity(world);
+  addComponent(world, popup, Component.DamagePopup, {
+    x: position.x,
+    y: position.y - radius - 12,
+    damage,
+    createdAt: world.time,
+    duration: 1
+  });
 }

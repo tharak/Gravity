@@ -15,3 +15,10 @@ test("cockpit shows world north readout", () => {
   assert.ok(html.includes('class="north-readout"'));
   assert.ok(html.includes("World N"));
 });
+
+test("renderer draws collision damage popups", () => {
+  const source = fs.readFileSync(new URL("../src/rendering/canvasRenderer.js", import.meta.url), "utf8");
+
+  assert.ok(source.includes("DamagePopup"));
+  assert.ok(source.includes("formatDamage"));
+});

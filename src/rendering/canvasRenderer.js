@@ -10,6 +10,7 @@ export function renderWorld(context, canvas, world, camera, options = {}) {
   drawWorldNorthIndicator(context, canvas);
   drawTrails(context, canvas, world, camera);
   drawBodies(context, canvas, world, camera, options.lightPosition);
+  drawDamagePopups(context, canvas, world, camera);
 }
 
 function drawGrid(context, canvas, camera) {
@@ -163,6 +164,34 @@ function drawThrusters(context, world, ship, camera) {
     context.textBaseline = "middle";
     context.fillText(String(thruster.number), x, y);
   }
+}
+
+function drawDamagePopups(context, canvas, world, camera) {
+  context.save();
+  context.textAlign = "center";
+  context.textBaseline = "middle";
+  context.font = String(Math.max(12, 15 * camera.scale)) + "px ui-sans-serif, system-ui, sans-serif";
+  for (const entity of queryEntities(world, [Component.DamagePopup])) {
+    const popup = getComponent(world, entity, Component.DamagePopup);
+    const age = world.time - popup.createdAt;
+    if (age < 0 || age > popup.duration) {
+      continue;
+    }
+
+    const progress = age / popup.duration;
+    const screen = worldToScreen(camera, canvas, { x: popup.x, y: popup.y - progress * 34 });
+    context.globalAlpha = 1 - progress;
+    context.lineWidth = 4;
+    context.strokeStyle = "rgba(7, 17, 31, 0.92)";
+    context.fillStyle = "#ff667a";
+    context.strokeText("-" + formatDamage(popup.damage), screen.x, screen.y);
+    context.fillText("-" + formatDamage(popup.damage), screen.x, screen.y);
+  }
+  context.restore();
+}
+
+function formatDamage(damage) {
+  return damage >= 10 ? String(Math.round(damage)) : damage.toFixed(1);
 }
 
 function drawBodyCircle(context, screen, radius, color, kind, position, lightPosition) {

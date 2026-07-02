@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { BodyKind, Component } from "../src/ecs/components.js";
-import { createWorld, getComponent } from "../src/ecs/world.js";
+import { createWorld, getComponent, queryEntities } from "../src/ecs/world.js";
 import { createBody, createShip } from "../src/game/factory.js";
 import { resolveCollisions } from "../src/systems/collisionSystem.js";
 
@@ -21,6 +21,18 @@ test("collision resolver separates overlapping ships and changes closing velocit
   assert.ok(distance >= 100);
   assert.ok(leftVelocity.x < 20);
   assert.ok(rightVelocity.x > -20);
+});
+
+test("damaging ship collisions create damage popups for both ships", () => {
+  const world = createWorld();
+  const left = createShip(world, { x: -20, y: 0, vx: 30, vy: 0, radius: 50 });
+  const right = createShip(world, { x: 20, y: 0, vx: -30, vy: 0, radius: 50 });
+
+  resolveCollisions(world);
+
+  assert.ok(getComponent(world, left, Component.Health).current < 100);
+  assert.ok(getComponent(world, right, Component.Health).current < 100);
+  assert.equal(queryEntities(world, [Component.DamagePopup]).length, 2);
 });
 
 test("collision resolver separates ships from static planets", () => {
@@ -62,8 +74,11 @@ test("ship collision damage reduces HP on hard impacts", () => {
   resolveCollisions(world);
 
   const health = getComponent(world, ship, Component.Health);
+  const popups = queryEntities(world, [Component.DamagePopup]);
   assert.ok(health.current < 75);
   assert.ok(health.current > 0);
+  assert.equal(popups.length, 1);
+  assert.equal(getComponent(world, popups[0], Component.DamagePopup).damage > 0, true);
 });
 
 test("soft collisions below the damage threshold do not reduce HP", () => {
@@ -81,4 +96,5 @@ test("soft collisions below the damage threshold do not reduce HP", () => {
   resolveCollisions(world);
 
   assert.equal(getComponent(world, ship, Component.Health).current, 100);
+  assert.equal(queryEntities(world, [Component.DamagePopup]).length, 0);
 });

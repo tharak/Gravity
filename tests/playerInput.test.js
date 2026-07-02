@@ -88,6 +88,7 @@ test("manual control panel shows battery, speed orders, and one switch per thrus
   assert.ok(html.includes('data-controller-mode="automatic"'));
   assert.ok(html.includes('class="health-readout"'));
   assert.ok(html.includes('id="ship-health"'));
+  assert.ok(html.includes('100/100'));
   assert.ok(html.includes('class="battery-widget"'));
   assert.ok(html.includes('class="north-readout"'));
   assert.ok(html.includes('World N'));
