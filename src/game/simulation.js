@@ -1,3 +1,4 @@
+import { SimulationConfig } from "../config/simulationConfig.js";
 import { Component } from "../ecs/components.js";
 import { applyGravity } from "../systems/gravitySystem.js";
 import { resolveCollisions } from "../systems/collisionSystem.js";
@@ -5,12 +6,7 @@ import { integrateMotion } from "../systems/integrationSystem.js";
 import { applyPlayerInput } from "../systems/playerInputSystem.js";
 import { recordTrails } from "../systems/trailSystem.js";
 
-export const defaultSimulationConfig = Object.freeze({
-  fixedDeltaSeconds: 1 / 60,
-  gravitationalConstant: 36,
-  maxTrailLength: 260,
-  softening: 42
-});
+export const defaultSimulationConfig = SimulationConfig;
 
 export function createSimulation(world, config = {}) {
   const settings = { ...defaultSimulationConfig, ...config };
@@ -20,7 +16,7 @@ export function createSimulation(world, config = {}) {
   return {
     settings,
     step(deltaSeconds) {
-      accumulator += Math.min(deltaSeconds, 0.25);
+      accumulator += Math.min(deltaSeconds, settings.maxFrameDeltaSeconds);
       while (accumulator >= settings.fixedDeltaSeconds) {
         applyGravity(world, settings);
         applyPlayerInput(world, inputById, settings.fixedDeltaSeconds);

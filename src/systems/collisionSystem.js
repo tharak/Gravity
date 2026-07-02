@@ -1,8 +1,6 @@
+import { CollisionConfig } from "../config/collisionConfig.js";
 import { Component } from "../ecs/components.js";
 import { addComponent, createEntity, getComponent, queryEntities } from "../ecs/world.js";
-
-const COLLISION_DAMAGE_THRESHOLD = 6;
-const COLLISION_DAMAGE_SCALE = 0.35;
 
 export function resolveCollisions(world) {
   const bodies = queryEntities(world, [
@@ -68,7 +66,7 @@ function resolvePair(world, a, b) {
 
   applyCollisionDamage(world, a, b, -normalSpeed);
 
-  const restitution = 0.45;
+  const restitution = CollisionConfig.restitution;
   const impulse = (-(1 + restitution) * normalSpeed) / totalInverseMass;
   const impulseX = impulse * normalX;
   const impulseY = impulse * normalY;
@@ -92,7 +90,7 @@ function getInverseCollisionMass(world, entity, mass) {
 }
 
 function applyCollisionDamage(world, a, b, closingSpeed) {
-  const damage = Math.max(0, closingSpeed - COLLISION_DAMAGE_THRESHOLD) * COLLISION_DAMAGE_SCALE;
+  const damage = Math.max(0, closingSpeed - CollisionConfig.damageThreshold) * CollisionConfig.damageScale;
   if (damage <= 0) {
     return;
   }
@@ -124,9 +122,9 @@ function createDamagePopup(world, entity, damage) {
   const popup = createEntity(world);
   addComponent(world, popup, Component.DamagePopup, {
     x: position.x,
-    y: position.y - radius - 12,
+    y: position.y - radius - CollisionConfig.damagePopupRadiusOffset,
     damage,
     createdAt: world.time,
-    duration: 1
+    duration: CollisionConfig.damagePopupDuration
   });
 }

@@ -1,3 +1,4 @@
+import { SpeedOrderConfig, SpeedOrderList } from "../config/speedOrderConfig.js";
 import { WORLD_NORTH_ANGLE } from "../game/navigation.js";
 import { thrusterColors } from "../game/thrusterPalette.js";
 
@@ -6,14 +7,9 @@ export const ControllerMode = Object.freeze({
   Manual: "manual"
 });
 
-export const SpeedOrder = Object.freeze({
-  Stop: "stop",
-  OneThird: "one-third",
-  TwoThirds: "two-thirds",
-  Standard: "standard",
-  Full: "full",
-  Flank: "flank"
-});
+export const SpeedOrder = Object.freeze(Object.fromEntries(
+  Object.entries(SpeedOrderConfig).map(([name, config]) => [name, config.id])
+));
 
 export const DirectionOrder = Object.freeze({
   North: "north",
@@ -26,14 +22,7 @@ export const DirectionOrder = Object.freeze({
   NorthWest: "north-west"
 });
 
-export const SpeedOrders = Object.freeze([
-  Object.freeze({ id: SpeedOrder.Stop, label: "STOP", speedLevel: 0, powerConsumptionWeight: 1 }),
-  Object.freeze({ id: SpeedOrder.OneThird, label: "1/3", speedLevel: 1 / 3, powerConsumptionWeight: 1 }),
-  Object.freeze({ id: SpeedOrder.TwoThirds, label: "2/3", speedLevel: 2 / 3, powerConsumptionWeight: 1 }),
-  Object.freeze({ id: SpeedOrder.Standard, label: "STD", speedLevel: 0.82, powerConsumptionWeight: 1 }),
-  Object.freeze({ id: SpeedOrder.Full, label: "FULL", speedLevel: 1, powerConsumptionWeight: 1.25 }),
-  Object.freeze({ id: SpeedOrder.Flank, label: "FLANK", speedLevel: 1.25, powerConsumptionWeight: 1.5 })
-]);
+export const SpeedOrders = SpeedOrderList;
 
 export const DirectionOrders = Object.freeze([
   Object.freeze({ id: DirectionOrder.North, label: "N", angle: WORLD_NORTH_ANGLE }),
@@ -49,6 +38,7 @@ export const DirectionOrders = Object.freeze([
 const speedLevelByOrder = new Map(SpeedOrders.map((order) => [order.id, order.speedLevel]));
 const powerConsumptionWeightByOrder = new Map(SpeedOrders.map((order) => [order.id, order.powerConsumptionWeight]));
 const angleByDirection = new Map(DirectionOrders.map((direction) => [direction.id, direction.angle]));
+const maxConfiguredSpeedLevel = Math.max(...SpeedOrders.map((order) => order.speedLevel));
 
 export function createPlayerInput() {
   return {
@@ -215,5 +205,5 @@ function getDirectionAngle(directionOrder) {
 }
 
 function clampSpeed(value) {
-  return Math.max(0, Math.min(1.25, Number.isFinite(value) ? value : 0));
+  return Math.max(0, Math.min(maxConfiguredSpeedLevel, Number.isFinite(value) ? value : 0));
 }

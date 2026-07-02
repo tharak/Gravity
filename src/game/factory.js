@@ -1,4 +1,5 @@
-import { BodyKind, Component, ThrusterSlot } from "../ecs/components.js";
+import { DefaultShipConfig, StarterShipConfig, ThrusterLayoutConfig } from "../config/shipConfig.js";
+import { BodyKind, Component } from "../ecs/components.js";
 import { addComponent, createEntity } from "../ecs/world.js";
 import { WORLD_NORTH_ANGLE } from "./navigation.js";
 import { thrusterColors } from "./thrusterPalette.js";
@@ -52,35 +53,35 @@ export function createShip(world, ship) {
     y: ship.y,
     vx: ship.vx ?? 0,
     vy: ship.vy ?? 0,
-    mass: ship.mass ?? 2,
-    radius: ship.radius ?? 48,
+    mass: ship.mass ?? DefaultShipConfig.mass,
+    radius: ship.radius ?? DefaultShipConfig.radius,
     rotation: ship.rotation ?? SHIP_FACING_UP,
     angular: true,
     angularVelocity: ship.angularVelocity ?? 0,
     momentOfInertia: ship.momentOfInertia ?? getShipMomentOfInertia(
-      ship.mass ?? 2,
-      ship.shipFrame ?? { width: 88, height: 42 }
+      ship.mass ?? DefaultShipConfig.mass,
+      ship.shipFrame ?? DefaultShipConfig.frame
     ),
     playerControlled: ship.playerControlled,
-    shipFrame: ship.shipFrame ?? { width: 88, height: 42 }
+    shipFrame: ship.shipFrame ?? DefaultShipConfig.frame
   });
 
-  const maxHealth = ship.maxHealth ?? 100;
+  const maxHealth = ship.maxHealth ?? DefaultShipConfig.maxHealth;
   addComponent(world, entity, Component.Health, {
     max: maxHealth,
     current: Math.min(maxHealth, ship.health ?? maxHealth)
   });
 
   addComponent(world, entity, Component.Battery, {
-    capacity: ship.batteryCapacity ?? 100,
-    charge: ship.batteryCharge ?? ship.batteryCapacity ?? 100,
-    rechargeRate: ship.batteryRechargeRate ?? 1
+    capacity: ship.batteryCapacity ?? DefaultShipConfig.batteryCapacity,
+    charge: ship.batteryCharge ?? ship.batteryCapacity ?? DefaultShipConfig.batteryCapacity,
+    rechargeRate: ship.batteryRechargeRate ?? DefaultShipConfig.batteryRechargeRate
   });
 
   for (const thruster of createDefaultThrusters(
     entity,
-    ship.thrusterAcceleration ?? 13,
-    ship.maxThrusterSpeed ?? 120
+    ship.thrusterAcceleration ?? DefaultShipConfig.thrusterAcceleration,
+    ship.maxThrusterSpeed ?? DefaultShipConfig.maxThrusterSpeed
   )) {
     createThruster(world, thruster);
   }
@@ -114,25 +115,29 @@ function getShipMomentOfInertia(mass, frame) {
 }
 
 function createDefaultThrusters(shipEntity, maxAcceleration, maxSpeed) {
-  return [
-    { shipEntity, number: 1, slot: ThrusterSlot.MainBack, localX: -50, localY: 0, directionX: 1, directionY: 0, maxAcceleration: maxAcceleration * 10, maxSpeed, energyUsePerSecond: 3, color: thrusterColors[ThrusterSlot.MainBack] },
-    { shipEntity, number: 2, slot: ThrusterSlot.FrontLeft, localX: 42, localY: -12, directionX: -1, directionY: 0, maxAcceleration, maxSpeed, energyUsePerSecond: 1, color: thrusterColors[ThrusterSlot.FrontLeft] },
-    { shipEntity, number: 3, slot: ThrusterSlot.FrontRight, localX: 42, localY: 12, directionX: -1, directionY: 0, maxAcceleration, maxSpeed, energyUsePerSecond: 1, color: thrusterColors[ThrusterSlot.FrontRight] },
-    { shipEntity, number: 4, slot: ThrusterSlot.TopLeft, localX: -24, localY: -26, directionX: 0, directionY: 1, maxAcceleration, maxSpeed, energyUsePerSecond: 1, color: thrusterColors[ThrusterSlot.TopLeft] },
-    { shipEntity, number: 5, slot: ThrusterSlot.TopRight, localX: 24, localY: -26, directionX: 0, directionY: 1, maxAcceleration, maxSpeed, energyUsePerSecond: 1, color: thrusterColors[ThrusterSlot.TopRight] },
-    { shipEntity, number: 6, slot: ThrusterSlot.BottomLeft, localX: -24, localY: 26, directionX: 0, directionY: -1, maxAcceleration, maxSpeed, energyUsePerSecond: 1, color: thrusterColors[ThrusterSlot.BottomLeft] },
-    { shipEntity, number: 7, slot: ThrusterSlot.BottomRight, localX: 24, localY: 26, directionX: 0, directionY: -1, maxAcceleration, maxSpeed, energyUsePerSecond: 1, color: thrusterColors[ThrusterSlot.BottomRight] }
-  ];
+  return ThrusterLayoutConfig.map((thruster) => ({
+    shipEntity,
+    number: thruster.number,
+    slot: thruster.slot,
+    localX: thruster.localX,
+    localY: thruster.localY,
+    directionX: thruster.directionX,
+    directionY: thruster.directionY,
+    maxAcceleration: maxAcceleration * thruster.accelerationMultiplier,
+    maxSpeed,
+    energyUsePerSecond: thruster.energyUsePerSecond,
+    color: thrusterColors[thruster.slot]
+  }));
 }
 
 export function seedStarterSystem(world) {
   createShip(world, {
     x: 0,
     y: 0,
-    mass: 2,
-    radius: 56,
-    playerControlled: "player-one",
-    thrusterAcceleration: 15,
-    shipFrame: { width: 94, height: 46 }
+    mass: StarterShipConfig.mass,
+    radius: StarterShipConfig.radius,
+    playerControlled: StarterShipConfig.playerControlled,
+    thrusterAcceleration: StarterShipConfig.thrusterAcceleration,
+    shipFrame: StarterShipConfig.frame
   });
 }
