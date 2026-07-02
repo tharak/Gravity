@@ -1,9 +1,10 @@
+import { LabelConfig } from "../config/labelConfig.js";
 import { createWorld } from "../ecs/world.js";
 import { seedStarterSystem } from "../game/factory.js";
 
 export const ShipMovementScene = Object.freeze({
   id: "ShipMovement",
-  label: "Ship Movement"
+  label: LabelConfig.maps.ShipMovement
 });
 
 export function createShipMovementScene() {

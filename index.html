@@ -3,29 +3,29 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Gravity</title>
+    <title data-label="appTitle">Gravity</title>
     <link rel="stylesheet" href="./src/styles/app.css" />
   </head>
   <body>
     <main class="app-shell">
-      <section class="sim-panel" aria-label="Gravity simulator">
+      <section class="sim-panel" aria-label="Gravity simulator" data-aria-label="controls.gravitySimulator">
         <canvas id="gravity-canvas" width="1280" height="720"></canvas>
-        <div id="level-menu" class="level-menu" aria-label="Level select">
+        <div id="level-menu" class="level-menu" aria-label="Level select" data-aria-label="controls.levelSelect">
           <div class="level-menu__panel">
-            <h2>Choose Test Map</h2>
+            <h2 data-label="levelSelectTitle">Choose Test Map</h2>
             <div class="level-menu__actions">
-              <button class="level-menu__button" type="button" data-test-map="ShipMovement">ShipMovement</button>
-              <button class="level-menu__button" type="button" data-test-map="GravityTest">GravityTest</button>
+              <button class="level-menu__button" type="button" data-test-map="ShipMovement" data-label="maps.ShipMovement">ShipMovement</button>
+              <button class="level-menu__button" type="button" data-test-map="GravityTest" data-label="maps.GravityTest">GravityTest</button>
             </div>
           </div>
         </div>
-        <div id="thruster-controls" class="thruster-controls is-hidden" aria-label="Ship controller">
+        <div id="thruster-controls" class="thruster-controls is-hidden" aria-label="Ship controller" data-aria-label="controls.shipController">
           <div class="cockpit-readouts">
-            <div class="health-readout" aria-label="Ship health">
-              <span>HP</span>
+            <div class="health-readout" aria-label="Ship health" data-aria-label="controls.shipHealth">
+              <span data-label="readouts.hp">HP</span>
               <strong id="ship-health">100/100</strong>
             </div>
-            <div class="battery-widget" aria-label="Ship battery">
+            <div class="battery-widget" aria-label="Ship battery" data-aria-label="controls.shipBattery">
               <div class="battery-widget__shell" aria-hidden="true">
                 <span class="battery-widget__bar"></span>
                 <span class="battery-widget__bar"></span>
@@ -35,18 +35,18 @@
               </div>
               <span id="battery-percent" class="battery-widget__percent">100%</span>
             </div>
-            <div class="north-readout" aria-label="World north reference">
+            <div class="north-readout" aria-label="World north reference" data-aria-label="controls.worldNorthReference">
               <span class="north-readout__needle" aria-hidden="true"></span>
-              <span>World N</span>
+              <span data-label="readouts.worldNorth">World N</span>
             </div>
           </div>
-          <div class="controller-tabs" aria-label="Controller mode">
-            <button class="controller-tab is-active" type="button" data-controller-mode="manual" aria-pressed="true">Manual</button>
-            <button class="controller-tab" type="button" data-controller-mode="automatic" aria-pressed="false">Auto</button>
+          <div class="controller-tabs" aria-label="Controller mode" data-aria-label="controls.controllerMode">
+            <button class="controller-tab is-active" type="button" data-controller-mode="manual" aria-pressed="true" data-label="controllerModes.manual">Manual</button>
+            <button class="controller-tab" type="button" data-controller-mode="automatic" aria-pressed="false" data-label="controllerModes.automatic">Auto</button>
           </div>
           <div class="controller-bay">
             <div class="controller-panel manual-panel" data-controller-panel="manual" aria-disabled="false">
-              <div class="thruster-switches" aria-label="Thruster switches">
+              <div class="thruster-switches" aria-label="Thruster switches" data-aria-label="controls.thrusterSwitches">
                 <button class="thruster-switch" type="button" data-thruster-slot="mainBack" aria-pressed="false">1</button>
                 <button class="thruster-switch" type="button" data-thruster-slot="frontLeft" aria-pressed="false">2</button>
                 <button class="thruster-switch" type="button" data-thruster-slot="frontRight" aria-pressed="false">3</button>
@@ -57,61 +57,61 @@
               </div>
             </div>
             <div class="controller-panel automatic-panel" data-controller-panel="automatic" aria-disabled="true">
-              <div class="compass-control" aria-label="Automatic direction">
-                <button class="compass-button compass-n is-active" type="button" data-direction-order="north" aria-label="North" aria-pressed="true">N</button>
-                <button class="compass-button compass-ne" type="button" data-direction-order="north-east" aria-label="North east" aria-pressed="false">NE</button>
-                <button class="compass-button compass-e" type="button" data-direction-order="east" aria-label="East" aria-pressed="false">E</button>
-                <button class="compass-button compass-se" type="button" data-direction-order="south-east" aria-label="South east" aria-pressed="false">SE</button>
-                <button class="compass-button compass-s" type="button" data-direction-order="south" aria-label="South" aria-pressed="false">S</button>
-                <button class="compass-button compass-sw" type="button" data-direction-order="south-west" aria-label="South west" aria-pressed="false">SW</button>
-                <button class="compass-button compass-w" type="button" data-direction-order="west" aria-label="West" aria-pressed="false">W</button>
-                <button class="compass-button compass-nw" type="button" data-direction-order="north-west" aria-label="North west" aria-pressed="false">NW</button>
-                <div class="compass-center" aria-hidden="true">AUTO</div>
+              <div class="compass-control" aria-label="Automatic direction" data-aria-label="controls.automaticDirection">
+                <button class="compass-button compass-n is-active" type="button" data-direction-order="north" aria-label="North" aria-pressed="true" data-label="directions.North.label" data-aria-label="directions.North.ariaLabel">N</button>
+                <button class="compass-button compass-ne" type="button" data-direction-order="north-east" aria-label="North east" aria-pressed="false" data-label="directions.NorthEast.label" data-aria-label="directions.NorthEast.ariaLabel">NE</button>
+                <button class="compass-button compass-e" type="button" data-direction-order="east" aria-label="East" aria-pressed="false" data-label="directions.East.label" data-aria-label="directions.East.ariaLabel">E</button>
+                <button class="compass-button compass-se" type="button" data-direction-order="south-east" aria-label="South east" aria-pressed="false" data-label="directions.SouthEast.label" data-aria-label="directions.SouthEast.ariaLabel">SE</button>
+                <button class="compass-button compass-s" type="button" data-direction-order="south" aria-label="South" aria-pressed="false" data-label="directions.South.label" data-aria-label="directions.South.ariaLabel">S</button>
+                <button class="compass-button compass-sw" type="button" data-direction-order="south-west" aria-label="South west" aria-pressed="false" data-label="directions.SouthWest.label" data-aria-label="directions.SouthWest.ariaLabel">SW</button>
+                <button class="compass-button compass-w" type="button" data-direction-order="west" aria-label="West" aria-pressed="false" data-label="directions.West.label" data-aria-label="directions.West.ariaLabel">W</button>
+                <button class="compass-button compass-nw" type="button" data-direction-order="north-west" aria-label="North west" aria-pressed="false" data-label="directions.NorthWest.label" data-aria-label="directions.NorthWest.ariaLabel">NW</button>
+                <div class="compass-center" aria-hidden="true" data-label="controllerModes.automatic">AUTO</div>
               </div>
             </div>
           </div>
-          <fieldset class="speed-control" aria-label="Speed order">
-            <legend>Speed</legend>
-            <button class="speed-button speed-button-stop is-active" type="button" data-speed-order="stop" aria-label="Stop and stabilize" aria-pressed="true">STOP</button>
-            <button class="speed-button" type="button" data-speed-order="one-third" aria-label="One-third speed" aria-pressed="false">1/3</button>
-            <button class="speed-button" type="button" data-speed-order="two-thirds" aria-label="Two-thirds speed" aria-pressed="false">2/3</button>
-            <button class="speed-button" type="button" data-speed-order="standard" aria-label="Standard speed" aria-pressed="false">STD</button>
-            <button class="speed-button" type="button" data-speed-order="full" aria-label="Full speed" aria-pressed="false">FULL</button>
-            <button class="speed-button" type="button" data-speed-order="flank" aria-label="Flank speed" aria-pressed="false">FLANK</button>
+          <fieldset class="speed-control" aria-label="Speed order" data-aria-label="controls.speedOrder">
+            <legend data-label="controls.speed">Speed</legend>
+            <button class="speed-button speed-button-stop is-active" type="button" data-speed-order="stop" aria-label="Stop and stabilize" aria-pressed="true" data-label="speedOrders.Stop.label" data-aria-label="speedOrders.Stop.ariaLabel">STOP</button>
+            <button class="speed-button" type="button" data-speed-order="one-third" aria-label="One-third speed" aria-pressed="false" data-label="speedOrders.OneThird.label" data-aria-label="speedOrders.OneThird.ariaLabel">1/3</button>
+            <button class="speed-button" type="button" data-speed-order="two-thirds" aria-label="Two-thirds speed" aria-pressed="false" data-label="speedOrders.TwoThirds.label" data-aria-label="speedOrders.TwoThirds.ariaLabel">2/3</button>
+            <button class="speed-button" type="button" data-speed-order="standard" aria-label="Standard speed" aria-pressed="false" data-label="speedOrders.Standard.label" data-aria-label="speedOrders.Standard.ariaLabel">STD</button>
+            <button class="speed-button" type="button" data-speed-order="full" aria-label="Full speed" aria-pressed="false" data-label="speedOrders.Full.label" data-aria-label="speedOrders.Full.ariaLabel">FULL</button>
+            <button class="speed-button" type="button" data-speed-order="flank" aria-label="Flank speed" aria-pressed="false" data-label="speedOrders.Flank.label" data-aria-label="speedOrders.Flank.ariaLabel">FLANK</button>
           </fieldset>
         </div>
       </section>
-      <aside class="hud" aria-label="Simulator data">
-        <h1>Gravity</h1>
-        <nav class="map-menu" aria-label="Test maps">
-          <button class="map-menu__button is-active" type="button" data-test-map="LevelSelect" aria-pressed="true">LevelSelect</button>
-          <button class="map-menu__button" type="button" data-test-map="ShipMovement" aria-pressed="false">ShipMovement</button>
-          <button class="map-menu__button" type="button" data-test-map="GravityTest" aria-pressed="false">GravityTest</button>
+      <aside class="hud" aria-label="Simulator data" data-aria-label="controls.simulatorData">
+        <h1 data-label="appTitle">Gravity</h1>
+        <nav class="map-menu" aria-label="Test maps" data-aria-label="controls.testMaps">
+          <button class="map-menu__button is-active" type="button" data-test-map="LevelSelect" aria-pressed="true" data-label="maps.LevelSelect">LevelSelect</button>
+          <button class="map-menu__button" type="button" data-test-map="ShipMovement" aria-pressed="false" data-label="maps.ShipMovement">ShipMovement</button>
+          <button class="map-menu__button" type="button" data-test-map="GravityTest" aria-pressed="false" data-label="maps.GravityTest">GravityTest</button>
         </nav>
         <dl>
           <div>
-            <dt>Map</dt>
-            <dd id="hud-map">LevelSelect</dd>
+            <dt data-label="hud.map">Map</dt>
+            <dd id="hud-map" data-label="maps.LevelSelect">LevelSelect</dd>
           </div>
           <div>
-            <dt>Time</dt>
+            <dt data-label="hud.time">Time</dt>
             <dd id="hud-time">0.0s</dd>
           </div>
           <div>
-            <dt>Entities</dt>
+            <dt data-label="hud.entities">Entities</dt>
             <dd id="hud-entities">0</dd>
           </div>
           <div>
-            <dt>Status</dt>
-            <dd id="hud-status">Choose level</dd>
+            <dt data-label="hud.status">Status</dt>
+            <dd id="hud-status" data-label="status.chooseLevel">Choose level</dd>
           </div>
         </dl>
-        <div class="legend" aria-label="Entity colors">
-          <span><i class="legend-ship"></i>Ship</span>
-          <span><i class="legend-main"></i>Main</span>
-          <span><i class="legend-reverse"></i>Reverse</span>
-          <span><i class="legend-side-up"></i>Up side</span>
-          <span><i class="legend-side-down"></i>Down side</span>
+        <div class="legend" aria-label="Entity colors" data-aria-label="controls.entityColors">
+          <span><i class="legend-ship"></i><span data-label="legend.ship">Ship</span></span>
+          <span><i class="legend-main"></i><span data-label="legend.main">Main</span></span>
+          <span><i class="legend-reverse"></i><span data-label="legend.reverse">Reverse</span></span>
+          <span><i class="legend-side-up"></i><span data-label="legend.sideUp">Up side</span></span>
+          <span><i class="legend-side-down"></i><span data-label="legend.sideDown">Down side</span></span>
         </div>
       </aside>
     </main>

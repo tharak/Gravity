@@ -1,11 +1,22 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { CollisionConfig } from "../src/config/collisionConfig.js";
+import { LabelConfig } from "../src/config/labelConfig.js";
 import { DefaultShipConfig, StarterShipConfig, ThrusterLayoutConfig } from "../src/config/shipConfig.js";
 import { SimulationConfig } from "../src/config/simulationConfig.js";
 import { SpeedOrderConfig, SpeedOrderList } from "../src/config/speedOrderConfig.js";
 import { ThrusterSlot } from "../src/ecs/components.js";
 import { SpeedOrder, SpeedOrders } from "../src/input/playerInput.js";
+
+test("label config centralizes visible UI text", () => {
+  assert.equal(LabelConfig.appTitle, "Gravity");
+  assert.equal(LabelConfig.levelSelectTitle, "Choose Test Map");
+  assert.equal(LabelConfig.readouts.worldNorthCanvas, "WORLD N");
+  assert.equal(LabelConfig.speedOrders.Flank.label, "FLANK");
+  assert.equal(LabelConfig.controls.locked, "LOCKED");
+  assert.equal(LabelConfig.controllerModes.manualShort, "MAN");
+  assert.equal(LabelConfig.directions.NorthEast.ariaLabel, "North east");
+});
 
 test("speed order config is the source for exported speed orders", () => {
   assert.equal(SpeedOrder.Full, SpeedOrderConfig.Full.id);

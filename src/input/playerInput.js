@@ -1,3 +1,4 @@
+import { LabelConfig } from "../config/labelConfig.js";
 import { SpeedOrderConfig, SpeedOrderList } from "../config/speedOrderConfig.js";
 import { WORLD_NORTH_ANGLE } from "../game/navigation.js";
 import { thrusterColors } from "../game/thrusterPalette.js";
@@ -25,14 +26,14 @@ export const DirectionOrder = Object.freeze({
 export const SpeedOrders = SpeedOrderList;
 
 export const DirectionOrders = Object.freeze([
-  Object.freeze({ id: DirectionOrder.North, label: "N", angle: WORLD_NORTH_ANGLE }),
-  Object.freeze({ id: DirectionOrder.NorthEast, label: "NE", angle: WORLD_NORTH_ANGLE + Math.PI / 4 }),
-  Object.freeze({ id: DirectionOrder.East, label: "E", angle: WORLD_NORTH_ANGLE + Math.PI / 2 }),
-  Object.freeze({ id: DirectionOrder.SouthEast, label: "SE", angle: WORLD_NORTH_ANGLE + 3 * Math.PI / 4 }),
-  Object.freeze({ id: DirectionOrder.South, label: "S", angle: WORLD_NORTH_ANGLE + Math.PI }),
-  Object.freeze({ id: DirectionOrder.SouthWest, label: "SW", angle: WORLD_NORTH_ANGLE - 3 * Math.PI / 4 }),
-  Object.freeze({ id: DirectionOrder.West, label: "W", angle: WORLD_NORTH_ANGLE - Math.PI / 2 }),
-  Object.freeze({ id: DirectionOrder.NorthWest, label: "NW", angle: WORLD_NORTH_ANGLE - Math.PI / 4 })
+  Object.freeze({ id: DirectionOrder.North, ...LabelConfig.directions.North, angle: WORLD_NORTH_ANGLE }),
+  Object.freeze({ id: DirectionOrder.NorthEast, ...LabelConfig.directions.NorthEast, angle: WORLD_NORTH_ANGLE + Math.PI / 4 }),
+  Object.freeze({ id: DirectionOrder.East, ...LabelConfig.directions.East, angle: WORLD_NORTH_ANGLE + Math.PI / 2 }),
+  Object.freeze({ id: DirectionOrder.SouthEast, ...LabelConfig.directions.SouthEast, angle: WORLD_NORTH_ANGLE + 3 * Math.PI / 4 }),
+  Object.freeze({ id: DirectionOrder.South, ...LabelConfig.directions.South, angle: WORLD_NORTH_ANGLE + Math.PI }),
+  Object.freeze({ id: DirectionOrder.SouthWest, ...LabelConfig.directions.SouthWest, angle: WORLD_NORTH_ANGLE - 3 * Math.PI / 4 }),
+  Object.freeze({ id: DirectionOrder.West, ...LabelConfig.directions.West, angle: WORLD_NORTH_ANGLE - Math.PI / 2 }),
+  Object.freeze({ id: DirectionOrder.NorthWest, ...LabelConfig.directions.NorthWest, angle: WORLD_NORTH_ANGLE - Math.PI / 4 })
 ]);
 
 const speedLevelByOrder = new Map(SpeedOrders.map((order) => [order.id, order.speedLevel]));

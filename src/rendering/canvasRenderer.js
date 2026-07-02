@@ -1,3 +1,4 @@
+import { LabelConfig } from "../config/labelConfig.js";
 import { BodyKind, Component } from "../ecs/components.js";
 import { getComponent, queryEntities } from "../ecs/world.js";
 import { WORLD_NORTH_VECTOR } from "../game/navigation.js";
@@ -66,7 +67,7 @@ function drawWorldNorthIndicator(context, canvas) {
   context.font = String(12 * scale) + "px ui-sans-serif, system-ui, sans-serif";
   context.textAlign = "center";
   context.textBaseline = "top";
-  context.fillText("WORLD N", origin.x, origin.y + 8 * scale);
+  context.fillText(LabelConfig.readouts.worldNorthCanvas, origin.x, origin.y + 8 * scale);
   context.restore();
 }
 

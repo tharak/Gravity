@@ -1,8 +1,9 @@
+import { LabelConfig } from "./config/labelConfig.js";
 import { Component } from "./ecs/components.js";
 import { getComponent, queryEntities } from "./ecs/world.js";
 import { createSimulation } from "./game/simulation.js";
 import { sunlight } from "./game/lighting.js";
-import { ControllerMode, clearPlayerInput, createPlayerInput, bindThrusterControls, syncPlayerInputControls } from "./input/playerInput.js";
+import { ControllerMode, DirectionOrders, SpeedOrders, clearPlayerInput, createPlayerInput, bindThrusterControls, syncPlayerInputControls } from "./input/playerInput.js";
 import { getTestMap, TestMapId } from "./scenes/testMaps.js";
 import { createCamera, fitCameraToWorld } from "./rendering/camera.js";
 import { renderWorld } from "./rendering/canvasRenderer.js";
@@ -52,29 +53,31 @@ function updateHud() {
   hudTime.textContent = `${world.time.toFixed(1)}s`;
   hudEntities.textContent = String(world.entities.size);
   hudStatus.textContent = getStatusText();
-  hudMap.textContent = activeMap.id;
+  hudMap.textContent = activeMap.label;
 }
 
 function getStatusText() {
   if (activeMap.isMenu) {
-    return "Choose level";
+    return LabelConfig.status.chooseLevel;
   }
 
   if (playerInput.controllerMode === ControllerMode.Automatic) {
-    return "Auto " + playerInput.speedOrder + " " + playerInput.targetDirection;
+    const speed = SpeedOrders.find((order) => order.id === playerInput.speedOrder)?.label ?? playerInput.speedOrder;
+    const direction = DirectionOrders.find((order) => order.id === playerInput.targetDirection)?.label ?? playerInput.targetDirection;
+    return LabelConfig.status.auto + " " + speed + " " + direction;
   }
 
   if (playerInput.activeSlots.size > 0) {
-    return "Thrusting";
+    return LabelConfig.status.thrusting;
   }
 
   const player = queryEntities(world, [Component.PlayerControlled, Component.Velocity])[0];
   if (player === undefined) {
-    return "Running";
+    return LabelConfig.status.running;
   }
 
   const velocity = getComponent(world, player, Component.Velocity);
-  return Math.hypot(velocity.x, velocity.y) > 2 ? "Coasting" : "Running";
+  return Math.hypot(velocity.x, velocity.y) > 2 ? LabelConfig.status.coasting : LabelConfig.status.running;
 }
 
 function switchTestMap(mapId) {
@@ -111,6 +114,22 @@ function bindMapMenu() {
   }
 }
 
+function applyConfiguredLabels(root = document) {
+  document.title = LabelConfig.appTitle;
+  for (const element of root.querySelectorAll("[data-label]")) {
+    element.textContent = getLabelValue(element.dataset.label) ?? element.textContent;
+  }
+  for (const element of root.querySelectorAll("[data-aria-label]")) {
+    element.setAttribute("aria-label", getLabelValue(element.dataset.ariaLabel) ?? element.getAttribute("aria-label"));
+  }
+  document.documentElement.style.setProperty("--label-locked", JSON.stringify(LabelConfig.controls.locked));
+  document.documentElement.style.setProperty("--label-manual-short", JSON.stringify(LabelConfig.controllerModes.manualShort));
+}
+
+function getLabelValue(path) {
+  return path.split(".").reduce((value, key) => value?.[key], LabelConfig);
+}
+
 function formatHealthValue(value) {
   return Number.isInteger(value) ? String(value) : value.toFixed(1);
 }
@@ -139,6 +158,7 @@ function updateControls() {
 }
 
 window.addEventListener("resize", resizeCanvas);
+applyConfiguredLabels();
 bindThrusterControls(thrusterControls, playerInput);
 bindMapMenu();
 syncMapButtons();

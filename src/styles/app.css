@@ -384,7 +384,7 @@ body {
 }
 
 .controller-panel.is-disabled::after {
-  content: "LOCKED";
+  content: var(--label-locked, "LOCKED");
   position: absolute;
   left: 50%;
   top: 50%;
@@ -466,7 +466,7 @@ body {
 }
 
 .thruster-switches::after {
-  content: "MAN";
+  content: var(--label-manual-short, "MAN");
   position: absolute;
   left: 50%;
   top: 50%;

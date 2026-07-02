@@ -6,7 +6,7 @@ test("renderer draws a world north indicator", () => {
   const source = fs.readFileSync(new URL("../src/rendering/canvasRenderer.js", import.meta.url), "utf8");
 
   assert.ok(source.includes("WORLD_NORTH_VECTOR"));
-  assert.ok(source.includes("WORLD N"));
+  assert.ok(source.includes("LabelConfig.readouts.worldNorthCanvas"));
 });
 
 test("cockpit shows world north readout", () => {

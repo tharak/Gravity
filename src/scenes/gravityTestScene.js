@@ -1,10 +1,11 @@
+import { LabelConfig } from "../config/labelConfig.js";
 import { BodyKind } from "../ecs/components.js";
 import { createBody, createShip } from "../game/factory.js";
 import { createWorld } from "../ecs/world.js";
 
 export const GravityTestScene = Object.freeze({
   id: "GravityTest",
-  label: "Gravity Test"
+  label: LabelConfig.maps.GravityTest
 });
 
 export function createGravityTestScene() {
