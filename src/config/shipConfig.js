@@ -39,8 +39,8 @@ export const ThrusterViewConfig = Object.freeze({
   sizeMultiplier: 0.5,
   placements: Object.freeze([
     Object.freeze({ slot: ThrusterSlot.MainBack, localX: -50, localY: 0, directionX: 1, directionY: 0 }),
-    Object.freeze({ slot: ThrusterSlot.FrontLeft, localX: 42, localY: -12, directionX: -1, directionY: 0 }),
-    Object.freeze({ slot: ThrusterSlot.FrontRight, localX: 42, localY: 12, directionX: -1, directionY: 0 }),
+    Object.freeze({ slot: ThrusterSlot.FrontLeft, localX: 42, localY: -20, directionX: -1, directionY: 0 }),
+    Object.freeze({ slot: ThrusterSlot.FrontRight, localX: 42, localY: 4, directionX: -1, directionY: 0 }),
     Object.freeze({ slot: ThrusterSlot.TopLeft, localX: -24, localY: -26, directionX: 0, directionY: 1 }),
     Object.freeze({ slot: ThrusterSlot.TopRight, localX: 24, localY: -26, directionX: 0, directionY: 1 }),
     Object.freeze({ slot: ThrusterSlot.BottomLeft, localX: -24, localY: 26, directionX: 0, directionY: -1 }),
