@@ -415,7 +415,7 @@ test("thruster entities keep parent-relative view attachment", () => {
 function createTestThrusterModels(baselineAcceleration) {
   return ThrusterModelConfig.map((thruster) => ({
     ...thruster,
-    maxAcceleration: baselineAcceleration * thruster.size
+    acceleration: baselineAcceleration
   }));
 }
 

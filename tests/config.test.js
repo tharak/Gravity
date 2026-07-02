@@ -39,9 +39,9 @@ test("ship and thruster configs separate model and view values", () => {
   const mainModel = ThrusterModelConfig.find((thruster) => thruster.slot === ThrusterSlot.MainBack);
   const mainView = ThrusterViewConfig.placements.find((thruster) => thruster.slot === ThrusterSlot.MainBack);
   const topLeftModel = ThrusterModelConfig.find((thruster) => thruster.slot === ThrusterSlot.TopLeft);
-  assert.deepEqual(Object.keys(mainModel), ["number", "slot", "size", "maxAcceleration", "energyConsumption"]);
+  assert.deepEqual(Object.keys(mainModel), ["number", "slot", "size", "acceleration", "energyConsumption"]);
   assert.equal(mainModel.size, 3);
-  assert.equal(mainModel.maxAcceleration, 45);
+  assert.equal(mainModel.acceleration, 15);
   assert.equal(mainModel.energyConsumption, 3);
   assert.equal(topLeftModel.energyConsumption, 1);
   assert.equal(ThrusterViewConfig.sizeMultiplier, 0.5);

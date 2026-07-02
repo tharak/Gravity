@@ -131,7 +131,7 @@ function createDefaultThrusters(shipEntity, maxSpeed, thrusterModels) {
       localY: view.localY,
       directionX: view.directionX,
       directionY: view.directionY,
-      maxAcceleration: model.maxAcceleration,
+      maxAcceleration: model.acceleration * model.size,
       size: model.size,
       viewSizeMultiplier: ThrusterViewConfig.sizeMultiplier,
       maxSpeed,

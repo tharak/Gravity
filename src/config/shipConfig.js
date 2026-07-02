@@ -24,13 +24,13 @@ export const StarterShipViewConfig = Object.freeze({
 });
 
 export const ThrusterModelConfig = Object.freeze([
-  Object.freeze({ number: 1, slot: ThrusterSlot.MainBack, size: 3, maxAcceleration: 45, energyConsumption: 3 }),
-  Object.freeze({ number: 2, slot: ThrusterSlot.FrontLeft, size: 1, maxAcceleration: 15, energyConsumption: 1 }),
-  Object.freeze({ number: 3, slot: ThrusterSlot.FrontRight, size: 1, maxAcceleration: 15, energyConsumption: 1 }),
-  Object.freeze({ number: 4, slot: ThrusterSlot.TopLeft, size: 1, maxAcceleration: 15, energyConsumption: 1 }),
-  Object.freeze({ number: 5, slot: ThrusterSlot.TopRight, size: 1, maxAcceleration: 15, energyConsumption: 1 }),
-  Object.freeze({ number: 6, slot: ThrusterSlot.BottomLeft, size: 1, maxAcceleration: 15, energyConsumption: 1 }),
-  Object.freeze({ number: 7, slot: ThrusterSlot.BottomRight, size: 1, maxAcceleration: 15, energyConsumption: 1 })
+  Object.freeze({ number: 1, slot: ThrusterSlot.MainBack, size: 3, acceleration: 15, energyConsumption: 3 }),
+  Object.freeze({ number: 2, slot: ThrusterSlot.FrontLeft, size: 1, acceleration: 15, energyConsumption: 1 }),
+  Object.freeze({ number: 3, slot: ThrusterSlot.FrontRight, size: 1, acceleration: 15, energyConsumption: 1 }),
+  Object.freeze({ number: 4, slot: ThrusterSlot.TopLeft, size: 1, acceleration: 15, energyConsumption: 1 }),
+  Object.freeze({ number: 5, slot: ThrusterSlot.TopRight, size: 1, acceleration: 15, energyConsumption: 1 }),
+  Object.freeze({ number: 6, slot: ThrusterSlot.BottomLeft, size: 1, acceleration: 15, energyConsumption: 1 }),
+  Object.freeze({ number: 7, slot: ThrusterSlot.BottomRight, size: 1, acceleration: 15, energyConsumption: 1 })
 ]);
 
 export const ThrusterViewConfig = Object.freeze({
