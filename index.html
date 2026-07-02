@@ -59,10 +59,10 @@
           </div>
           <fieldset class="speed-control" aria-label="Speed order">
             <legend>Speed</legend>
-            <button class="speed-button speed-button-stop" type="button" data-speed-order="stop" aria-label="Stop and stabilize" aria-pressed="false">STOP</button>
+            <button class="speed-button speed-button-stop is-active" type="button" data-speed-order="stop" aria-label="Stop and stabilize" aria-pressed="true">STOP</button>
             <button class="speed-button" type="button" data-speed-order="one-third" aria-label="One-third speed" aria-pressed="false">1/3</button>
             <button class="speed-button" type="button" data-speed-order="two-thirds" aria-label="Two-thirds speed" aria-pressed="false">2/3</button>
-            <button class="speed-button is-active" type="button" data-speed-order="standard" aria-label="Standard speed" aria-pressed="true">STD</button>
+            <button class="speed-button" type="button" data-speed-order="standard" aria-label="Standard speed" aria-pressed="false">STD</button>
             <button class="speed-button" type="button" data-speed-order="full" aria-label="Full speed" aria-pressed="false">FULL</button>
             <button class="speed-button" type="button" data-speed-order="flank" aria-label="Flank speed" aria-pressed="false">FLANK</button>
           </fieldset>
@@ -70,7 +70,15 @@
       </section>
       <aside class="hud" aria-label="Simulator data">
         <h1>Gravity</h1>
+        <nav class="map-menu" aria-label="Test maps">
+          <button class="map-menu__button is-active" type="button" data-test-map="ShipMovement" aria-pressed="true">ShipMovement</button>
+          <button class="map-menu__button" type="button" data-test-map="GravityTest" aria-pressed="false">GravityTest</button>
+        </nav>
         <dl>
+          <div>
+            <dt>Map</dt>
+            <dd id="hud-map">ShipMovement</dd>
+          </div>
           <div>
             <dt>Time</dt>
             <dd id="hud-time">0.0s</dd>

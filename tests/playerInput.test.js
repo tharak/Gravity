@@ -73,6 +73,10 @@ test("world north is the shared ship and automatic north reference", () => {
 test("manual control panel shows battery, speed orders, and one switch per thruster", () => {
   const html = readIndexHtml();
 
+  assert.ok(html.includes('aria-label="Test maps"'));
+  assert.ok(html.includes('data-test-map="ShipMovement"'));
+  assert.ok(html.includes('data-test-map="GravityTest"'));
+  assert.ok(html.includes('id="hud-map"'));
   assert.ok(html.includes('aria-label="Ship controller"'));
   assert.ok(html.includes('data-controller-mode="manual"'));
   assert.ok(html.includes('data-controller-mode="automatic"'));
@@ -84,6 +88,8 @@ test("manual control panel shows battery, speed orders, and one switch per thrus
   assert.ok(html.includes('class="controller-panel automatic-panel"'));
   assert.ok(html.includes('aria-disabled="true"'));
   assert.equal(html.includes('data-controller-panel="automatic" hidden'), false);
+  assert.ok(html.includes('data-speed-order="stop" aria-label="Stop and stabilize" aria-pressed="true"'));
+  assert.ok(html.includes('data-speed-order="standard" aria-label="Standard speed" aria-pressed="false"'));
   assert.ok(html.includes('class="compass-control"'));
   assert.ok(html.includes('class="speed-control"'));
   assert.equal(html.includes('thruster-power'), false);

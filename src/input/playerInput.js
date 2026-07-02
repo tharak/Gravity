@@ -100,6 +100,10 @@ export function bindThrusterControls(root, input) {
     });
   }
 
+  syncPlayerInputControls(root, input);
+}
+
+export function syncPlayerInputControls(root, input) {
   syncSpeedButtons(root, input.speedOrder);
   syncModePanels(root, input.controllerMode);
   syncThrusterButtons(root, input.activeSlots);

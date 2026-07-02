@@ -43,9 +43,36 @@ body {
 }
 
 .hud h1 {
-  margin: 0 0 24px;
+  margin: 0 0 18px;
   font-size: 24px;
   font-weight: 700;
+}
+
+.map-menu {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 22px;
+}
+
+.map-menu__button {
+  min-height: 40px;
+  padding: 0 12px;
+  border: 1px solid rgba(233, 238, 248, 0.24);
+  border-radius: 8px;
+  background: rgba(10, 13, 20, 0.68);
+  color: #d7dfed;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 900;
+  text-align: left;
+  touch-action: manipulation;
+}
+
+.map-menu__button.is-active,
+.map-menu__button[aria-pressed="true"] {
+  border-color: #7dd3fc;
+  background: #7dd3fc;
+  color: #07111f;
 }
 
 .hud dl {

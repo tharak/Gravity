@@ -2,8 +2,8 @@ import { Component } from "./ecs/components.js";
 import { getComponent, queryEntities } from "./ecs/world.js";
 import { createSimulation } from "./game/simulation.js";
 import { sunlight } from "./game/lighting.js";
-import { ControllerMode, createPlayerInput, bindThrusterControls } from "./input/playerInput.js";
-import { createStarterScene } from "./scenes/starterScene.js";
+import { ControllerMode, clearPlayerInput, createPlayerInput, bindThrusterControls, syncPlayerInputControls } from "./input/playerInput.js";
+import { getTestMap, TestMapId } from "./scenes/testMaps.js";
 import { createCamera, fitCameraToWorld } from "./rendering/camera.js";
 import { renderWorld } from "./rendering/canvasRenderer.js";
 
@@ -12,15 +12,18 @@ const context = canvas.getContext("2d");
 const hudTime = document.querySelector("#hud-time");
 const hudEntities = document.querySelector("#hud-entities");
 const hudStatus = document.querySelector("#hud-status");
+const hudMap = document.querySelector("#hud-map");
+const mapButtons = [...document.querySelectorAll("[data-test-map]")];
 const thrusterControls = document.querySelector("#thruster-controls");
 const batteryPercent = document.querySelector("#battery-percent");
 const batteryBars = [...document.querySelectorAll(".battery-widget__bar")];
 
-const world = createStarterScene();
 const playerInput = createPlayerInput();
-const simulation = createSimulation(world, { inputById: { "player-one": playerInput } });
 const camera = createCamera();
 
+let activeMap = getTestMap(TestMapId.ShipMovement);
+let world = activeMap.createWorld();
+let simulation = createSimulation(world, { inputById: { "player-one": playerInput } });
 let previousTimestamp = performance.now();
 
 function resizeCanvas() {
@@ -47,6 +50,7 @@ function updateHud() {
   hudTime.textContent = `${world.time.toFixed(1)}s`;
   hudEntities.textContent = String(world.entities.size);
   hudStatus.textContent = getStatusText();
+  hudMap.textContent = activeMap.id;
 }
 
 function getStatusText() {
@@ -67,6 +71,34 @@ function getStatusText() {
   return Math.hypot(velocity.x, velocity.y) > 2 ? "Coasting" : "Running";
 }
 
+function switchTestMap(mapId) {
+  activeMap = getTestMap(mapId);
+  world = activeMap.createWorld();
+  simulation = createSimulation(world, { inputById: { "player-one": playerInput } });
+  clearPlayerInput(playerInput);
+  syncPlayerInputControls(thrusterControls, playerInput);
+  syncMapButtons();
+  resizeCanvas();
+  updateHud();
+  updateControls();
+}
+
+function syncMapButtons() {
+  for (const button of mapButtons) {
+    const isActive = button.dataset.testMap === activeMap.id;
+    button.classList.toggle("is-active", isActive);
+    button.setAttribute("aria-pressed", String(isActive));
+  }
+}
+
+function bindMapMenu() {
+  for (const button of mapButtons) {
+    button.addEventListener("click", () => {
+      switchTestMap(button.dataset.testMap);
+    });
+  }
+}
+
 function updateControls() {
   const player = queryEntities(world, [Component.PlayerControlled, Component.Battery])[0];
   if (player === undefined) {
@@ -84,5 +116,7 @@ function updateControls() {
 
 window.addEventListener("resize", resizeCanvas);
 bindThrusterControls(thrusterControls, playerInput);
+bindMapMenu();
+syncMapButtons();
 resizeCanvas();
 requestAnimationFrame(tick);
