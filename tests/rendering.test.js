@@ -31,3 +31,12 @@ test("renderer draws thrusters as force-direction cones", () => {
   assert.ok(source.includes("thruster.directionY"));
   assert.ok(source.includes("context.lineTo(baseX"));
 });
+
+test("renderer draws thrusters below the ship hull", () => {
+  const source = fs.readFileSync(new URL("../src/rendering/canvasRenderer.js", import.meta.url), "utf8");
+  const shipStart = source.indexOf("function drawShip");
+  const shipEnd = source.indexOf("function drawThrusters", shipStart);
+  const drawShipSource = source.slice(shipStart, shipEnd);
+
+  assert.ok(drawShipSource.indexOf("drawThrusters") < drawShipSource.indexOf("context.rect"));
+});

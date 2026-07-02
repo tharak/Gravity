@@ -122,6 +122,8 @@ function drawShip(context, world, ship, screen, frame, camera, rotation) {
   context.save();
   context.translate(screen.x, screen.y);
   context.rotate(rotation);
+  drawThrusters(context, world, ship, camera);
+
   context.fillStyle = bodyColors[BodyKind.Ship];
   context.strokeStyle = isPlayer ? "#ffffff" : "rgba(255, 255, 255, 0.35)";
   context.lineWidth = isPlayer ? 2 : 1;
@@ -130,7 +132,6 @@ function drawShip(context, world, ship, screen, frame, camera, rotation) {
   context.fill();
   context.stroke();
 
-  drawThrusters(context, world, ship, camera);
   context.restore();
 }
 
