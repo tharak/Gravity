@@ -40,6 +40,41 @@ body {
   display: none !important;
 }
 
+.map-bar {
+  position: absolute;
+  top: max(10px, env(safe-area-inset-top));
+  left: max(10px, env(safe-area-inset-left));
+  right: max(10px, env(safe-area-inset-right));
+  z-index: 6;
+  display: none;
+  gap: 6px;
+}
+
+.map-bar__button {
+  flex: 1;
+  min-width: 0;
+  min-height: 38px;
+  padding: 0 8px;
+  border: 1px solid rgba(233, 238, 248, 0.24);
+  border-radius: 8px;
+  background: rgba(10, 13, 20, 0.78);
+  color: #d7dfed;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 900;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  touch-action: manipulation;
+}
+
+.map-bar__button.is-active,
+.map-bar__button[aria-pressed="true"] {
+  border-color: #7dd3fc;
+  background: #7dd3fc;
+  color: #07111f;
+}
+
 .level-menu {
   position: absolute;
   inset: 0;
@@ -786,13 +821,17 @@ body {
 
   .app-shell {
     grid-template-columns: 1fr;
-    grid-template-rows: auto auto;
+    grid-template-rows: auto;
     height: auto;
     min-height: 100vh;
   }
 
   .hud {
-    overflow-y: visible;
+    display: none;
+  }
+
+  .map-bar {
+    display: flex;
   }
 
   .sim-panel {
@@ -800,7 +839,7 @@ body {
   }
 
   #gravity-canvas {
-    height: 45vh;
+    height: 52vh;
   }
 
   .level-menu {
@@ -909,14 +948,23 @@ body {
     height: 52px;
   }
 
-  .hud {
-    border-left: 0;
-    border-top: 1px solid rgba(151, 169, 202, 0.18);
-    padding: 18px;
-  }
 }
 
 @media (max-height: 520px) and (min-width: 761px) {
+  .app-shell {
+    grid-template-columns: 1fr;
+  }
+
+  .hud {
+    display: none;
+  }
+
+  .map-bar {
+    display: flex;
+    left: auto;
+    width: min(360px, 44vw);
+  }
+
   .thruster-controls {
     top: max(12px, env(safe-area-inset-top));
     bottom: max(12px, env(safe-area-inset-bottom));

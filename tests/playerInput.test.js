@@ -154,6 +154,8 @@ test("manual control panel shows battery, speed orders, and one switch per thrus
   assert.ok(html.includes('data-test-map="LevelSelect"'));
   assert.ok(html.includes('data-test-map="ShipMovement"'));
   assert.ok(html.includes('data-test-map="GravityTest"'));
+  assert.ok(html.includes('class="map-bar"'));
+  assert.equal(html.match(/map-bar__button/g).length, 3);
   assert.ok(html.includes('id="hud-map"'));
   assert.ok(html.includes('id="hud-map" data-label="maps.LevelSelect"'));
   assert.ok(html.includes('id="hud-status" data-label="status.chooseLevel"'));
