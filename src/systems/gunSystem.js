@@ -1,17 +1,35 @@
-import { BodyKind, Component } from "../ecs/components.js";
-import { getComponent, getComponents, queryEntities } from "../ecs/world.js";
+import { Component } from "../ecs/components.js";
+import { getComponent, queryEntities } from "../ecs/world.js";
 import { rotate } from "../core/vector.js";
 import { createProjectile, SHIP_FACING_UP } from "../game/factory.js";
 import { getShipPartEntities } from "../game/shipParts.js";
+import { findNearestOpposingShip } from "../game/targeting.js";
 import { GunAimMode, GunShootMode } from "../input/playerInput.js";
+
+const automaticGunInput = Object.freeze({
+  aimMode: GunAimMode.Automatic,
+  shootMode: GunShootMode.Automatic
+});
 
 export function applyGuns(world, inputById, deltaSeconds = 0) {
   for (const ship of queryEntities(world, [Component.PlayerControlled, Component.Position])) {
     const player = getComponent(world, ship, Component.PlayerControlled);
     const input = inputById[player.inputId];
-    for (const gunEntity of getShipPartEntities(world, ship, [Component.Gun, Component.Health])) {
-      updateGun(world, ship, gunEntity, input?.gun, deltaSeconds);
+    updateShipGuns(world, ship, input?.gun, deltaSeconds);
+  }
+
+  for (const ship of queryEntities(world, [Component.Faction, Component.Position])) {
+    if (getComponent(world, ship, Component.PlayerControlled) !== undefined) {
+      continue;
     }
+
+    updateShipGuns(world, ship, automaticGunInput, deltaSeconds);
+  }
+}
+
+function updateShipGuns(world, ship, gunInput, deltaSeconds) {
+  for (const gunEntity of getShipPartEntities(world, ship, [Component.Gun, Component.Health])) {
+    updateGun(world, ship, gunEntity, gunInput, deltaSeconds);
   }
 }
 
@@ -25,9 +43,9 @@ function updateGun(world, ship, gunEntity, gunInput, deltaSeconds) {
   }
 
   const muzzle = getGunWorldPosition(world, ship, gun);
-  const target = findNearestShip(world, ship, muzzle);
+  const target = findNearestOpposingShip(world, ship, muzzle);
 
-  aimGun(gun, gunInput, muzzle, target);
+  aimGun(world, ship, gun, gunInput, muzzle, target);
 
   const stress = getComponent(world, gunEntity, Component.ComponentStress);
   const tolerance = getComponent(world, gunEntity, Component.DamageTolerance);
@@ -67,10 +85,10 @@ function updateOverheatHold(gun, stress, tolerance) {
   }
 }
 
-function aimGun(gun, gunInput, muzzle, target) {
+function aimGun(world, ship, gun, gunInput, muzzle, target) {
   if (gunInput?.aimMode === GunAimMode.Automatic) {
     if (target !== undefined) {
-      gun.aimAngle = Math.atan2(target.y - muzzle.y, target.x - muzzle.x);
+      gun.aimAngle = getInterceptAngle(world, ship, gun, muzzle, target);
     }
     return;
   }
@@ -78,6 +96,40 @@ function aimGun(gun, gunInput, muzzle, target) {
   if (Number.isFinite(gunInput?.aimX) && Number.isFinite(gunInput?.aimY)) {
     gun.aimAngle = Math.atan2(gunInput.aimY - muzzle.y, gunInput.aimX - muzzle.x);
   }
+}
+
+function getInterceptAngle(world, ship, gun, muzzle, target) {
+  const shipVelocity = getComponent(world, ship, Component.Velocity) ?? { x: 0, y: 0 };
+  const targetVelocity = getComponent(world, target.entity, Component.Velocity) ?? { x: 0, y: 0 };
+  const relX = target.x - muzzle.x;
+  const relY = target.y - muzzle.y;
+  const relVx = targetVelocity.x - shipVelocity.x;
+  const relVy = targetVelocity.y - shipVelocity.y;
+  const time = getInterceptTime(relX, relY, relVx, relVy, gun.projectileSpeed);
+
+  return Math.atan2(relY + relVy * time, relX + relVx * time);
+}
+
+function getInterceptTime(relX, relY, relVx, relVy, projectileSpeed) {
+  const a = relVx * relVx + relVy * relVy - projectileSpeed * projectileSpeed;
+  const b = 2 * (relX * relVx + relY * relVy);
+  const c = relX * relX + relY * relY;
+
+  if (Math.abs(a) < 1e-9) {
+    return b < 0 ? -c / b : 0;
+  }
+
+  const discriminant = b * b - 4 * a * c;
+  if (discriminant < 0) {
+    return 0;
+  }
+
+  const sqrtDiscriminant = Math.sqrt(discriminant);
+  const first = (-b - sqrtDiscriminant) / (2 * a);
+  const second = (-b + sqrtDiscriminant) / (2 * a);
+  const time = Math.min(...[first, second].filter((candidate) => candidate > 0));
+
+  return Number.isFinite(time) ? time : 0;
 }
 
 function wantsToShoot(gun, gunInput, target) {
@@ -94,6 +146,7 @@ function fireProjectile(world, ship, gun, muzzle) {
 
   createProjectile(world, {
     firedBy: ship,
+    faction: getComponent(world, ship, Component.Faction)?.id,
     x: muzzle.x + direction.x * gun.barrelLength,
     y: muzzle.y + direction.y * gun.barrelLength,
     vx: shipVelocity.x + direction.x * gun.projectileSpeed,
@@ -112,23 +165,3 @@ function getGunWorldPosition(world, ship, gun) {
   return { x: position.x + offset.x, y: position.y + offset.y };
 }
 
-function findNearestShip(world, ship, origin) {
-  let nearest;
-  for (const [entity, bodyKind] of getComponents(world, Component.BodyKind)) {
-    if (entity === ship || bodyKind.value !== BodyKind.Ship) {
-      continue;
-    }
-
-    const position = getComponent(world, entity, Component.Position);
-    if (!position) {
-      continue;
-    }
-
-    const distance = Math.hypot(position.x - origin.x, position.y - origin.y);
-    if (nearest === undefined || distance < nearest.distance) {
-      nearest = { entity, x: position.x, y: position.y, distance };
-    }
-  }
-
-  return nearest;
-}

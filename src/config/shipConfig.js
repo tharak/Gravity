@@ -1,4 +1,4 @@
-import { ThrusterSlot } from "../ecs/components.js";
+import { FactionId, ThrusterSlot } from "../ecs/components.js";
 
 export const DefaultShipModelConfig = Object.freeze({
   mass: 2,
@@ -70,4 +70,26 @@ export const FleetTestShipViewConfig = Object.freeze([
   Object.freeze({ id: "escort-two", x: 140, y: 170, radius: 50 }),
   Object.freeze({ id: "escort-three", x: -170, y: 330, radius: 50 }),
   Object.freeze({ id: "escort-four", x: 170, y: 330, radius: 50 })
+]);
+
+export const FleetBattleShipModelConfig = Object.freeze([
+  Object.freeze({ id: "flagship", mass: 2, vx: 0, vy: 0, playerControlled: "player-one", faction: FactionId.Player }),
+  Object.freeze({ id: "escort-one", mass: 2, vx: 0, vy: 0, faction: FactionId.Player, fleetSlot: 0 }),
+  Object.freeze({ id: "escort-two", mass: 2, vx: 0, vy: 0, faction: FactionId.Player, fleetSlot: 1 }),
+  Object.freeze({ id: "escort-three", mass: 2, vx: 0, vy: 0, faction: FactionId.Player, fleetSlot: 2 }),
+  Object.freeze({ id: "escort-four", mass: 2, vx: 0, vy: 0, faction: FactionId.Player, fleetSlot: 3 }),
+  Object.freeze({ id: "raider-one", mass: 2, vx: 0, vy: 0, faction: FactionId.Hostile, rotation: Math.PI / 2 }),
+  Object.freeze({ id: "raider-two", mass: 2, vx: 0, vy: 0, faction: FactionId.Hostile, rotation: Math.PI / 2 }),
+  Object.freeze({ id: "raider-three", mass: 2, vx: 0, vy: 0, faction: FactionId.Hostile, rotation: Math.PI / 2 })
+]);
+
+export const FleetBattleShipViewConfig = Object.freeze([
+  Object.freeze({ id: "flagship", x: 0, y: 420, radius: 52, frame: Object.freeze({ width: 94, height: 46 }) }),
+  Object.freeze({ id: "escort-one", x: -140, y: 590, radius: 50 }),
+  Object.freeze({ id: "escort-two", x: 140, y: 590, radius: 50 }),
+  Object.freeze({ id: "escort-three", x: -170, y: 750, radius: 50 }),
+  Object.freeze({ id: "escort-four", x: 170, y: 750, radius: 50 }),
+  Object.freeze({ id: "raider-one", x: -260, y: -480, radius: 50 }),
+  Object.freeze({ id: "raider-two", x: 0, y: -560, radius: 50 }),
+  Object.freeze({ id: "raider-three", x: 260, y: -480, radius: 50 })
 ]);

@@ -5,7 +5,8 @@ export const LabelConfig = Object.freeze({
     LevelSelect: "LevelSelect",
     ShipMovement: "ShipMovement",
     GravityTest: "GravityTest",
-    FleetTest: "FleetTest"
+    FleetTest: "FleetTest",
+    FleetBattle: "FleetBattle"
   }),
   controllerModes: Object.freeze({
     manual: "Manual",

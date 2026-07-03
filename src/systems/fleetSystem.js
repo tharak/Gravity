@@ -1,12 +1,15 @@
 import { FleetFormation, FleetModelConfig } from "../config/fleetConfig.js";
 import { add, clamp01, clampMagnitude, length, normalizeAngle, rotate, scale, subtract, vec2 } from "../core/vector.js";
-import { Component } from "../ecs/components.js";
-import { addComponent, getComponent, queryEntities } from "../ecs/world.js";
+import { BodyKind, Component } from "../ecs/components.js";
+import { addComponent, getComponent, getComponents, queryEntities } from "../ecs/world.js";
 import { SHIP_FACING_UP } from "../game/factory.js";
 import { applyThrusterCommandToShip, createSeekThrusterCommand } from "../game/flightControl.js";
 import { getFormationOffset } from "../game/formations.js";
+import { getAvoidancePush, getSeparationPush } from "../game/steering.js";
 
 export function applyFleetFormation(world, inputById, deltaSeconds = 0) {
+  const allShips = getAllShips(world);
+
   for (const [flagship, members] of groupMembersByFlagship(world)) {
     const flagshipPosition = getComponent(world, flagship, Component.Position);
     if (!flagshipPosition) {
@@ -24,7 +27,8 @@ export function applyFleetFormation(world, inputById, deltaSeconds = 0) {
         formationHeading,
         flagshipPosition,
         flagshipVelocity,
-        fleetShips
+        fleetShips,
+        allShips
       }, deltaSeconds);
     }
   }
@@ -40,8 +44,8 @@ function steerFleetMember(world, member, fleet, deltaSeconds) {
     scale(subtract(slot, position), FleetModelConfig.arrive.catchUpGain),
     FleetModelConfig.arrive.maxCatchUpSpeed
   );
-  const separation = getSeparationPush(world, member, position, fleet.fleetShips);
-  const avoidance = getAvoidancePush(world, member, position, velocity, fleet.fleetShips);
+  const separation = getSeparationPush(world, member.entity, position, fleet.fleetShips, FleetModelConfig.separation);
+  const avoidance = getAvoidancePush(world, member.entity, position, velocity, fleet.allShips, FleetModelConfig.avoid);
   const desiredVelocity = add(add(add(fleet.flagshipVelocity, catchUp), separation), avoidance);
   const velocityError = subtract(desiredVelocity, velocity);
   const errorSpeed = length(velocityError);
@@ -56,78 +60,6 @@ function steerFleetMember(world, member, fleet, deltaSeconds) {
     };
 
   applyThrusterCommandToShip(world, member.entity, createSeekThrusterCommand(world, member.entity, seek, deltaSeconds), rotation);
-}
-
-function getSeparationPush(world, member, position, fleetShips) {
-  const push = vec2();
-
-  for (const other of fleetShips) {
-    if (other === member.entity) {
-      continue;
-    }
-
-    const otherPosition = getComponent(world, other, Component.Position);
-    if (!otherPosition) {
-      continue;
-    }
-
-    const offset = subtract(position, otherPosition);
-    const distance = length(offset);
-    if (distance >= FleetModelConfig.separation.radius) {
-      continue;
-    }
-
-    const away = distance > 0 ? scale(offset, 1 / distance) : vec2(0, member.slotIndex % 2 === 0 ? 1 : -1);
-    const strength = FleetModelConfig.separation.strength * (1 - distance / FleetModelConfig.separation.radius);
-    push.x += away.x * strength;
-    push.y += away.y * strength;
-  }
-
-  return push;
-}
-
-function getAvoidancePush(world, member, position, velocity, fleetShips) {
-  const push = vec2();
-
-  for (const other of fleetShips) {
-    if (other === member.entity) {
-      continue;
-    }
-
-    const otherPosition = getComponent(world, other, Component.Position);
-    if (!otherPosition) {
-      continue;
-    }
-
-    const otherVelocity = getComponent(world, other, Component.Velocity) ?? vec2();
-    const relativePosition = subtract(position, otherPosition);
-    const relativeVelocity = subtract(velocity, otherVelocity);
-    const relativeSpeedSquared = relativeVelocity.x * relativeVelocity.x + relativeVelocity.y * relativeVelocity.y;
-    if (relativeSpeedSquared === 0) {
-      continue;
-    }
-
-    const timeToClosest = -(relativePosition.x * relativeVelocity.x + relativePosition.y * relativeVelocity.y)
-      / relativeSpeedSquared;
-    if (timeToClosest <= 0 || timeToClosest > FleetModelConfig.avoid.lookaheadSeconds) {
-      continue;
-    }
-
-    const miss = add(relativePosition, scale(relativeVelocity, timeToClosest));
-    const missDistance = length(miss);
-    if (missDistance >= FleetModelConfig.avoid.clearance) {
-      continue;
-    }
-
-    const away = missDistance > 0
-      ? scale(miss, 1 / missDistance)
-      : scale({ x: -relativeVelocity.y, y: relativeVelocity.x }, 1 / Math.sqrt(relativeSpeedSquared));
-    const strength = FleetModelConfig.avoid.strength * (1 - missDistance / FleetModelConfig.avoid.clearance);
-    push.x += away.x * strength;
-    push.y += away.y * strength;
-  }
-
-  return push;
 }
 
 function updateFormationHeading(world, flagship, deltaSeconds) {
@@ -146,6 +78,16 @@ function getFleetFormation(world, flagship, inputById) {
   const player = getComponent(world, flagship, Component.PlayerControlled);
   const formation = player ? inputById[player.inputId]?.fleetFormation : undefined;
   return formation ?? FleetFormation.Column;
+}
+
+function getAllShips(world) {
+  const ships = [];
+  for (const [entity, bodyKind] of getComponents(world, Component.BodyKind)) {
+    if (bodyKind.value === BodyKind.Ship) {
+      ships.push(entity);
+    }
+  }
+  return ships;
 }
 
 function groupMembersByFlagship(world) {

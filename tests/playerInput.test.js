@@ -154,7 +154,7 @@ test("manual control panel shows battery, speed orders, and one switch per thrus
   assert.ok(html.includes('data-test-map="ShipMovement"'));
   assert.ok(html.includes('data-test-map="GravityTest"'));
   assert.ok(html.includes('class="map-bar"'));
-  assert.equal(html.match(/map-bar__button/g).length, 3);
+  assert.equal(html.match(/map-bar__button/g).length, 4);
   assert.ok(html.includes('aria-label="Ship controller"'));
   assert.ok(html.includes('data-controller-mode="manual"'));
   assert.ok(html.includes('data-controller-mode="automatic"'));
@@ -401,9 +401,9 @@ test("battery limits thrust when there is not enough charge", () => {
 
   applyPlayerInput(world, { "player-one": createInput([ThrusterSlot.MainBack], 1) }, 1);
 
-  assert.equal(getThruster(world, ThrusterSlot.MainBack).power, 2 / 3);
-  assert.equal(battery.charge, 0);
-  assert.equal(battery.outputRate, 2);
+  assert.equal(getThruster(world, ThrusterSlot.MainBack).power, 1 / 3);
+  assert.equal(battery.charge, 1);
+  assert.equal(battery.outputRate, 1);
 });
 
 test("disabled thrusters do not auto-stabilize the ship", () => {

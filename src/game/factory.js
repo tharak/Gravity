@@ -45,6 +45,10 @@ export function createBody(world, body) {
     addComponent(world, entity, Component.PlayerControlled, { inputId: body.playerControlled });
   }
 
+  if (body.faction) {
+    addComponent(world, entity, Component.Faction, { id: body.faction });
+  }
+
   if (body.resources) {
     addComponent(world, entity, Component.Resource, { ...body.resources });
   }
@@ -69,6 +73,7 @@ export function createShip(world, ship) {
       ship.shipFrame ?? ship.frame ?? DefaultShipViewConfig.frame
     ),
     playerControlled: ship.playerControlled,
+    faction: ship.faction,
     shipFrame: ship.shipFrame ?? ship.frame ?? DefaultShipViewConfig.frame
   });
 
@@ -224,6 +229,7 @@ export function createProjectile(world, projectile) {
   const entity = createEntity(world);
   addComponent(world, entity, Component.Projectile, {
     firedBy: projectile.firedBy,
+    faction: projectile.faction,
     damage: projectile.damage,
     createdAt: world.time,
     lifetimeSeconds: projectile.lifetimeSeconds

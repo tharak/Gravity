@@ -8,8 +8,10 @@ import { applyMaterialStress } from "../systems/materialStressSystem.js";
 import { updateProjectiles } from "../systems/projectileSystem.js";
 import { applyShields } from "../systems/shieldSystem.js";
 import { applySolarPanels } from "../systems/solarPanelSystem.js";
+import { applyEnemyAi } from "../systems/enemyAiSystem.js";
 import { applyFleetFormation } from "../systems/fleetSystem.js";
 import { applyPlayerInput } from "../systems/playerInputSystem.js";
+import { removeDestroyedShips } from "../systems/destructionSystem.js";
 import { recordTrails } from "../systems/trailSystem.js";
 
 export const defaultSimulationConfig = SimulationConfig;
@@ -29,11 +31,13 @@ export function createSimulation(world, config = {}) {
         applyShields(world, settings.fixedDeltaSeconds);
         applyPlayerInput(world, inputById, settings.fixedDeltaSeconds);
         applyFleetFormation(world, inputById, settings.fixedDeltaSeconds);
+        applyEnemyAi(world, settings.fixedDeltaSeconds);
         applyGuns(world, inputById, settings.fixedDeltaSeconds);
         applyMaterialStress(world, settings.fixedDeltaSeconds);
         integrateMotion(world, settings.fixedDeltaSeconds);
         updateProjectiles(world);
         resolveCollisions(world);
+        removeDestroyedShips(world);
         removeExpiredDamagePopups(world);
         recordTrails(world, settings.maxTrailLength);
         accumulator -= settings.fixedDeltaSeconds;

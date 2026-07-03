@@ -183,7 +183,8 @@ function getBatteryPowerScale(battery, energyPerSecond, deltaSeconds) {
     return 1;
   }
 
-  return Math.min(1, battery.charge / (energyPerSecond * deltaSeconds));
+  const availableRate = battery.charge * FlightControlConfig.batteryThrustShare;
+  return Math.min(1, availableRate / energyPerSecond, battery.charge / (energyPerSecond * deltaSeconds));
 }
 
 function drainBattery(battery, energyPerSecond, deltaSeconds) {

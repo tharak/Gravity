@@ -8,7 +8,7 @@ export const MaterialStressConfig = Object.freeze({
   }),
   heatGainPerPowerSecond: 18,
   heatDissipationPerSecond: 6,
-  collisionPressurePerDamage: 8,
+  collisionPressurePerDamage: 3,
   pressureDissipationPerSecond: 12,
   vibrationFromAngularVelocity: 18,
   accelerationLoadMultiplier: 1,

@@ -33,6 +33,10 @@ function findHitBody(world, projectileEntity, projectile) {
       continue;
     }
 
+    if (projectile.faction !== undefined && getComponent(world, body, Component.Faction)?.id === projectile.faction) {
+      continue;
+    }
+
     const bodyPosition = getComponent(world, body, Component.Position);
     const bodyRadius = getComponent(world, body, Component.Radius).value;
     if (Math.hypot(bodyPosition.x - position.x, bodyPosition.y - position.y) < radius + bodyRadius) {

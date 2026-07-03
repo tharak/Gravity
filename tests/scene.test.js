@@ -1,7 +1,8 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { BodyKind, Component } from "../src/ecs/components.js";
+import { BodyKind, Component, FactionId } from "../src/ecs/components.js";
 import { getComponent, getComponents } from "../src/ecs/world.js";
+import { createFleetBattleScene } from "../src/scenes/fleetBattleScene.js";
 import { createFleetTestScene } from "../src/scenes/fleetScene.js";
 import { createGravityTestScene } from "../src/scenes/gravityTestScene.js";
 import { createLevelSelectScene } from "../src/scenes/levelSelectScene.js";
@@ -71,11 +72,27 @@ test("FleetTest map spawns a flagship with fleet escorts", () => {
   assert.deepEqual(members.map((member) => member.slotIndex).sort(), [0, 1, 2, 3]);
 });
 
+test("FleetBattle map pits the player fleet against a hostile squad", () => {
+  const world = createFleetBattleScene();
+  const kinds = [...getComponents(world, Component.BodyKind).values()].map((kind) => kind.value);
+  const factions = [...getComponents(world, Component.Faction).values()].map((faction) => faction.id);
+  const [flagship] = getComponents(world, Component.PlayerControlled).keys();
+  const members = [...getComponents(world, Component.FleetMember).values()];
+
+  assert.equal(kinds.filter((kind) => kind === BodyKind.Ship).length, 8);
+  assert.equal(kinds.filter((kind) => kind === BodyKind.Planet).length, 1);
+  assert.equal(factions.filter((id) => id === FactionId.Player).length, 5);
+  assert.equal(factions.filter((id) => id === FactionId.Hostile).length, 3);
+  assert.equal(members.length, 4);
+  assert.equal(members.every((member) => member.flagship === flagship), true);
+});
+
 test("test maps are selectable by stable ids", () => {
-  assert.deepEqual(testMaps.map((map) => map.id), [TestMapId.LevelSelect, TestMapId.ShipMovement, TestMapId.GravityTest, TestMapId.FleetTest]);
+  assert.deepEqual(testMaps.map((map) => map.id), [TestMapId.LevelSelect, TestMapId.ShipMovement, TestMapId.GravityTest, TestMapId.FleetTest, TestMapId.FleetBattle]);
   assert.equal(getTestMap(TestMapId.LevelSelect).id, "LevelSelect");
   assert.equal(getTestMap(TestMapId.ShipMovement).id, "ShipMovement");
   assert.equal(getTestMap(TestMapId.GravityTest).id, "GravityTest");
   assert.equal(getTestMap(TestMapId.FleetTest).id, "FleetTest");
+  assert.equal(getTestMap(TestMapId.FleetBattle).id, "FleetBattle");
   assert.equal(getTestMap("missing").id, "LevelSelect");
 });

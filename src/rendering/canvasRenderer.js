@@ -4,7 +4,7 @@ import { getComponent, queryEntities } from "../ecs/world.js";
 import { getShipPartEntities } from "../game/shipParts.js";
 import { WORLD_NORTH_VECTOR } from "../game/navigation.js";
 import { getShipGuns, getShipSolarPanels, getShipThrusters } from "../game/shipParts.js";
-import { bodyColors } from "./colors.js";
+import { bodyColors, factionColors } from "./colors.js";
 import { worldToScreen } from "./camera.js";
 
 export function renderWorld(context, canvas, world, camera, options = {}) {
@@ -121,13 +121,14 @@ function drawShip(context, world, ship, screen, frame, camera, rotation) {
   const width = frame.width * camera.scale;
   const height = frame.height * camera.scale;
   const isPlayer = getComponent(world, ship, Component.PlayerControlled) !== undefined;
+  const faction = getComponent(world, ship, Component.Faction)?.id;
 
   context.save();
   context.translate(screen.x, screen.y);
   context.rotate(rotation);
   drawThrusters(context, world, ship, camera);
 
-  context.fillStyle = bodyColors[BodyKind.Ship];
+  context.fillStyle = factionColors[faction] ?? bodyColors[BodyKind.Ship];
   context.strokeStyle = isPlayer ? "#ffffff" : "rgba(255, 255, 255, 0.35)";
   context.lineWidth = isPlayer ? 2 : 1;
   context.beginPath();

@@ -2,14 +2,15 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { CollisionConfig } from "../src/config/collisionConfig.js";
 import { BatteryConfig } from "../src/config/batteryConfig.js";
+import { EnemyAiConfig } from "../src/config/enemyConfig.js";
 import { FleetFormation, FleetFormationList, FleetModelConfig } from "../src/config/fleetConfig.js";
 import { FlightControlConfig } from "../src/config/flightControlConfig.js";
 import { GunModelConfig, GunViewConfig } from "../src/config/gunConfig.js";
 import { ShieldModelConfig, ShieldViewConfig } from "../src/config/shieldConfig.js";
 import { LabelConfig } from "../src/config/labelConfig.js";
-import { DefaultShipModelConfig, DefaultShipViewConfig, FleetTestShipModelConfig, FleetTestShipViewConfig, GravityTestShipModelConfig, GravityTestShipViewConfig, StarterShipModelConfig, StarterShipViewConfig, ThrusterModelConfig, ThrusterViewConfig } from "../src/config/shipConfig.js";
+import { DefaultShipModelConfig, DefaultShipViewConfig, FleetBattleShipModelConfig, FleetBattleShipViewConfig, FleetTestShipModelConfig, FleetTestShipViewConfig, GravityTestShipModelConfig, GravityTestShipViewConfig, StarterShipModelConfig, StarterShipViewConfig, ThrusterModelConfig, ThrusterViewConfig } from "../src/config/shipConfig.js";
 import { MaterialStressConfig } from "../src/config/materialStressConfig.js";
-import { FleetTestPlanetModelConfig, FleetTestPlanetViewConfig, GravityTestPlanetModelConfig, GravityTestPlanetViewConfig } from "../src/config/planetConfig.js";
+import { FleetBattlePlanetModelConfig, FleetBattlePlanetViewConfig, FleetTestPlanetModelConfig, FleetTestPlanetViewConfig, GravityTestPlanetModelConfig, GravityTestPlanetViewConfig } from "../src/config/planetConfig.js";
 import { SolarPanelModelConfig, SolarPanelViewConfig } from "../src/config/solarPanelConfig.js";
 import { SimulationConfig } from "../src/config/simulationConfig.js";
 import { SpeedOrderConfig, SpeedOrderList } from "../src/config/speedOrderConfig.js";
@@ -74,7 +75,7 @@ test("battery, solar panel, and material stress configs expose tuning values", (
   assert.equal(SolarPanelModelConfig.batteryRechargeRate, 3);
   assert.equal(SolarPanelViewConfig.radius, 8);
   assert.equal(MaterialStressConfig.tolerances.heat, 100);
-  assert.equal(MaterialStressConfig.collisionPressurePerDamage, 8);
+  assert.equal(MaterialStressConfig.collisionPressurePerDamage, 3);
   assert.equal(MaterialStressConfig.damagePerExcessSecond.acceleration, 0.04);
 });
 
@@ -143,10 +144,39 @@ test("fleet test scene configs separate model and view values", () => {
   assert.equal(FleetTestPlanetViewConfig[0].radius, 40);
 });
 
+test("enemy AI config exposes combat steering tuning values", () => {
+  assert.equal(EnemyAiConfig.standoffRangeRatio, 0.7);
+  assert.equal(EnemyAiConfig.fallbackRange, 480);
+  assert.equal(EnemyAiConfig.approachGain, 0.9);
+  assert.equal(EnemyAiConfig.maxApproachSpeed, 70);
+  assert.equal(EnemyAiConfig.separation.radius, 160);
+  assert.equal(EnemyAiConfig.separation.strength, 120);
+  assert.equal(EnemyAiConfig.avoid.lookaheadSeconds, 2.5);
+  assert.equal(EnemyAiConfig.avoid.clearance, 150);
+  assert.equal(EnemyAiConfig.avoid.strength, 120);
+  assert.equal(EnemyAiConfig.speedErrorForFullThrottle, 25);
+  assert.equal(EnemyAiConfig.settleSpeedError, 3);
+});
+
+test("fleet battle scene configs separate model and view values", () => {
+  assert.equal(LabelConfig.maps.FleetBattle, "FleetBattle");
+  assert.equal(FleetBattleShipModelConfig.length, 8);
+  assert.equal(FleetBattleShipModelConfig[0].playerControlled, "player-one");
+  assert.equal(FleetBattleShipModelConfig[0].faction, "player");
+  assert.equal(FleetBattleShipModelConfig[1].fleetSlot, 0);
+  assert.equal(FleetBattleShipModelConfig[5].faction, "hostile");
+  assert.equal(FleetBattleShipModelConfig[5].rotation, Math.PI / 2);
+  assert.equal(FleetBattleShipViewConfig[0].y, 420);
+  assert.equal(FleetBattleShipViewConfig[5].y, -480);
+  assert.equal(FleetBattlePlanetModelConfig[0].mass, 550);
+  assert.equal(FleetBattlePlanetViewConfig[0].x, -520);
+});
+
 test("flight control config exposes stabilization tuning values", () => {
   assert.equal(FlightControlConfig.stop.fullPowerSpeed, 45);
   assert.equal(FlightControlConfig.stop.alignmentThreshold, 0.35);
   assert.equal(FlightControlConfig.turn.angleErrorGain, 1.45);
   assert.equal(FlightControlConfig.turn.dampingGain, 0.8);
   assert.equal(FlightControlConfig.minMainThrusterPower, 0.02);
+  assert.equal(FlightControlConfig.batteryThrustShare, 0.5);
 });

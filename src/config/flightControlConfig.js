@@ -10,5 +10,6 @@ export const FlightControlConfig = Object.freeze({
     dampingGain: 0.8,
     minPower: 0.04
   }),
-  minMainThrusterPower: 0.02
+  minMainThrusterPower: 0.02,
+  batteryThrustShare: 0.5
 });

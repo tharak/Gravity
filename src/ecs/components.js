@@ -7,6 +7,7 @@ export const Component = Object.freeze({
   DamageTolerance: "damageTolerance",
   BodyKind: "bodyKind",
   DamagePopup: "damagePopup",
+  Faction: "faction",
   Fleet: "fleet",
   FleetMember: "fleetMember",
   Gun: "gun",
@@ -27,6 +28,11 @@ export const Component = Object.freeze({
   StaticBody: "staticBody",
   Thruster: "thruster",
   Velocity: "velocity"
+});
+
+export const FactionId = Object.freeze({
+  Player: "player",
+  Hostile: "hostile"
 });
 
 export const BodyKind = Object.freeze({
