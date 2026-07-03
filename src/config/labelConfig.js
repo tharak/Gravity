@@ -4,7 +4,8 @@ export const LabelConfig = Object.freeze({
   maps: Object.freeze({
     LevelSelect: "LevelSelect",
     ShipMovement: "ShipMovement",
-    GravityTest: "GravityTest"
+    GravityTest: "GravityTest",
+    FleetTest: "FleetTest"
   }),
   controllerModes: Object.freeze({
     manual: "Manual",
@@ -42,6 +43,8 @@ export const LabelConfig = Object.freeze({
     accelerationDown: "Decrease acceleration",
     accelerationOrder: "Acceleration order",
     accelerationUp: "Increase acceleration",
+    fleet: "Fleet",
+    fleetFormation: "Fleet formation",
     gun: "Gun",
     gunControl: "Gun control",
     gunAim: "Aim",
@@ -66,6 +69,12 @@ export const LabelConfig = Object.freeze({
   gunModes: Object.freeze({
     manual: "MAN",
     automatic: "AUTO"
+  }),
+  fleetFormations: Object.freeze({
+    column: Object.freeze({ label: "COL", ariaLabel: "Column formation" }),
+    line: Object.freeze({ label: "LINE", ariaLabel: "Line formation" }),
+    arrow: Object.freeze({ label: "ARW", ariaLabel: "Arrow formation" }),
+    chevron: Object.freeze({ label: "CHV", ariaLabel: "Chevron formation" })
   }),
   speedOrders: Object.freeze({
     Stop: Object.freeze({ label: "STOP", ariaLabel: "Stop and stabilize" }),

@@ -55,3 +55,19 @@ export const GravityTestShipViewConfig = Object.freeze([
   Object.freeze({ id: "drifter-east", x: 130, y: 40, radius: 50 }),
   Object.freeze({ id: "drifter-southwest", x: -180, y: 150, radius: 50 })
 ]);
+
+export const FleetTestShipModelConfig = Object.freeze([
+  Object.freeze({ id: "flagship", mass: 2, vx: 0, vy: 0, playerControlled: "player-one" }),
+  Object.freeze({ id: "escort-one", mass: 2, vx: 0, vy: 0, fleetSlot: 0 }),
+  Object.freeze({ id: "escort-two", mass: 2, vx: 0, vy: 0, fleetSlot: 1 }),
+  Object.freeze({ id: "escort-three", mass: 2, vx: 0, vy: 0, fleetSlot: 2 }),
+  Object.freeze({ id: "escort-four", mass: 2, vx: 0, vy: 0, fleetSlot: 3 })
+]);
+
+export const FleetTestShipViewConfig = Object.freeze([
+  Object.freeze({ id: "flagship", x: 0, y: 0, radius: 52, frame: Object.freeze({ width: 94, height: 46 }) }),
+  Object.freeze({ id: "escort-one", x: -140, y: 170, radius: 50 }),
+  Object.freeze({ id: "escort-two", x: 140, y: 170, radius: 50 }),
+  Object.freeze({ id: "escort-three", x: -170, y: 330, radius: 50 }),
+  Object.freeze({ id: "escort-four", x: 170, y: 330, radius: 50 })
+]);

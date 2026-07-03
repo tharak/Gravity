@@ -1,3 +1,4 @@
+import { FleetFormation, FleetFormationList } from "../config/fleetConfig.js";
 import { LabelConfig } from "../config/labelConfig.js";
 import { MaxSpeedLevel, SpeedOrderConfig, SpeedOrderList } from "../config/speedOrderConfig.js";
 import { clamp } from "../core/vector.js";
@@ -60,6 +61,7 @@ const speedLevelByOrder = new Map(SpeedOrders.map((order) => [order.id, order.sp
 const powerConsumptionWeightByOrder = new Map(SpeedOrders.map((order) => [order.id, order.powerConsumptionWeight]));
 const speedOrderIndexById = new Map(SpeedOrders.map((order, index) => [order.id, index]));
 const angleByDirection = new Map(DirectionOrders.map((direction) => [direction.id, direction.angle]));
+const fleetFormationIds = new Set(FleetFormationList.map((formation) => formation.id));
 
 export function createPlayerInput() {
   return {
@@ -71,6 +73,7 @@ export function createPlayerInput() {
     powerConsumptionWeight: getPowerConsumptionWeight(SpeedOrder.Stop),
     targetDirection: DirectionOrder.North,
     targetAngle: getDirectionAngle(DirectionOrder.North),
+    fleetFormation: FleetFormation.Column,
     gun: {
       aimMode: GunAimMode.Manual,
       shootMode: GunShootMode.Manual,
@@ -150,6 +153,13 @@ export function bindThrusterControls(root, input) {
     });
   }
 
+  for (const button of root.querySelectorAll("[data-fleet-formation]")) {
+    button.addEventListener("click", () => {
+      setFleetFormation(input, button.dataset.fleetFormation);
+      syncFleetFormationButtons(root, input.fleetFormation);
+    });
+  }
+
   for (const button of root.querySelectorAll("[data-direction-order]")) {
     button.addEventListener("click", () => {
       setAutomaticDirection(input, button.dataset.directionOrder);
@@ -170,6 +180,11 @@ export function syncPlayerInputControls(root, input) {
   syncAccelerationButtons(root, input.activeAccelerationKeys);
   syncDirectionButtons(root, input.targetDirection);
   syncGunButtons(root, input.gun);
+  syncFleetFormationButtons(root, input.fleetFormation);
+}
+
+export function setFleetFormation(input, formation) {
+  input.fleetFormation = fleetFormationIds.has(formation) ? formation : FleetFormation.Column;
 }
 
 export function setGunAimMode(input, aimMode) {
@@ -293,6 +308,7 @@ export function clearPlayerInput(input) {
   setGunShootMode(input, GunShootMode.Manual);
   setGunAim(input, undefined, undefined);
   setGunShooting(input, false);
+  setFleetFormation(input, FleetFormation.Column);
 }
 
 function syncSpeedButtons(root, activeOrder) {
@@ -326,6 +342,10 @@ function syncModePanels(root, activeMode) {
 
 function syncDirectionButtons(root, activeDirection) {
   syncToggleButtons(root, "[data-direction-order]", (button) => button.dataset.directionOrder === activeDirection);
+}
+
+function syncFleetFormationButtons(root, activeFormation) {
+  syncToggleButtons(root, "[data-fleet-formation]", (button) => button.dataset.fleetFormation === activeFormation);
 }
 
 function syncGunButtons(root, gun) {

@@ -8,6 +8,7 @@ import { applyMaterialStress } from "../systems/materialStressSystem.js";
 import { updateProjectiles } from "../systems/projectileSystem.js";
 import { applyShields } from "../systems/shieldSystem.js";
 import { applySolarPanels } from "../systems/solarPanelSystem.js";
+import { applyFleetFormation } from "../systems/fleetSystem.js";
 import { applyPlayerInput } from "../systems/playerInputSystem.js";
 import { recordTrails } from "../systems/trailSystem.js";
 
@@ -27,6 +28,7 @@ export function createSimulation(world, config = {}) {
         applySolarPanels(world, settings.fixedDeltaSeconds);
         applyShields(world, settings.fixedDeltaSeconds);
         applyPlayerInput(world, inputById, settings.fixedDeltaSeconds);
+        applyFleetFormation(world, inputById, settings.fixedDeltaSeconds);
         applyGuns(world, inputById, settings.fixedDeltaSeconds);
         applyMaterialStress(world, settings.fixedDeltaSeconds);
         integrateMotion(world, settings.fixedDeltaSeconds);

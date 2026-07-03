@@ -13,6 +13,7 @@ import {
   clearPlayerInput,
   createPlayerInput,
   setAutomaticDirection,
+  setFleetFormation,
   setControllerMode,
   setKeyboardAcceleration,
   setSpeedLevel,
@@ -21,6 +22,7 @@ import {
   setThrusterEnabled,
   toggleThruster
 } from "../src/input/playerInput.js";
+import { FleetFormation } from "../src/config/fleetConfig.js";
 import { SHIP_FACING_UP } from "../src/game/factory.js";
 import { WORLD_NORTH_ANGLE } from "../src/game/navigation.js";
 import { applyMaterialStress } from "../src/systems/materialStressSystem.js";
@@ -69,6 +71,21 @@ test("manual controller toggles thrusters and sets speed orders", () => {
   assert.equal(input.speedLevel, 0);
   assert.equal(input.powerConsumptionWeight, 1);
   assert.equal(input.targetDirection, DirectionOrder.North);
+});
+
+test("fleet formation orders validate ids and reset to column", () => {
+  const input = createPlayerInput();
+  assert.equal(input.fleetFormation, FleetFormation.Column);
+
+  setFleetFormation(input, FleetFormation.Arrow);
+  assert.equal(input.fleetFormation, FleetFormation.Arrow);
+
+  setFleetFormation(input, "zigzag");
+  assert.equal(input.fleetFormation, FleetFormation.Column);
+
+  setFleetFormation(input, FleetFormation.Chevron);
+  clearPlayerInput(input);
+  assert.equal(input.fleetFormation, FleetFormation.Column);
 });
 
 test("WASD keyboard input activates manual thruster groups", () => {

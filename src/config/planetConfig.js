@@ -11,3 +11,11 @@ export const GravityTestPlanetViewConfig = Object.freeze([
   Object.freeze({ id: "planet-east", x: 230, y: -120, radius: 42 }),
   Object.freeze({ id: "planet-south", x: 20, y: 190, radius: 36 })
 ]);
+
+export const FleetTestPlanetModelConfig = Object.freeze([
+  Object.freeze({ id: "planet-northwest", kind: BodyKind.Planet, mass: 600, static: true })
+]);
+
+export const FleetTestPlanetViewConfig = Object.freeze([
+  Object.freeze({ id: "planet-northwest", x: -420, y: -280, radius: 40 })
+]);

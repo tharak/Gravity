@@ -7,6 +7,8 @@ export const Component = Object.freeze({
   DamageTolerance: "damageTolerance",
   BodyKind: "bodyKind",
   DamagePopup: "damagePopup",
+  Fleet: "fleet",
+  FleetMember: "fleetMember",
   Gun: "gun",
   Health: "health",
   Mass: "mass",

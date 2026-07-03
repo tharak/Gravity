@@ -2,13 +2,14 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { CollisionConfig } from "../src/config/collisionConfig.js";
 import { BatteryConfig } from "../src/config/batteryConfig.js";
+import { FleetFormation, FleetFormationList, FleetModelConfig } from "../src/config/fleetConfig.js";
 import { FlightControlConfig } from "../src/config/flightControlConfig.js";
 import { GunModelConfig, GunViewConfig } from "../src/config/gunConfig.js";
 import { ShieldModelConfig, ShieldViewConfig } from "../src/config/shieldConfig.js";
 import { LabelConfig } from "../src/config/labelConfig.js";
-import { DefaultShipModelConfig, DefaultShipViewConfig, GravityTestShipModelConfig, GravityTestShipViewConfig, StarterShipModelConfig, StarterShipViewConfig, ThrusterModelConfig, ThrusterViewConfig } from "../src/config/shipConfig.js";
+import { DefaultShipModelConfig, DefaultShipViewConfig, FleetTestShipModelConfig, FleetTestShipViewConfig, GravityTestShipModelConfig, GravityTestShipViewConfig, StarterShipModelConfig, StarterShipViewConfig, ThrusterModelConfig, ThrusterViewConfig } from "../src/config/shipConfig.js";
 import { MaterialStressConfig } from "../src/config/materialStressConfig.js";
-import { GravityTestPlanetModelConfig, GravityTestPlanetViewConfig } from "../src/config/planetConfig.js";
+import { FleetTestPlanetModelConfig, FleetTestPlanetViewConfig, GravityTestPlanetModelConfig, GravityTestPlanetViewConfig } from "../src/config/planetConfig.js";
 import { SolarPanelModelConfig, SolarPanelViewConfig } from "../src/config/solarPanelConfig.js";
 import { SimulationConfig } from "../src/config/simulationConfig.js";
 import { SpeedOrderConfig, SpeedOrderList } from "../src/config/speedOrderConfig.js";
@@ -105,6 +106,43 @@ test("shield config separates model and view values", () => {
   assert.equal(ShieldModelConfig.energyPerStrength, 1);
   assert.equal(ShieldModelConfig.heatPerAbsorbedDamage, 2);
   assert.equal(ShieldViewConfig.radiusOffset, 10);
+});
+
+test("fleet config exposes formation and steering tuning values", () => {
+  assert.equal(FleetFormation.Column, "column");
+  assert.equal(FleetFormation.Line, "line");
+  assert.equal(FleetFormation.Arrow, "arrow");
+  assert.equal(FleetFormation.Chevron, "chevron");
+  assert.deepEqual(FleetFormationList.map((formation) => formation.id), ["column", "line", "arrow", "chevron"]);
+  assert.equal(FleetFormationList[0].label, "COL");
+  assert.equal(LabelConfig.fleetFormations.chevron.ariaLabel, "Chevron formation");
+  assert.equal(LabelConfig.controls.fleet, "Fleet");
+  assert.equal(LabelConfig.controls.fleetFormation, "Fleet formation");
+  assert.equal(LabelConfig.maps.FleetTest, "FleetTest");
+  assert.equal(FleetModelConfig.spacing, 180);
+  assert.equal(FleetModelConfig.arrive.catchUpGain, 0.8);
+  assert.equal(FleetModelConfig.arrive.maxCatchUpSpeed, 40);
+  assert.equal(FleetModelConfig.separation.radius, 160);
+  assert.equal(FleetModelConfig.separation.strength, 120);
+  assert.equal(FleetModelConfig.avoid.lookaheadSeconds, 2.5);
+  assert.equal(FleetModelConfig.avoid.clearance, 150);
+  assert.equal(FleetModelConfig.avoid.strength, 120);
+  assert.equal(FleetModelConfig.headingSmoothingRate, 1.5);
+  assert.equal(FleetModelConfig.speedErrorForFullThrottle, 25);
+  assert.equal(FleetModelConfig.settleSpeedError, 3);
+});
+
+test("fleet test scene configs separate model and view values", () => {
+  assert.equal(FleetTestShipModelConfig.length, 5);
+  assert.equal(FleetTestShipModelConfig[0].playerControlled, "player-one");
+  assert.equal(FleetTestShipModelConfig[0].fleetSlot, undefined);
+  assert.equal(FleetTestShipModelConfig[1].fleetSlot, 0);
+  assert.equal(FleetTestShipModelConfig[4].fleetSlot, 3);
+  assert.equal(FleetTestShipViewConfig[0].frame.width, 94);
+  assert.equal(FleetTestShipViewConfig[1].x, -140);
+  assert.equal(FleetTestPlanetModelConfig[0].mass, 600);
+  assert.equal(FleetTestPlanetModelConfig[0].static, true);
+  assert.equal(FleetTestPlanetViewConfig[0].radius, 40);
 });
 
 test("flight control config exposes stabilization tuning values", () => {

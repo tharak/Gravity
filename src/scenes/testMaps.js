@@ -1,3 +1,4 @@
+import { createFleetTestScene, FleetTestScene } from "./fleetScene.js";
 import { createGravityTestScene, GravityTestScene } from "./gravityTestScene.js";
 import { createLevelSelectScene, LevelSelectScene } from "./levelSelectScene.js";
 import { createShipMovementScene, ShipMovementScene } from "./shipMovementScene.js";
@@ -5,13 +6,15 @@ import { createShipMovementScene, ShipMovementScene } from "./shipMovementScene.
 export const TestMapId = Object.freeze({
   LevelSelect: LevelSelectScene.id,
   ShipMovement: ShipMovementScene.id,
-  GravityTest: GravityTestScene.id
+  GravityTest: GravityTestScene.id,
+  FleetTest: FleetTestScene.id
 });
 
 export const testMaps = Object.freeze([
   Object.freeze({ ...LevelSelectScene, createWorld: createLevelSelectScene }),
   Object.freeze({ ...ShipMovementScene, createWorld: createShipMovementScene }),
-  Object.freeze({ ...GravityTestScene, createWorld: createGravityTestScene })
+  Object.freeze({ ...GravityTestScene, createWorld: createGravityTestScene }),
+  Object.freeze({ ...FleetTestScene, createWorld: createFleetTestScene })
 ]);
 
 export function getTestMap(mapId) {

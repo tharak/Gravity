@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { BodyKind, Component } from "../src/ecs/components.js";
 import { getComponent, getComponents } from "../src/ecs/world.js";
+import { createFleetTestScene } from "../src/scenes/fleetScene.js";
 import { createGravityTestScene } from "../src/scenes/gravityTestScene.js";
 import { createLevelSelectScene } from "../src/scenes/levelSelectScene.js";
 import { createShipMovementScene } from "../src/scenes/shipMovementScene.js";
@@ -55,10 +56,26 @@ test("GravityTest map has static planets and multiple ships", () => {
   assert.equal([...getComponents(world, Component.Battery).values()].every((battery) => battery.capacity > 25), true);
 });
 
+test("FleetTest map spawns a flagship with fleet escorts", () => {
+  const world = createFleetTestScene();
+  const kinds = [...getComponents(world, Component.BodyKind).values()].map((kind) => kind.value);
+  const players = getComponents(world, Component.PlayerControlled);
+  const members = [...getComponents(world, Component.FleetMember).values()];
+  const [flagship] = players.keys();
+
+  assert.equal(kinds.filter((kind) => kind === BodyKind.Ship).length, 5);
+  assert.equal(kinds.filter((kind) => kind === BodyKind.Planet).length, 1);
+  assert.equal(players.size, 1);
+  assert.equal(members.length, 4);
+  assert.equal(members.every((member) => member.flagship === flagship), true);
+  assert.deepEqual(members.map((member) => member.slotIndex).sort(), [0, 1, 2, 3]);
+});
+
 test("test maps are selectable by stable ids", () => {
-  assert.deepEqual(testMaps.map((map) => map.id), [TestMapId.LevelSelect, TestMapId.ShipMovement, TestMapId.GravityTest]);
+  assert.deepEqual(testMaps.map((map) => map.id), [TestMapId.LevelSelect, TestMapId.ShipMovement, TestMapId.GravityTest, TestMapId.FleetTest]);
   assert.equal(getTestMap(TestMapId.LevelSelect).id, "LevelSelect");
   assert.equal(getTestMap(TestMapId.ShipMovement).id, "ShipMovement");
   assert.equal(getTestMap(TestMapId.GravityTest).id, "GravityTest");
+  assert.equal(getTestMap(TestMapId.FleetTest).id, "FleetTest");
   assert.equal(getTestMap("missing").id, "LevelSelect");
 });

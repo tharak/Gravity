@@ -16,6 +16,7 @@
             <div class="level-menu__actions">
               <button class="level-menu__button" type="button" data-test-map="ShipMovement" data-label="maps.ShipMovement">ShipMovement</button>
               <button class="level-menu__button" type="button" data-test-map="GravityTest" data-label="maps.GravityTest">GravityTest</button>
+              <button class="level-menu__button" type="button" data-test-map="FleetTest" data-label="maps.FleetTest">FleetTest</button>
             </div>
           </div>
         </div>
@@ -104,6 +105,13 @@
               <button class="speed-button" type="button" data-gun-shoot-mode="automatic" aria-label="Automatic shoot" aria-pressed="false" data-label="gunModes.automatic" data-aria-label="controls.gunShootAutomatic">AUTO</button>
             </div>
           </fieldset>
+          <fieldset class="fleet-control" aria-label="Fleet formation" data-aria-label="controls.fleetFormation">
+            <legend data-label="controls.fleet">Fleet</legend>
+            <button class="speed-button is-active" type="button" data-fleet-formation="column" aria-label="Column formation" aria-pressed="true" data-label="fleetFormations.column.label" data-aria-label="fleetFormations.column.ariaLabel">COL</button>
+            <button class="speed-button" type="button" data-fleet-formation="line" aria-label="Line formation" aria-pressed="false" data-label="fleetFormations.line.label" data-aria-label="fleetFormations.line.ariaLabel">LINE</button>
+            <button class="speed-button" type="button" data-fleet-formation="arrow" aria-label="Arrow formation" aria-pressed="false" data-label="fleetFormations.arrow.label" data-aria-label="fleetFormations.arrow.ariaLabel">ARW</button>
+            <button class="speed-button" type="button" data-fleet-formation="chevron" aria-label="Chevron formation" aria-pressed="false" data-label="fleetFormations.chevron.label" data-aria-label="fleetFormations.chevron.ariaLabel">CHV</button>
+          </fieldset>
         </div>
       </section>
       <aside class="hud" aria-label="Simulator data" data-aria-label="controls.simulatorData">
@@ -112,6 +120,7 @@
           <button class="map-menu__button is-active" type="button" data-test-map="LevelSelect" aria-pressed="true" data-label="maps.LevelSelect">LevelSelect</button>
           <button class="map-menu__button" type="button" data-test-map="ShipMovement" aria-pressed="false" data-label="maps.ShipMovement">ShipMovement</button>
           <button class="map-menu__button" type="button" data-test-map="GravityTest" aria-pressed="false" data-label="maps.GravityTest">GravityTest</button>
+          <button class="map-menu__button" type="button" data-test-map="FleetTest" aria-pressed="false" data-label="maps.FleetTest">FleetTest</button>
         </nav>
         <dl>
           <div>

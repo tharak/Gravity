@@ -72,6 +72,13 @@ export function createShip(world, ship) {
     shipFrame: ship.shipFrame ?? ship.frame ?? DefaultShipViewConfig.frame
   });
 
+  if (ship.fleet) {
+    addComponent(world, entity, Component.FleetMember, {
+      flagship: ship.fleet.flagship,
+      slotIndex: ship.fleet.slotIndex
+    });
+  }
+
   const maxHealth = ship.maxHealth ?? DefaultShipModelConfig.maxHealth;
   addComponent(world, entity, Component.Health, {
     max: maxHealth,
