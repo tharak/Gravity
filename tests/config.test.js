@@ -25,6 +25,8 @@ test("label config centralizes visible UI text", () => {
   assert.equal(LabelConfig.controls.acceleration, "Acceleration");
   assert.equal(LabelConfig.controls.accelerationOrder, "Acceleration order");
   assert.equal(LabelConfig.controls.locked, "LOCKED");
+  assert.equal(LabelConfig.gameOver.title, "Game Over");
+  assert.equal(LabelConfig.gameOver.retry, "Retry");
   assert.equal(LabelConfig.controllerModes.manualShort, "MAN");
   assert.equal(LabelConfig.directions.NorthEast.ariaLabel, "North east");
 });

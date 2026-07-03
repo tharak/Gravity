@@ -104,6 +104,47 @@ test("destroyed ships are removed together with their parts", () => {
   assert.equal(queryEntities(world, [Component.Parent]).length, 0);
 });
 
+test("a surviving escort is promoted when the flagship dies", () => {
+  const world = createWorld();
+  const flagship = createShip(world, { x: 0, y: 0, playerControlled: "player-one", faction: FactionId.Player });
+  const first = createShip(world, { x: 0, y: 180, faction: FactionId.Player, fleet: { flagship, slotIndex: 0 } });
+  const second = createShip(world, { x: 0, y: 360, faction: FactionId.Player, fleet: { flagship, slotIndex: 1 } });
+
+  getComponent(world, flagship, Component.Health).current = 0;
+  removeDestroyedShips(world);
+
+  assert.equal(world.entities.has(flagship), false);
+  assert.deepEqual(getComponent(world, first, Component.PlayerControlled), { inputId: "player-one" });
+  assert.equal(getComponent(world, first, Component.FleetMember), undefined);
+  assert.equal(getComponent(world, second, Component.FleetMember).flagship, first);
+});
+
+test("promotion skips escorts destroyed in the same pass", () => {
+  const world = createWorld();
+  const flagship = createShip(world, { x: 0, y: 0, playerControlled: "player-one", faction: FactionId.Player });
+  const first = createShip(world, { x: 0, y: 180, faction: FactionId.Player, fleet: { flagship, slotIndex: 0 } });
+  const second = createShip(world, { x: 0, y: 360, faction: FactionId.Player, fleet: { flagship, slotIndex: 1 } });
+
+  getComponent(world, flagship, Component.Health).current = 0;
+  getComponent(world, first, Component.Health).current = 0;
+  removeDestroyedShips(world);
+
+  assert.equal(world.entities.has(flagship), false);
+  assert.equal(world.entities.has(first), false);
+  assert.deepEqual(getComponent(world, second, Component.PlayerControlled), { inputId: "player-one" });
+  assert.equal(getComponent(world, second, Component.FleetMember), undefined);
+});
+
+test("no ship is promoted when the whole fleet dies", () => {
+  const world = createWorld();
+  const flagship = createShip(world, { x: 0, y: 0, playerControlled: "player-one", faction: FactionId.Player });
+  getComponent(world, flagship, Component.Health).current = 0;
+
+  removeDestroyedShips(world);
+
+  assert.equal(queryEntities(world, [Component.PlayerControlled]).length, 0);
+});
+
 test("the fleet battle wears the hostile squad down", () => {
   const world = createFleetBattleScene();
   const input = createPlayerInput();
@@ -127,6 +168,16 @@ test("the fleet battle wears the hostile squad down", () => {
 test("fleet battle controls expose the map", () => {
   const html = fs.readFileSync(new URL("../index.html", import.meta.url), "utf8");
   assert.equal(html.match(/data-test-map="FleetBattle"/g).length, 2);
+});
+
+test("a game over overlay with retry is wired into the page", () => {
+  const html = fs.readFileSync(new URL("../index.html", import.meta.url), "utf8");
+  assert.ok(html.includes('id="game-over"'));
+  assert.ok(html.includes("data-retry"));
+  assert.ok(html.includes('data-label="gameOver.title"'));
+  const mainSource = fs.readFileSync(new URL("../src/main.js", import.meta.url), "utf8");
+  assert.ok(mainSource.includes("data-retry"));
+  assert.ok(mainSource.includes("mapHasPlayerFleet"));
 });
 
 function countFactionShips(world, faction) {

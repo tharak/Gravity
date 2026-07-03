@@ -8,6 +8,10 @@ export const LabelConfig = Object.freeze({
     FleetTest: "FleetTest",
     FleetBattle: "FleetBattle"
   }),
+  gameOver: Object.freeze({
+    title: "Game Over",
+    retry: "Retry"
+  }),
   controllerModes: Object.freeze({
     manual: "Manual",
     manualShort: "MAN",

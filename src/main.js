@@ -1,3 +1,5 @@
+import { Component } from "./ecs/components.js";
+import { queryEntities } from "./ecs/world.js";
 import { createSimulation } from "./game/simulation.js";
 import { sunlight } from "./game/lighting.js";
 import { clearPlayerInput, createPlayerInput, bindThrusterControls, setGunAim, setGunShooting, setKeyboardAcceleration, setKeyboardShooting, setKeyboardThrusters, syncPlayerInputControls } from "./input/playerInput.js";
@@ -12,6 +14,7 @@ const canvas = document.querySelector("#gravity-canvas");
 const context = canvas.getContext("2d");
 const shipStatusView = createShipStatusView();
 const levelMenu = document.querySelector("#level-menu");
+const gameOverOverlay = document.querySelector("#game-over");
 const thrusterControls = document.querySelector("#thruster-controls");
 
 const playerInput = createPlayerInput();
@@ -20,7 +23,12 @@ const camera = createCamera();
 let activeMap = getTestMap(TestMapId.LevelSelect);
 let world = activeMap.createWorld();
 let simulation = createSimulation(world, { inputById: { "player-one": playerInput } });
+let mapHasPlayerFleet = hasPlayerShip();
 let previousTimestamp = performance.now();
+
+function hasPlayerShip() {
+  return queryEntities(world, [Component.PlayerControlled]).length > 0;
+}
 
 function resizeCanvas() {
   const bounds = canvas.getBoundingClientRect();
@@ -43,12 +51,14 @@ function tick(timestamp) {
 
 function updatePanels() {
   updateShipStatus(shipStatusView, world);
+  gameOverOverlay.classList.toggle("is-hidden", !mapHasPlayerFleet || hasPlayerShip());
 }
 
 function switchTestMap(mapId) {
   activeMap = getTestMap(mapId);
   world = activeMap.createWorld();
   simulation = createSimulation(world, { inputById: { "player-one": playerInput } });
+  mapHasPlayerFleet = hasPlayerShip();
   clearPlayerInput(playerInput);
   syncPlayerInputControls(thrusterControls, playerInput);
   syncMapButtons();
@@ -70,6 +80,12 @@ function bindMapMenu() {
   for (const button of document.querySelectorAll("[data-test-map]")) {
     button.addEventListener("click", () => {
       switchTestMap(button.dataset.testMap);
+    });
+  }
+
+  for (const button of document.querySelectorAll("[data-retry]")) {
+    button.addEventListener("click", () => {
+      switchTestMap(activeMap.id);
     });
   }
 }

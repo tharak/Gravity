@@ -29,6 +29,10 @@ export function addComponent(world, entity, type, data) {
   return data;
 }
 
+export function removeComponent(world, entity, type) {
+  world.components.get(type)?.delete(entity);
+}
+
 export function getComponent(world, entity, type) {
   return world.components.get(type)?.get(entity);
 }
