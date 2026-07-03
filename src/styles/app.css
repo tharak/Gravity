@@ -46,7 +46,8 @@ body {
   left: max(10px, env(safe-area-inset-left));
   right: max(10px, env(safe-area-inset-right));
   z-index: 6;
-  display: none;
+  display: flex;
+  max-width: 520px;
   gap: 6px;
 }
 
@@ -139,33 +140,6 @@ body {
   margin: 0 0 18px;
   font-size: 24px;
   font-weight: 700;
-}
-
-.map-menu {
-  display: grid;
-  gap: 8px;
-  margin-bottom: 22px;
-}
-
-.map-menu__button {
-  min-height: 40px;
-  padding: 0 12px;
-  border: 1px solid rgba(233, 238, 248, 0.24);
-  border-radius: 8px;
-  background: rgba(10, 13, 20, 0.68);
-  color: #d7dfed;
-  font-family: inherit;
-  font-size: 13px;
-  font-weight: 900;
-  text-align: left;
-  touch-action: manipulation;
-}
-
-.map-menu__button.is-active,
-.map-menu__button[aria-pressed="true"] {
-  border-color: #7dd3fc;
-  background: #7dd3fc;
-  color: #07111f;
 }
 
 .hud dl {
@@ -830,10 +804,6 @@ body {
     display: none;
   }
 
-  .map-bar {
-    display: flex;
-  }
-
   .sim-panel {
     min-height: 0;
   }
@@ -960,7 +930,6 @@ body {
   }
 
   .map-bar {
-    display: flex;
     left: auto;
     width: min(360px, 44vw);
   }

@@ -151,7 +151,6 @@ test("manual control panel shows battery, speed orders, and one switch per thrus
   assert.ok(html.includes('aria-label="Level select"'));
   assert.ok(html.includes('class="thruster-controls is-hidden"'));
   assert.ok(html.includes('aria-label="Test maps"'));
-  assert.ok(html.includes('data-test-map="LevelSelect"'));
   assert.ok(html.includes('data-test-map="ShipMovement"'));
   assert.ok(html.includes('data-test-map="GravityTest"'));
   assert.ok(html.includes('class="map-bar"'));
