@@ -786,7 +786,7 @@ body {
 
   .app-shell {
     grid-template-columns: 1fr;
-    grid-template-rows: minmax(0, 1fr) auto;
+    grid-template-rows: auto auto;
     height: auto;
     min-height: 100vh;
   }
@@ -796,15 +796,21 @@ body {
   }
 
   .sim-panel {
-    min-height: 72vh;
+    min-height: 0;
   }
 
   #gravity-canvas {
-    height: 72vh;
+    height: 45vh;
+  }
+
+  .level-menu {
+    overflow-y: auto;
   }
 
   .thruster-controls {
-    width: min(420px, calc(100vw - 36px));
+    position: static;
+    width: auto;
+    margin: 10px;
   }
 
   .controller-bay {
@@ -907,5 +913,15 @@ body {
     border-left: 0;
     border-top: 1px solid rgba(151, 169, 202, 0.18);
     padding: 18px;
+  }
+}
+
+@media (max-height: 520px) and (min-width: 761px) {
+  .thruster-controls {
+    top: max(12px, env(safe-area-inset-top));
+    bottom: max(12px, env(safe-area-inset-bottom));
+    width: min(400px, 46vw);
+    overflow-y: auto;
+    overscroll-behavior: contain;
   }
 }
