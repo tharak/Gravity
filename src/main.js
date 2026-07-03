@@ -4,14 +4,12 @@ import { clearPlayerInput, createPlayerInput, bindThrusterControls, setGunAim, s
 import { getTestMap, TestMapId } from "./scenes/testMaps.js";
 import { createCamera, fitCameraToWorld, screenToWorld } from "./rendering/camera.js";
 import { renderWorld } from "./rendering/canvasRenderer.js";
-import { createHudView, updateHud } from "./ui/hud.js";
 import { applyConfiguredLabels } from "./ui/labels.js";
 import { createShipStatusView, updateShipStatus } from "./ui/shipStatusPanel.js";
 import { syncToggleButtons } from "./ui/toggles.js";
 
 const canvas = document.querySelector("#gravity-canvas");
 const context = canvas.getContext("2d");
-const hudView = createHudView();
 const shipStatusView = createShipStatusView();
 const levelMenu = document.querySelector("#level-menu");
 const thrusterControls = document.querySelector("#thruster-controls");
@@ -44,7 +42,6 @@ function tick(timestamp) {
 }
 
 function updatePanels() {
-  updateHud(hudView, world, activeMap, playerInput);
   updateShipStatus(shipStatusView, world);
 }
 

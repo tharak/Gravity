@@ -17,28 +17,13 @@ export const LabelConfig = Object.freeze({
     worldNorth: "World N",
     worldNorthCanvas: "WORLD N"
   }),
-  hud: Object.freeze({
-    map: "Map",
-    time: "Time",
-    entities: "Entities",
-    status: "Status"
-  }),
-  status: Object.freeze({
-    auto: "Auto",
-    chooseLevel: "Choose level",
-    coasting: "Coasting",
-    running: "Running",
-    thrusting: "Thrusting"
-  }),
   controls: Object.freeze({
     automaticDirection: "Automatic direction",
     gravitySimulator: "Gravity simulator",
     controllerMode: "Controller mode",
     shipBattery: "Ship battery",
     shipController: "Ship controller",
-    shipEcList: "Ship Components",
     shipHealth: "Ship health",
-    simulatorData: "Simulator data",
     acceleration: "Acceleration",
     accelerationDown: "Decrease acceleration",
     accelerationOrder: "Acceleration order",
@@ -58,13 +43,6 @@ export const LabelConfig = Object.freeze({
     locked: "LOCKED",
     thrusterSwitches: "Thruster switches",
     worldNorthReference: "World north reference"
-  }),
-  ecs: Object.freeze({
-    empty: "No ship ECs",
-    gun: "Gun",
-    shield: "Shield",
-    solarPanel: "Solar panel",
-    thruster: "Thruster"
   }),
   gunModes: Object.freeze({
     manual: "MAN",

@@ -17,8 +17,6 @@ body {
 }
 
 .app-shell {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 260px;
   height: 100vh;
 }
 
@@ -126,89 +124,6 @@ body {
   border-color: #ffb454;
   background: #ffb454;
   color: #07111f;
-}
-
-.hud {
-  min-height: 0;
-  overflow-y: auto;
-  border-left: 1px solid rgba(151, 169, 202, 0.18);
-  background: #101725;
-  padding: 24px;
-}
-
-.hud h1 {
-  margin: 0 0 18px;
-  font-size: 24px;
-  font-weight: 700;
-}
-
-.hud dl {
-  display: grid;
-  gap: 16px;
-  margin: 0;
-}
-
-.hud dl div {
-  display: flex;
-  justify-content: space-between;
-  gap: 16px;
-  padding-bottom: 12px;
-  border-bottom: 1px solid rgba(151, 169, 202, 0.14);
-}
-
-.hud dt {
-  color: #9ca9bd;
-}
-
-.hud dd {
-  margin: 0;
-  font-variant-numeric: tabular-nums;
-}
-
-.ship-ec-list {
-  display: grid;
-  gap: 10px;
-  margin-top: 28px;
-}
-
-.ship-ec-list h2 {
-  margin: 0;
-  color: #9ca9bd;
-  font-size: 12px;
-  font-weight: 800;
-  text-transform: uppercase;
-}
-
-.ship-ec-list__items {
-  display: grid;
-  gap: 8px;
-}
-
-.ship-ec-row {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  align-items: center;
-  gap: 12px;
-  min-height: 30px;
-  padding: 0 9px;
-  border: 1px solid rgba(151, 169, 202, 0.18);
-  border-radius: 8px;
-  background: rgba(10, 13, 20, 0.54);
-  color: #c5cfdf;
-  font-size: 12px;
-}
-
-.ship-ec-row__name {
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.ship-ec-row__hp {
-  color: #e9eef8;
-  font-weight: 900;
-  font-variant-numeric: tabular-nums;
 }
 
 .thruster-controls {
@@ -794,14 +709,8 @@ body {
   }
 
   .app-shell {
-    grid-template-columns: 1fr;
-    grid-template-rows: auto;
     height: auto;
     min-height: 100vh;
-  }
-
-  .hud {
-    display: none;
   }
 
   .sim-panel {
@@ -921,14 +830,6 @@ body {
 }
 
 @media (max-height: 520px) and (min-width: 761px) {
-  .app-shell {
-    grid-template-columns: 1fr;
-  }
-
-  .hud {
-    display: none;
-  }
-
   .map-bar {
     left: auto;
     width: min(360px, 44vw);
