@@ -154,7 +154,8 @@ test("manual control panel shows battery, speed orders, and one switch per thrus
   assert.ok(html.includes('data-test-map="ShipMovement"'));
   assert.ok(html.includes('data-test-map="GravityTest"'));
   assert.ok(html.includes('class="map-bar"'));
-  assert.equal(html.match(/map-bar__button/g).length, 4);
+  assert.equal(html.match(/map-bar__button/g).length, 5);
+  assert.ok(html.includes('data-test-map="SpaceMap"'));
   assert.ok(html.includes('aria-label="Ship controller"'));
   assert.ok(html.includes('data-controller-mode="manual"'));
   assert.ok(html.includes('data-controller-mode="automatic"'));

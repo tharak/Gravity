@@ -13,6 +13,7 @@ import { MaterialStressConfig } from "../src/config/materialStressConfig.js";
 import { FleetBattlePlanetModelConfig, FleetBattlePlanetViewConfig, FleetTestPlanetModelConfig, FleetTestPlanetViewConfig, GravityTestPlanetModelConfig, GravityTestPlanetViewConfig } from "../src/config/planetConfig.js";
 import { SolarPanelModelConfig, SolarPanelViewConfig } from "../src/config/solarPanelConfig.js";
 import { SimulationConfig } from "../src/config/simulationConfig.js";
+import { SpaceMapModelConfig, SpaceMapViewConfig } from "../src/config/spaceMapConfig.js";
 import { SpeedOrderConfig, SpeedOrderList } from "../src/config/speedOrderConfig.js";
 import { ThrusterSlot } from "../src/ecs/components.js";
 import { SpeedOrder, SpeedOrders } from "../src/input/playerInput.js";
@@ -172,6 +173,21 @@ test("fleet battle scene configs separate model and view values", () => {
   assert.equal(FleetBattleShipViewConfig[5].y, -480);
   assert.equal(FleetBattlePlanetModelConfig[0].mass, 550);
   assert.equal(FleetBattlePlanetViewConfig[0].x, -520);
+});
+
+test("space map config separates model and view values", () => {
+  assert.equal(LabelConfig.maps.SpaceMap, "SpaceMap");
+  assert.equal(LabelConfig.spaceMap.title, "Space Map");
+  assert.equal(LabelConfig.spaceMap.regionPrefix, "R");
+  assert.equal(SpaceMapModelConfig.seed, 1337);
+  assert.equal(SpaceMapModelConfig.regionCount, 18);
+  assert.equal(SpaceMapModelConfig.relaxationIterations, 2);
+  assert.equal(SpaceMapModelConfig.siteMargin, 40);
+  assert.deepEqual(SpaceMapModelConfig.bounds, { minX: -640, minY: -400, maxX: 640, maxY: 400 });
+  assert.equal(SpaceMapViewConfig.padding, 60);
+  assert.equal(SpaceMapViewConfig.siteRadius, 5);
+  assert.equal(SpaceMapViewConfig.regionPalette.length > 0, true);
+  assert.equal(SpaceMapViewConfig.starCount, 90);
 });
 
 test("flight control config exposes stabilization tuning values", () => {

@@ -17,6 +17,10 @@ export function fitCameraToWorld(camera, canvas, world, padding = 180) {
     return;
   }
 
+  fitCameraToBounds(camera, canvas, bounds, padding);
+}
+
+export function fitCameraToBounds(camera, canvas, bounds, padding = 180) {
   const width = Math.max(360, bounds.maxX - bounds.minX);
   const height = Math.max(240, bounds.maxY - bounds.minY);
   const availableWidth = Math.max(1, canvas.width - padding * 2);

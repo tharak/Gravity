@@ -7,12 +7,25 @@ import { createFleetTestScene } from "../src/scenes/fleetScene.js";
 import { createGravityTestScene } from "../src/scenes/gravityTestScene.js";
 import { createLevelSelectScene } from "../src/scenes/levelSelectScene.js";
 import { createShipMovementScene } from "../src/scenes/shipMovementScene.js";
+import { createSpaceMapScene, SpaceMapScene } from "../src/scenes/spaceMapScene.js";
 import { getTestMap, TestMapId, testMaps } from "../src/scenes/testMaps.js";
+import { SpaceMapModelConfig } from "../src/config/spaceMapConfig.js";
 
 test("LevelSelect map is an empty first screen", () => {
   const world = createLevelSelectScene();
 
   assert.equal(world.entities.size, 0);
+});
+
+test("SpaceMap is an empty world carrying a deterministic Voronoi campaign map", () => {
+  const first = createSpaceMapScene();
+  const second = createSpaceMapScene();
+
+  assert.equal(first.entities.size, 0);
+  assert.equal(first.spaceMap.regions.length, SpaceMapModelConfig.regionCount);
+  assert.deepEqual(first.spaceMap, second.spaceMap);
+  assert.equal(SpaceMapScene.hidesCockpit, true);
+  assert.equal(SpaceMapScene.isMenu, undefined);
 });
 
 test("ShipMovement map is a single-ship thruster debug map", () => {
@@ -88,11 +101,12 @@ test("FleetBattle map pits the player fleet against a hostile squad", () => {
 });
 
 test("test maps are selectable by stable ids", () => {
-  assert.deepEqual(testMaps.map((map) => map.id), [TestMapId.LevelSelect, TestMapId.ShipMovement, TestMapId.GravityTest, TestMapId.FleetTest, TestMapId.FleetBattle]);
+  assert.deepEqual(testMaps.map((map) => map.id), [TestMapId.SpaceMap, TestMapId.LevelSelect, TestMapId.ShipMovement, TestMapId.GravityTest, TestMapId.FleetTest, TestMapId.FleetBattle]);
+  assert.equal(getTestMap(TestMapId.SpaceMap).id, "SpaceMap");
   assert.equal(getTestMap(TestMapId.LevelSelect).id, "LevelSelect");
   assert.equal(getTestMap(TestMapId.ShipMovement).id, "ShipMovement");
   assert.equal(getTestMap(TestMapId.GravityTest).id, "GravityTest");
   assert.equal(getTestMap(TestMapId.FleetTest).id, "FleetTest");
   assert.equal(getTestMap(TestMapId.FleetBattle).id, "FleetBattle");
-  assert.equal(getTestMap("missing").id, "LevelSelect");
+  assert.equal(getTestMap("missing").id, "SpaceMap");
 });

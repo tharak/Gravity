@@ -2,11 +2,16 @@ export const LabelConfig = Object.freeze({
   appTitle: "Gravity",
   levelSelectTitle: "Choose Test Map",
   maps: Object.freeze({
+    SpaceMap: "SpaceMap",
     LevelSelect: "LevelSelect",
     ShipMovement: "ShipMovement",
     GravityTest: "GravityTest",
     FleetTest: "FleetTest",
     FleetBattle: "FleetBattle"
+  }),
+  spaceMap: Object.freeze({
+    title: "Space Map",
+    regionPrefix: "R"
   }),
   gameOver: Object.freeze({
     title: "Game Over",

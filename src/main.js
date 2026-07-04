@@ -4,8 +4,12 @@ import { createSimulation } from "./game/simulation.js";
 import { sunlight } from "./game/lighting.js";
 import { clearPlayerInput, createPlayerInput, bindThrusterControls, setGunAim, setGunShooting, setKeyboardAcceleration, setKeyboardShooting, setKeyboardThrusters, syncPlayerInputControls } from "./input/playerInput.js";
 import { getTestMap, TestMapId } from "./scenes/testMaps.js";
-import { createCamera, fitCameraToWorld, screenToWorld } from "./rendering/camera.js";
+import { createCamera, fitCameraToBounds, fitCameraToWorld, screenToWorld } from "./rendering/camera.js";
 import { renderWorld } from "./rendering/canvasRenderer.js";
+import { renderSpaceMap } from "./rendering/spaceMapRenderer.js";
+import { SpaceMapViewConfig } from "./config/spaceMapConfig.js";
+import { findRegionAt } from "./game/spaceMap.js";
+import { createCampaignState, selectBattleRegion } from "./game/campaign.js";
 import { applyConfiguredLabels } from "./ui/labels.js";
 import { createShipStatusView, updateShipStatus } from "./ui/shipStatusPanel.js";
 import { syncToggleButtons } from "./ui/toggles.js";
@@ -19,12 +23,14 @@ const thrusterControls = document.querySelector("#thruster-controls");
 
 const playerInput = createPlayerInput();
 const camera = createCamera();
+const campaign = createCampaignState();
 
-let activeMap = getTestMap(TestMapId.LevelSelect);
+let activeMap = getTestMap(TestMapId.SpaceMap);
 let world = activeMap.createWorld();
 let simulation = createSimulation(world, { inputById: { "player-one": playerInput } });
 let mapHasPlayerFleet = hasPlayerShip();
 let previousTimestamp = performance.now();
+let hoveredRegionIndex;
 
 function hasPlayerShip() {
   return queryEntities(world, [Component.PlayerControlled]).length > 0;
@@ -36,7 +42,11 @@ function resizeCanvas() {
   canvas.width = Math.max(1, Math.floor(bounds.width * pixelRatio));
   canvas.height = Math.max(1, Math.floor(bounds.height * pixelRatio));
   context.setTransform(1, 0, 0, 1, 0, 0);
-  fitCameraToWorld(camera, canvas, world);
+  if (world.spaceMap) {
+    fitCameraToBounds(camera, canvas, world.spaceMap.bounds, SpaceMapViewConfig.padding);
+  } else {
+    fitCameraToWorld(camera, canvas, world);
+  }
 }
 
 function tick(timestamp) {
@@ -44,7 +54,11 @@ function tick(timestamp) {
   previousTimestamp = timestamp;
 
   simulation.step(deltaSeconds);
-  renderWorld(context, canvas, world, camera, { lightPosition: sunlight });
+  if (world.spaceMap) {
+    renderSpaceMap(context, canvas, world.spaceMap, camera, { hoveredRegionIndex });
+  } else {
+    renderWorld(context, canvas, world, camera, { lightPosition: sunlight });
+  }
   updatePanels();
   requestAnimationFrame(tick);
 }
@@ -57,6 +71,7 @@ function updatePanels() {
 function switchTestMap(mapId) {
   activeMap = getTestMap(mapId);
   world = activeMap.createWorld();
+  hoveredRegionIndex = undefined;
   simulation = createSimulation(world, { inputById: { "player-one": playerInput } });
   mapHasPlayerFleet = hasPlayerShip();
   clearPlayerInput(playerInput);
@@ -73,7 +88,7 @@ function syncMapButtons() {
 
 function syncLevelMenu() {
   levelMenu.classList.toggle("is-hidden", !activeMap.isMenu);
-  thrusterControls.classList.toggle("is-hidden", Boolean(activeMap.isMenu));
+  thrusterControls.classList.toggle("is-hidden", Boolean(activeMap.isMenu || activeMap.hidesCockpit));
 }
 
 function bindMapMenu() {
@@ -96,23 +111,47 @@ function bindKeyboardThrusterControls() {
 }
 
 function bindGunPointerControls() {
-  canvas.addEventListener("pointermove", updateGunAimFromPointer);
+  canvas.addEventListener("pointermove", (event) => {
+    if (world.spaceMap) {
+      hoveredRegionIndex = findRegionAt(world.spaceMap, pointerToWorld(event)).index;
+      return;
+    }
+    updateGunAimFromPointer(event);
+  });
   canvas.addEventListener("pointerdown", (event) => {
+    if (world.spaceMap) {
+      selectSpaceMapRegion(event);
+      return;
+    }
     updateGunAimFromPointer(event);
     setGunShooting(playerInput, true);
   });
   for (const eventName of ["pointerup", "pointercancel", "pointerleave"]) {
-    canvas.addEventListener(eventName, () => setGunShooting(playerInput, false));
+    canvas.addEventListener(eventName, () => {
+      hoveredRegionIndex = undefined;
+      setGunShooting(playerInput, false);
+    });
   }
 }
 
-function updateGunAimFromPointer(event) {
+function selectSpaceMapRegion(event) {
+  const spaceMap = world.spaceMap;
+  const region = findRegionAt(spaceMap, pointerToWorld(event));
+  selectBattleRegion(campaign, { regionIndex: region.index, seed: region.seed, spaceMapSeed: spaceMap.seed });
+  switchTestMap(TestMapId.FleetBattle);
+}
+
+function pointerToWorld(event) {
   const bounds = canvas.getBoundingClientRect();
   const pixelRatio = window.devicePixelRatio || 1;
-  const point = screenToWorld(camera, canvas, {
+  return screenToWorld(camera, canvas, {
     x: (event.clientX - bounds.left) * pixelRatio,
     y: (event.clientY - bounds.top) * pixelRatio
   });
+}
+
+function updateGunAimFromPointer(event) {
+  const point = pointerToWorld(event);
   setGunAim(playerInput, point.x, point.y);
 }
 
