@@ -11,6 +11,7 @@ import { applySolarPanels } from "../systems/solarPanelSystem.js";
 import { applyEnemyAi } from "../systems/enemyAiSystem.js";
 import { applyFleetFormation } from "../systems/fleetSystem.js";
 import { applyPlayerInput } from "../systems/playerInputSystem.js";
+import { applyWorldBoundary } from "../systems/boundarySystem.js";
 import { removeDestroyedShips } from "../systems/destructionSystem.js";
 import { recordTrails } from "../systems/trailSystem.js";
 
@@ -37,6 +38,7 @@ export function createSimulation(world, config = {}) {
         integrateMotion(world, settings.fixedDeltaSeconds);
         updateProjectiles(world);
         resolveCollisions(world);
+        applyWorldBoundary(world);
         removeDestroyedShips(world);
         removeExpiredDamagePopups(world);
         recordTrails(world, settings.maxTrailLength);

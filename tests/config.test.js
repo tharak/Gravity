@@ -212,8 +212,10 @@ test("battle config exposes procedural generation ranges", () => {
   assert.deepEqual(BattleModelConfig.enemyCount, { min: 3, max: 6 });
   assert.deepEqual(BattleModelConfig.enemyAnchor, { minX: -280, maxX: 280, minY: -560, maxY: -440 });
   assert.equal(BattleModelConfig.enemyFacing, Math.PI / 2);
+  assert.equal(BattleModelConfig.arenaMargin, 400);
   assert.deepEqual(BattleViewConfig.planetRadius, { min: 30, max: 52 });
   assert.equal(BattleViewConfig.enemyShipRadius, 50);
+  assert.equal(BattleViewConfig.arena.borderWidth, 2);
 });
 
 test("flight control config exposes stabilization tuning values", () => {

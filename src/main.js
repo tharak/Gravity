@@ -54,6 +54,8 @@ function resizeCanvas() {
   context.setTransform(1, 0, 0, 1, 0, 0);
   if (world.spaceMap) {
     fitCameraToBounds(camera, canvas, world.spaceMap.bounds, SpaceMapViewConfig.padding);
+  } else if (world.arena) {
+    fitCameraToBounds(camera, canvas, world.arena, 40);
   } else {
     fitCameraToWorld(camera, canvas, world);
   }

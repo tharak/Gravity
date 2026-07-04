@@ -4,8 +4,10 @@ import { FleetBattleShipModelConfig, FleetBattleShipViewConfig } from "../config
 import { deriveRegionSeed } from "../core/random.js";
 import { Component, FactionId } from "../ecs/components.js";
 import { addComponent, createWorld } from "../ecs/world.js";
+import { BattleModelConfig } from "../config/battleConfig.js";
 import { generateBattleMap } from "../game/battleMap.js";
 import { createBody, createShip, setShipBatteryFromMapSize } from "../game/factory.js";
+import { getWorldBounds } from "../game/worldBounds.js";
 
 export const BattleScene = Object.freeze({
   id: "Battle",
@@ -24,6 +26,14 @@ export function createBattleScene(context) {
 
   createPlayerFleet(world);
   createEnemyFleet(world, battleMap);
+
+  const bounds = getWorldBounds(world);
+  world.arena = Object.freeze({
+    minX: bounds.minX - BattleModelConfig.arenaMargin,
+    minY: bounds.minY - BattleModelConfig.arenaMargin,
+    maxX: bounds.maxX + BattleModelConfig.arenaMargin,
+    maxY: bounds.maxY + BattleModelConfig.arenaMargin
+  });
 
   setShipBatteryFromMapSize(world);
   return world;

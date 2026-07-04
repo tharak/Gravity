@@ -1,3 +1,4 @@
+import { BattleViewConfig } from "../config/battleConfig.js";
 import { LabelConfig } from "../config/labelConfig.js";
 import { BodyKind, Component } from "../ecs/components.js";
 import { getComponent, queryEntities } from "../ecs/world.js";
@@ -10,6 +11,7 @@ import { worldToScreen } from "./camera.js";
 export function renderWorld(context, canvas, world, camera, options = {}) {
   context.clearRect(0, 0, canvas.width, canvas.height);
   drawGrid(context, canvas, camera);
+  drawArenaBoundary(context, canvas, world, camera);
   drawWorldNorthIndicator(context, canvas);
   drawTrails(context, canvas, world, camera);
   drawProjectiles(context, canvas, world, camera);
@@ -38,6 +40,21 @@ function drawGrid(context, canvas, camera) {
     context.lineTo(canvas.width, y);
     context.stroke();
   }
+  context.restore();
+}
+
+function drawArenaBoundary(context, canvas, world, camera) {
+  if (!world.arena) {
+    return;
+  }
+
+  const topLeft = worldToScreen(camera, canvas, { x: world.arena.minX, y: world.arena.minY });
+  const bottomRight = worldToScreen(camera, canvas, { x: world.arena.maxX, y: world.arena.maxY });
+  context.save();
+  context.strokeStyle = BattleViewConfig.arena.borderColor;
+  context.lineWidth = BattleViewConfig.arena.borderWidth;
+  context.setLineDash([10, 8]);
+  context.strokeRect(topLeft.x, topLeft.y, bottomRight.x - topLeft.x, bottomRight.y - topLeft.y);
   context.restore();
 }
 
