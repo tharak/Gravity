@@ -76,7 +76,9 @@ function updateFormationHeading(world, flagship, deltaSeconds) {
 
 function getFleetFormation(world, flagship, inputById) {
   const player = getComponent(world, flagship, Component.PlayerControlled);
-  const formation = player ? inputById[player.inputId]?.fleetFormation : undefined;
+  const formation = player
+    ? inputById[player.inputId]?.fleetFormation
+    : getComponent(world, flagship, Component.Fleet)?.formation;
   return formation ?? FleetFormation.Column;
 }
 

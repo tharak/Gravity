@@ -9,7 +9,7 @@ import { renderWorld } from "./rendering/canvasRenderer.js";
 import { renderSpaceMap } from "./rendering/spaceMapRenderer.js";
 import { SpaceMapViewConfig } from "./config/spaceMapConfig.js";
 import { findRegionAt } from "./game/spaceMap.js";
-import { createCampaignState, selectBattleRegion } from "./game/campaign.js";
+import { createCampaignState, getSelectedBattleRegion, selectBattleRegion } from "./game/campaign.js";
 import { applyConfiguredLabels } from "./ui/labels.js";
 import { createShipStatusView, updateShipStatus } from "./ui/shipStatusPanel.js";
 import { syncToggleButtons } from "./ui/toggles.js";
@@ -70,7 +70,7 @@ function updatePanels() {
 
 function switchTestMap(mapId) {
   activeMap = getTestMap(mapId);
-  world = activeMap.createWorld();
+  world = activeMap.createWorld({ battleRegion: getSelectedBattleRegion(campaign) });
   hoveredRegionIndex = undefined;
   simulation = createSimulation(world, { inputById: { "player-one": playerInput } });
   mapHasPlayerFleet = hasPlayerShip();
@@ -138,7 +138,7 @@ function selectSpaceMapRegion(event) {
   const spaceMap = world.spaceMap;
   const region = findRegionAt(spaceMap, pointerToWorld(event));
   selectBattleRegion(campaign, { regionIndex: region.index, seed: region.seed, spaceMapSeed: spaceMap.seed });
-  switchTestMap(TestMapId.FleetBattle);
+  switchTestMap(TestMapId.Battle);
 }
 
 function pointerToWorld(event) {

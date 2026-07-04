@@ -1,3 +1,4 @@
+import { BattleScene, createBattleScene } from "./battleScene.js";
 import { createFleetBattleScene, FleetBattleScene } from "./fleetBattleScene.js";
 import { createFleetTestScene, FleetTestScene } from "./fleetScene.js";
 import { createGravityTestScene, GravityTestScene } from "./gravityTestScene.js";
@@ -11,7 +12,8 @@ export const TestMapId = Object.freeze({
   ShipMovement: ShipMovementScene.id,
   GravityTest: GravityTestScene.id,
   FleetTest: FleetTestScene.id,
-  FleetBattle: FleetBattleScene.id
+  FleetBattle: FleetBattleScene.id,
+  Battle: BattleScene.id
 });
 
 export const testMaps = Object.freeze([
@@ -20,7 +22,8 @@ export const testMaps = Object.freeze([
   Object.freeze({ ...ShipMovementScene, createWorld: createShipMovementScene }),
   Object.freeze({ ...GravityTestScene, createWorld: createGravityTestScene }),
   Object.freeze({ ...FleetTestScene, createWorld: createFleetTestScene }),
-  Object.freeze({ ...FleetBattleScene, createWorld: createFleetBattleScene })
+  Object.freeze({ ...FleetBattleScene, createWorld: createFleetBattleScene }),
+  Object.freeze({ ...BattleScene, createWorld: createBattleScene })
 ]);
 
 export function getTestMap(mapId) {

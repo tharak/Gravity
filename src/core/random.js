@@ -8,6 +8,18 @@ export function createRandom(seed) {
   };
 }
 
+export function randomInRange(random, range) {
+  return range.min + random() * (range.max - range.min);
+}
+
+export function randomInt(random, range) {
+  return range.min + Math.floor(random() * (range.max - range.min + 1));
+}
+
+export function randomPick(random, items) {
+  return items[Math.floor(random() * items.length)];
+}
+
 export function hashCombine(seed, value) {
   let hash = (seed ^ Math.imul((value >>> 0) + 0x9e3779b9, 0x85ebca6b)) >>> 0;
   hash = Math.imul(hash ^ (hash >>> 13), 0xc2b2ae35) >>> 0;

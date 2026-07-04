@@ -7,7 +7,8 @@ export const LabelConfig = Object.freeze({
     ShipMovement: "ShipMovement",
     GravityTest: "GravityTest",
     FleetTest: "FleetTest",
-    FleetBattle: "FleetBattle"
+    FleetBattle: "FleetBattle",
+    Battle: "Battle"
   }),
   spaceMap: Object.freeze({
     title: "Space Map",

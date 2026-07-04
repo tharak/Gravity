@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+import { BattleModelConfig, BattleViewConfig } from "../src/config/battleConfig.js";
 import { CollisionConfig } from "../src/config/collisionConfig.js";
 import { BatteryConfig } from "../src/config/batteryConfig.js";
 import { EnemyAiConfig } from "../src/config/enemyConfig.js";
@@ -188,6 +189,22 @@ test("space map config separates model and view values", () => {
   assert.equal(SpaceMapViewConfig.siteRadius, 5);
   assert.equal(SpaceMapViewConfig.regionPalette.length > 0, true);
   assert.equal(SpaceMapViewConfig.starCount, 90);
+});
+
+test("battle config exposes procedural generation ranges", () => {
+  assert.equal(LabelConfig.maps.Battle, "Battle");
+  assert.deepEqual(BattleModelConfig.planetCount, { min: 1, max: 3 });
+  assert.deepEqual(BattleModelConfig.planetMass, { min: 350, max: 750 });
+  assert.deepEqual(BattleModelConfig.planetArea, { minX: -520, minY: -240, maxX: 520, maxY: 240 });
+  assert.equal(BattleModelConfig.planetSpacing, 240);
+  assert.equal(BattleModelConfig.planetPlacementAttempts, 20);
+  assert.equal(BattleModelConfig.resourcePlanetChance, 0.25);
+  assert.deepEqual(BattleModelConfig.resourceMinerals, { min: 600, max: 1400 });
+  assert.deepEqual(BattleModelConfig.enemyCount, { min: 3, max: 6 });
+  assert.deepEqual(BattleModelConfig.enemyAnchor, { minX: -280, maxX: 280, minY: -560, maxY: -440 });
+  assert.equal(BattleModelConfig.enemyFacing, Math.PI / 2);
+  assert.deepEqual(BattleViewConfig.planetRadius, { min: 30, max: 52 });
+  assert.equal(BattleViewConfig.enemyShipRadius, 50);
 });
 
 test("flight control config exposes stabilization tuning values", () => {

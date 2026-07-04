@@ -6,10 +6,13 @@ import { createFleetBattleScene } from "../src/scenes/fleetBattleScene.js";
 import { createFleetTestScene } from "../src/scenes/fleetScene.js";
 import { createGravityTestScene } from "../src/scenes/gravityTestScene.js";
 import { createLevelSelectScene } from "../src/scenes/levelSelectScene.js";
+import { createBattleScene } from "../src/scenes/battleScene.js";
 import { createShipMovementScene } from "../src/scenes/shipMovementScene.js";
 import { createSpaceMapScene, SpaceMapScene } from "../src/scenes/spaceMapScene.js";
 import { getTestMap, TestMapId, testMaps } from "../src/scenes/testMaps.js";
+import { BattleModelConfig } from "../src/config/battleConfig.js";
 import { SpaceMapModelConfig } from "../src/config/spaceMapConfig.js";
+import { deriveRegionSeed } from "../src/core/random.js";
 
 test("LevelSelect map is an empty first screen", () => {
   const world = createLevelSelectScene();
@@ -100,13 +103,44 @@ test("FleetBattle map pits the player fleet against a hostile squad", () => {
   assert.equal(members.every((member) => member.flagship === flagship), true);
 });
 
+test("Battle map is procedurally generated from the selected region seed", () => {
+  const battleRegion = Object.freeze({
+    regionIndex: 3,
+    seed: deriveRegionSeed(SpaceMapModelConfig.seed, 3),
+    spaceMapSeed: SpaceMapModelConfig.seed
+  });
+  const first = createBattleScene({ battleRegion });
+  const second = createBattleScene({ battleRegion });
+  const factions = [...getComponents(first, Component.Faction).values()].map((faction) => faction.id);
+  const hostileCount = factions.filter((id) => id === FactionId.Hostile).length;
+  const members = [...getComponents(first, Component.FleetMember).values()];
+  const [flagship] = getComponents(first, Component.PlayerControlled).keys();
+  const hostileEscorts = members.filter((member) => member.flagship !== flagship);
+
+  assert.equal(first.battleMap.seed, battleRegion.seed);
+  assert.deepEqual(first.battleMap, second.battleMap);
+  assert.equal(factions.filter((id) => id === FactionId.Player).length, 5);
+  assert.equal(hostileCount >= BattleModelConfig.enemyCount.min, true);
+  assert.equal(hostileCount <= BattleModelConfig.enemyCount.max, true);
+  assert.equal(hostileEscorts.length, hostileCount - 1);
+  assert.equal(getComponents(first, Component.StaticBody).size >= BattleModelConfig.planetCount.min, true);
+  assert.equal(getComponents(first, Component.StaticBody).size <= BattleModelConfig.planetCount.max, true);
+});
+
+test("Battle map falls back to the first region seed without a selection", () => {
+  const world = createBattleScene();
+
+  assert.equal(world.battleMap.seed, deriveRegionSeed(SpaceMapModelConfig.seed, 0));
+});
+
 test("test maps are selectable by stable ids", () => {
-  assert.deepEqual(testMaps.map((map) => map.id), [TestMapId.SpaceMap, TestMapId.LevelSelect, TestMapId.ShipMovement, TestMapId.GravityTest, TestMapId.FleetTest, TestMapId.FleetBattle]);
+  assert.deepEqual(testMaps.map((map) => map.id), [TestMapId.SpaceMap, TestMapId.LevelSelect, TestMapId.ShipMovement, TestMapId.GravityTest, TestMapId.FleetTest, TestMapId.FleetBattle, TestMapId.Battle]);
   assert.equal(getTestMap(TestMapId.SpaceMap).id, "SpaceMap");
   assert.equal(getTestMap(TestMapId.LevelSelect).id, "LevelSelect");
   assert.equal(getTestMap(TestMapId.ShipMovement).id, "ShipMovement");
   assert.equal(getTestMap(TestMapId.GravityTest).id, "GravityTest");
   assert.equal(getTestMap(TestMapId.FleetTest).id, "FleetTest");
   assert.equal(getTestMap(TestMapId.FleetBattle).id, "FleetBattle");
+  assert.equal(getTestMap(TestMapId.Battle).id, "Battle");
   assert.equal(getTestMap("missing").id, "SpaceMap");
 });
