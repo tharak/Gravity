@@ -1,5 +1,5 @@
-import { Component } from "./ecs/components.js";
-import { queryEntities } from "./ecs/world.js";
+import { BodyKind, Component, FactionId } from "./ecs/components.js";
+import { getComponent, queryEntities } from "./ecs/world.js";
 import { createSimulation } from "./game/simulation.js";
 import { sunlight } from "./game/lighting.js";
 import { clearPlayerInput, createPlayerInput, bindThrusterControls, setGunAim, setGunShooting, setKeyboardAcceleration, setKeyboardShooting, setKeyboardThrusters, syncPlayerInputControls } from "./input/playerInput.js";
@@ -7,9 +7,9 @@ import { getTestMap, TestMapId } from "./scenes/testMaps.js";
 import { createCamera, fitCameraToBounds, fitCameraToWorld, screenToWorld } from "./rendering/camera.js";
 import { renderWorld } from "./rendering/canvasRenderer.js";
 import { renderSpaceMap } from "./rendering/spaceMapRenderer.js";
-import { SpaceMapViewConfig } from "./config/spaceMapConfig.js";
+import { SpaceMapModelConfig, SpaceMapViewConfig } from "./config/spaceMapConfig.js";
 import { findRegionAt } from "./game/spaceMap.js";
-import { createCampaignState, getSelectedBattleRegion, selectBattleRegion } from "./game/campaign.js";
+import { createCampaignState, getSelectedBattleRegion, hasConqueredAllRegions, isRegionConquered, markRegionConquered, resetCampaign, selectBattleRegion } from "./game/campaign.js";
 import { applyConfiguredLabels } from "./ui/labels.js";
 import { createShipStatusView, updateShipStatus } from "./ui/shipStatusPanel.js";
 import { syncToggleButtons } from "./ui/toggles.js";
@@ -19,6 +19,8 @@ const context = canvas.getContext("2d");
 const shipStatusView = createShipStatusView();
 const levelMenu = document.querySelector("#level-menu");
 const gameOverOverlay = document.querySelector("#game-over");
+const battleWonOverlay = document.querySelector("#battle-won");
+const gameWonOverlay = document.querySelector("#game-won");
 const thrusterControls = document.querySelector("#thruster-controls");
 
 const playerInput = createPlayerInput();
@@ -29,11 +31,19 @@ let activeMap = getTestMap(TestMapId.SpaceMap);
 let world = activeMap.createWorld();
 let simulation = createSimulation(world, { inputById: { "player-one": playerInput } });
 let mapHasPlayerFleet = hasPlayerShip();
+let mapIsBattle = false;
+let battleResolved = false;
 let previousTimestamp = performance.now();
 let hoveredRegionIndex;
 
 function hasPlayerShip() {
   return queryEntities(world, [Component.PlayerControlled]).length > 0;
+}
+
+function hasHostileShip() {
+  return queryEntities(world, [Component.Faction, Component.BodyKind]).some((entity) =>
+    getComponent(world, entity, Component.Faction).id === FactionId.Hostile
+    && getComponent(world, entity, Component.BodyKind).value === BodyKind.Ship);
 }
 
 function resizeCanvas() {
@@ -55,7 +65,10 @@ function tick(timestamp) {
 
   simulation.step(deltaSeconds);
   if (world.spaceMap) {
-    renderSpaceMap(context, canvas, world.spaceMap, camera, { hoveredRegionIndex });
+    renderSpaceMap(context, canvas, world.spaceMap, camera, {
+      hoveredRegionIndex,
+      conqueredRegionIndexes: campaign.conqueredRegionIndexes
+    });
   } else {
     renderWorld(context, canvas, world, camera, { lightPosition: sunlight });
   }
@@ -65,7 +78,21 @@ function tick(timestamp) {
 
 function updatePanels() {
   updateShipStatus(shipStatusView, world);
-  gameOverOverlay.classList.toggle("is-hidden", !mapHasPlayerFleet || hasPlayerShip());
+  const playerDefeated = mapHasPlayerFleet && !hasPlayerShip();
+  const battleWon = mapIsBattle && !playerDefeated && !hasHostileShip();
+
+  if (battleWon && !battleResolved) {
+    battleResolved = true;
+    const region = getSelectedBattleRegion(campaign);
+    if (region) {
+      markRegionConquered(campaign, region.regionIndex);
+    }
+  }
+
+  const gameWon = battleWon && hasConqueredAllRegions(campaign, SpaceMapModelConfig.regionCount);
+  gameOverOverlay.classList.toggle("is-hidden", !playerDefeated);
+  battleWonOverlay.classList.toggle("is-hidden", !battleWon || gameWon);
+  gameWonOverlay.classList.toggle("is-hidden", !gameWon);
 }
 
 function switchTestMap(mapId) {
@@ -74,6 +101,8 @@ function switchTestMap(mapId) {
   hoveredRegionIndex = undefined;
   simulation = createSimulation(world, { inputById: { "player-one": playerInput } });
   mapHasPlayerFleet = hasPlayerShip();
+  mapIsBattle = activeMap.id === TestMapId.Battle;
+  battleResolved = false;
   clearPlayerInput(playerInput);
   syncPlayerInputControls(thrusterControls, playerInput);
   syncMapButtons();
@@ -103,6 +132,19 @@ function bindMapMenu() {
       switchTestMap(activeMap.id);
     });
   }
+
+  for (const button of document.querySelectorAll("[data-return-to-map]")) {
+    button.addEventListener("click", () => {
+      switchTestMap(TestMapId.SpaceMap);
+    });
+  }
+
+  for (const button of document.querySelectorAll("[data-new-campaign]")) {
+    button.addEventListener("click", () => {
+      resetCampaign(campaign);
+      switchTestMap(TestMapId.SpaceMap);
+    });
+  }
 }
 
 function bindKeyboardThrusterControls() {
@@ -113,7 +155,8 @@ function bindKeyboardThrusterControls() {
 function bindGunPointerControls() {
   canvas.addEventListener("pointermove", (event) => {
     if (world.spaceMap) {
-      hoveredRegionIndex = findRegionAt(world.spaceMap, pointerToWorld(event)).index;
+      const region = findRegionAt(world.spaceMap, pointerToWorld(event));
+      hoveredRegionIndex = isRegionConquered(campaign, region.index) ? undefined : region.index;
       return;
     }
     updateGunAimFromPointer(event);
@@ -137,6 +180,9 @@ function bindGunPointerControls() {
 function selectSpaceMapRegion(event) {
   const spaceMap = world.spaceMap;
   const region = findRegionAt(spaceMap, pointerToWorld(event));
+  if (isRegionConquered(campaign, region.index)) {
+    return;
+  }
   selectBattleRegion(campaign, { regionIndex: region.index, seed: region.seed, spaceMapSeed: spaceMap.seed });
   switchTestMap(TestMapId.Battle);
 }

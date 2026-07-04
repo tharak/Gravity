@@ -11,7 +11,10 @@ export function renderSpaceMap(context, canvas, spaceMap, camera, options = {}) 
   drawStars(context, canvas, spaceMap, view);
 
   for (const region of spaceMap.regions) {
-    drawRegion(context, canvas, camera, region, view, region.index === options.hoveredRegionIndex);
+    drawRegion(context, canvas, camera, region, view, {
+      hovered: region.index === options.hoveredRegionIndex,
+      conquered: options.conqueredRegionIndexes?.has(region.index) ?? false
+    });
   }
 }
 
@@ -28,7 +31,7 @@ function drawStars(context, canvas, spaceMap, view) {
   }
 }
 
-function drawRegion(context, canvas, camera, region, view, hovered) {
+function drawRegion(context, canvas, camera, region, view, state) {
   if (region.polygon.length < 3) {
     return;
   }
@@ -45,8 +48,13 @@ function drawRegion(context, canvas, camera, region, view, hovered) {
   context.closePath();
 
   context.save();
-  context.globalAlpha = hovered ? view.hoverFillAlpha : view.regionFillAlpha;
-  context.fillStyle = view.regionPalette[region.index % view.regionPalette.length];
+  if (state.conquered) {
+    context.globalAlpha = view.conqueredFillAlpha;
+    context.fillStyle = view.conqueredFillColor;
+  } else {
+    context.globalAlpha = state.hovered ? view.hoverFillAlpha : view.regionFillAlpha;
+    context.fillStyle = view.regionPalette[region.index % view.regionPalette.length];
+  }
   context.fill();
   context.restore();
 
@@ -63,5 +71,6 @@ function drawRegion(context, canvas, camera, region, view, hovered) {
   context.fillStyle = view.labelColor;
   context.font = view.labelFont;
   context.textAlign = "center";
-  context.fillText(`${LabelConfig.spaceMap.regionPrefix}${region.index + 1}`, site.x, site.y + view.labelOffsetY);
+  const suffix = state.conquered ? LabelConfig.spaceMap.conqueredSuffix : "";
+  context.fillText(`${LabelConfig.spaceMap.regionPrefix}${region.index + 1}${suffix}`, site.x, site.y + view.labelOffsetY);
 }

@@ -157,6 +157,10 @@ test("manual control panel shows battery, speed orders, and one switch per thrus
   assert.equal(html.match(/map-bar__button/g).length, 6);
   assert.ok(html.includes('data-test-map="SpaceMap"'));
   assert.ok(html.includes('data-test-map="Battle"'));
+  assert.ok(html.includes('id="battle-won"'));
+  assert.ok(html.includes('id="game-won"'));
+  assert.ok(html.includes('data-return-to-map'));
+  assert.ok(html.includes('data-new-campaign'));
   assert.ok(html.includes('aria-label="Ship controller"'));
   assert.ok(html.includes('data-controller-mode="manual"'));
   assert.ok(html.includes('data-controller-mode="automatic"'));

@@ -12,11 +12,20 @@ export const LabelConfig = Object.freeze({
   }),
   spaceMap: Object.freeze({
     title: "Space Map",
-    regionPrefix: "R"
+    regionPrefix: "R",
+    conqueredSuffix: " ✓"
   }),
   gameOver: Object.freeze({
     title: "Game Over",
     retry: "Retry"
+  }),
+  battleWon: Object.freeze({
+    title: "Sector Conquered",
+    returnToMap: "Return to Map"
+  }),
+  gameWon: Object.freeze({
+    title: "Galaxy Conquered",
+    newCampaign: "New Campaign"
   }),
   controllerModes: Object.freeze({
     manual: "Manual",

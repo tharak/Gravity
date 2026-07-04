@@ -11,6 +11,8 @@ export const SpaceMapViewConfig = Object.freeze({
   backgroundColor: "#04060d",
   regionFillAlpha: 0.16,
   hoverFillAlpha: 0.34,
+  conqueredFillColor: "#86efac",
+  conqueredFillAlpha: 0.32,
   regionPalette: Object.freeze(["#7dd3fc", "#ffd166", "#b4f8c8", "#f4a3c0", "#c4b5fd", "#9ad1d4"]),
   borderColor: "rgba(233, 238, 248, 0.55)",
   borderWidth: 1.5,

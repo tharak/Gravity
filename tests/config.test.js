@@ -189,6 +189,13 @@ test("space map config separates model and view values", () => {
   assert.equal(SpaceMapViewConfig.siteRadius, 5);
   assert.equal(SpaceMapViewConfig.regionPalette.length > 0, true);
   assert.equal(SpaceMapViewConfig.starCount, 90);
+  assert.equal(SpaceMapViewConfig.conqueredFillColor, "#86efac");
+  assert.equal(SpaceMapViewConfig.conqueredFillAlpha, 0.32);
+  assert.equal(LabelConfig.spaceMap.conqueredSuffix, " ✓");
+  assert.equal(LabelConfig.battleWon.title, "Sector Conquered");
+  assert.equal(LabelConfig.battleWon.returnToMap, "Return to Map");
+  assert.equal(LabelConfig.gameWon.title, "Galaxy Conquered");
+  assert.equal(LabelConfig.gameWon.newCampaign, "New Campaign");
 });
 
 test("battle config exposes procedural generation ranges", () => {
