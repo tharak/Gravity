@@ -13,5 +13,6 @@ export const EnemyAiConfig = Object.freeze({
     strength: 120
   }),
   speedErrorForFullThrottle: 25,
-  settleSpeedError: 3
+  settleSpeedError: 3,
+  noseAlignmentSpeedError: 30
 });

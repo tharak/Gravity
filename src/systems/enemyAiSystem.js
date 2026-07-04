@@ -31,6 +31,7 @@ function steerCombatShip(world, ship, allShips, deltaSeconds) {
   const velocityError = subtract(desiredVelocity, velocity);
   const errorSpeed = length(velocityError);
   const settled = errorSpeed <= EnemyAiConfig.settleSpeedError;
+  const needsMainBurn = errorSpeed > EnemyAiConfig.noseAlignmentSpeedError;
   const facingAngle = target ? Math.atan2(target.y - position.y, target.x - position.x) : rotation;
   const seek = settled
     ? { directionX: 0, directionY: 0, power: 0, targetAngle: facingAngle }
@@ -38,7 +39,7 @@ function steerCombatShip(world, ship, allShips, deltaSeconds) {
       directionX: velocityError.x / errorSpeed,
       directionY: velocityError.y / errorSpeed,
       power: clamp01(errorSpeed / EnemyAiConfig.speedErrorForFullThrottle),
-      targetAngle: Math.atan2(velocityError.y, velocityError.x)
+      targetAngle: needsMainBurn ? Math.atan2(velocityError.y, velocityError.x) : facingAngle
     };
 
   applyThrusterCommandToShip(world, ship, createSeekThrusterCommand(world, ship, seek, deltaSeconds), rotation);

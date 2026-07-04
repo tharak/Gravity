@@ -6,7 +6,7 @@ export const FlightControlConfig = Object.freeze({
   }),
   turn: Object.freeze({
     angleErrorGain: 1.45,
-    angularVelocityGain: 0.35,
+    angularVelocityGain: 0.8,
     dampingGain: 0.8,
     minPower: 0.04
   }),

@@ -133,6 +133,7 @@ test("fleet config exposes formation and steering tuning values", () => {
   assert.equal(FleetModelConfig.headingSmoothingRate, 1.5);
   assert.equal(FleetModelConfig.speedErrorForFullThrottle, 25);
   assert.equal(FleetModelConfig.settleSpeedError, 3);
+  assert.equal(FleetModelConfig.noseAlignmentSpeedError, 30);
 });
 
 test("fleet test scene configs separate model and view values", () => {
@@ -160,6 +161,7 @@ test("enemy AI config exposes combat steering tuning values", () => {
   assert.equal(EnemyAiConfig.avoid.strength, 120);
   assert.equal(EnemyAiConfig.speedErrorForFullThrottle, 25);
   assert.equal(EnemyAiConfig.settleSpeedError, 3);
+  assert.equal(EnemyAiConfig.noseAlignmentSpeedError, 30);
 });
 
 test("fleet battle scene configs separate model and view values", () => {
@@ -218,6 +220,7 @@ test("flight control config exposes stabilization tuning values", () => {
   assert.equal(FlightControlConfig.stop.fullPowerSpeed, 45);
   assert.equal(FlightControlConfig.stop.alignmentThreshold, 0.35);
   assert.equal(FlightControlConfig.turn.angleErrorGain, 1.45);
+  assert.equal(FlightControlConfig.turn.angularVelocityGain, 0.8);
   assert.equal(FlightControlConfig.turn.dampingGain, 0.8);
   assert.equal(FlightControlConfig.minMainThrusterPower, 0.02);
   assert.equal(FlightControlConfig.batteryThrustShare, 0.5);

@@ -50,13 +50,14 @@ function steerFleetMember(world, member, fleet, deltaSeconds) {
   const velocityError = subtract(desiredVelocity, velocity);
   const errorSpeed = length(velocityError);
   const settled = errorSpeed <= FleetModelConfig.settleSpeedError;
+  const needsMainBurn = errorSpeed > FleetModelConfig.noseAlignmentSpeedError;
   const seek = settled
     ? { directionX: 0, directionY: 0, power: 0, targetAngle: fleet.formationHeading }
     : {
       directionX: velocityError.x / errorSpeed,
       directionY: velocityError.y / errorSpeed,
       power: clamp01(errorSpeed / FleetModelConfig.speedErrorForFullThrottle),
-      targetAngle: Math.atan2(velocityError.y, velocityError.x)
+      targetAngle: needsMainBurn ? Math.atan2(velocityError.y, velocityError.x) : fleet.formationHeading
     };
 
   applyThrusterCommandToShip(world, member.entity, createSeekThrusterCommand(world, member.entity, seek, deltaSeconds), rotation);
