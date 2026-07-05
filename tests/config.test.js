@@ -104,6 +104,8 @@ test("gun config separates model and view values", () => {
   assert.equal(GunViewConfig.lockOn.radiusOffset, 14);
   assert.equal(GunViewConfig.lockOn.cornerLength, 10);
   assert.equal(GunViewConfig.lockOn.lineWidth, 2);
+  assert.equal(GunViewConfig.cooldown.radiusRatio, 1.8);
+  assert.equal(GunViewConfig.cooldown.minRadius, 5);
 });
 
 test("shield config separates model and view values", () => {

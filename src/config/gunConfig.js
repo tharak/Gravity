@@ -22,5 +22,11 @@ export const GunViewConfig = Object.freeze({
     radiusOffset: 14,
     cornerLength: 10,
     lineWidth: 2
+  }),
+  cooldown: Object.freeze({
+    radiusRatio: 1.8,
+    minRadius: 5,
+    fillColor: "rgba(255, 209, 102, 0.55)",
+    ringColor: "rgba(233, 238, 248, 0.5)"
   })
 });

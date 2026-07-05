@@ -258,7 +258,39 @@ function drawGuns(context, world, ship, camera, shipRotation) {
     context.stroke();
 
     context.restore();
+
+    drawGunCooldown(context, gun, x, y, radius, shipRotation);
   }
+}
+
+function drawGunCooldown(context, gun, x, y, gunRadius, shipRotation) {
+  if (!(gun.cooldown > 0) || !(gun.fireCooldownSeconds > 0)) {
+    return;
+  }
+
+  const view = GunViewConfig.cooldown;
+  const progress = 1 - gun.cooldown / gun.fireCooldownSeconds;
+  const radius = Math.max(gunRadius * view.radiusRatio, view.minRadius);
+  const startAngle = -Math.PI / 2;
+
+  context.save();
+  context.translate(x, y);
+  context.rotate(-shipRotation);
+
+  context.strokeStyle = view.ringColor;
+  context.lineWidth = 1;
+  context.beginPath();
+  context.arc(0, 0, radius, 0, Math.PI * 2);
+  context.stroke();
+
+  context.fillStyle = view.fillColor;
+  context.beginPath();
+  context.moveTo(0, 0);
+  context.arc(0, 0, radius, startAngle, startAngle + progress * Math.PI * 2);
+  context.closePath();
+  context.fill();
+
+  context.restore();
 }
 
 function drawProjectiles(context, canvas, world, camera) {
