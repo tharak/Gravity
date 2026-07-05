@@ -53,6 +53,47 @@ test("manual aim follows the pointer and manual shoot fires a projectile", () =>
   assert.equal(gun.cooldown, GunModelConfig.fireCooldownSeconds);
 });
 
+test("a gun locks onto the nearest opposing ship in range", () => {
+  const world = createWorld();
+  createShip(world, { x: 0, y: 0, playerControlled: "player-one", faction: "player" });
+  const near = createShip(world, { x: 300, y: 0, faction: "hostile" });
+  createShip(world, { x: 400, y: 0, faction: "hostile" });
+  const input = createPlayerInput();
+
+  applyGuns(world, { "player-one": input }, 1 / 60);
+
+  const gun = [...getComponents(world, Component.Gun).values()][0];
+  assert.equal(gun.lockedTarget, near);
+});
+
+test("a gun has no lock when every opposing ship is out of range", () => {
+  const world = createWorld();
+  createShip(world, { x: 0, y: 0, playerControlled: "player-one", faction: "player" });
+  createShip(world, { x: GunModelConfig.range + 200, y: 0, faction: "hostile" });
+  const input = createPlayerInput();
+
+  applyGuns(world, { "player-one": input }, 1 / 60);
+
+  const gun = [...getComponents(world, Component.Gun).values()][0];
+  assert.equal(gun.lockedTarget, undefined);
+});
+
+test("a destroyed gun drops its lock", () => {
+  const world = createWorld();
+  createShip(world, { x: 0, y: 0, playerControlled: "player-one", faction: "player" });
+  createShip(world, { x: 300, y: 0, faction: "hostile" });
+  const input = createPlayerInput();
+  applyGuns(world, { "player-one": input }, 1 / 60);
+
+  const [gunEntity] = [...getComponents(world, Component.Gun).keys()].filter(
+    (entity) => getComponent(world, entity, Component.Health) !== undefined
+  );
+  getComponent(world, gunEntity, Component.Health).current = 0;
+  applyGuns(world, { "player-one": input }, 1 / 60);
+
+  assert.equal(getComponent(world, gunEntity, Component.Gun).lockedTarget, undefined);
+});
+
 test("firing respects the cooldown between shots", () => {
   const world = createWorld();
   createShip(world, { x: 0, y: 0, playerControlled: "player-one", batteryCapacity: 100 });

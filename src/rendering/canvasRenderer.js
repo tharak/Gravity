@@ -1,4 +1,5 @@
 import { BattleViewConfig } from "../config/battleConfig.js";
+import { GunViewConfig } from "../config/gunConfig.js";
 import { LabelConfig } from "../config/labelConfig.js";
 import { BodyKind, Component } from "../ecs/components.js";
 import { getComponent, queryEntities } from "../ecs/world.js";
@@ -16,7 +17,47 @@ export function renderWorld(context, canvas, world, camera, options = {}) {
   drawTrails(context, canvas, world, camera);
   drawProjectiles(context, canvas, world, camera);
   drawBodies(context, canvas, world, camera, options.lightPosition);
+  drawLockOnIndicators(context, canvas, world, camera);
   drawDamagePopups(context, canvas, world, camera);
+}
+
+function drawLockOnIndicators(context, canvas, world, camera) {
+  const view = GunViewConfig.lockOn;
+  const locked = new Set();
+
+  for (const ship of queryEntities(world, [Component.PlayerControlled, Component.Position])) {
+    for (const gun of getShipGuns(world, ship)) {
+      if (gun.lockedTarget !== undefined) {
+        locked.add(gun.lockedTarget);
+      }
+    }
+  }
+
+  for (const target of locked) {
+    const position = getComponent(world, target, Component.Position);
+    if (!position) {
+      continue;
+    }
+
+    const radius = getComponent(world, target, Component.Radius)?.value ?? 0;
+    const screen = worldToScreen(camera, canvas, position);
+    const extent = (radius + view.radiusOffset) * camera.scale;
+    const corner = Math.min(view.cornerLength * camera.scale, extent);
+
+    context.save();
+    context.strokeStyle = view.color;
+    context.lineWidth = view.lineWidth;
+    for (const [signX, signY] of [[-1, -1], [1, -1], [1, 1], [-1, 1]]) {
+      const cornerX = screen.x + signX * extent;
+      const cornerY = screen.y + signY * extent;
+      context.beginPath();
+      context.moveTo(cornerX - signX * corner, cornerY);
+      context.lineTo(cornerX, cornerY);
+      context.lineTo(cornerX, cornerY - signY * corner);
+      context.stroke();
+    }
+    context.restore();
+  }
 }
 
 function drawGrid(context, canvas, camera) {

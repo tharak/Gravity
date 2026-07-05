@@ -1,7 +1,7 @@
 export const GunModelConfig = Object.freeze({
   maxHealth: 25,
   range: 480,
-  fireCooldownSeconds: 0.35,
+  fireCooldownSeconds: 5,
   energyPerShot: 2,
   heatPerShot: 9,
   heatResumeRatio: 0.5,
@@ -16,5 +16,11 @@ export const GunViewConfig = Object.freeze({
   localY: 0,
   radius: 6,
   barrelLength: 16,
-  projectileRadius: 3
+  projectileRadius: 3,
+  lockOn: Object.freeze({
+    color: "rgba(248, 113, 113, 0.9)",
+    radiusOffset: 14,
+    cornerLength: 10,
+    lineWidth: 2
+  })
 });

@@ -37,6 +37,7 @@ function updateGun(world, ship, gunEntity, gunInput, deltaSeconds) {
   const gun = getComponent(world, gunEntity, Component.Gun);
   gun.cooldown = Math.max(0, gun.cooldown - deltaSeconds);
   gun.firing = false;
+  gun.lockedTarget = undefined;
 
   if (getComponent(world, gunEntity, Component.Health).current <= 0) {
     return;
@@ -44,6 +45,9 @@ function updateGun(world, ship, gunEntity, gunInput, deltaSeconds) {
 
   const muzzle = getGunWorldPosition(world, ship, gun);
   const target = findNearestOpposingShip(world, ship, muzzle);
+  if (target !== undefined && target.distance <= gun.range) {
+    gun.lockedTarget = target.entity;
+  }
 
   aimGun(world, ship, gun, gunInput, muzzle, target);
 
