@@ -40,6 +40,28 @@ test("enemy ship holds position at standoff range", () => {
   assert.equal(acceleration.y, 0);
 });
 
+test("enemy ai brakes instead of chasing a target out of the arena", () => {
+  const world = createWorld();
+  world.arena = Object.freeze({ minX: -1000, minY: -1000, maxX: 1000, maxY: 1000 });
+  const enemy = createShip(world, { x: 0, y: 940, vy: 120, faction: FactionId.Hostile });
+  createShip(world, { x: 0, y: 2000, playerControlled: "player-one", faction: FactionId.Player });
+
+  applyEnemyAi(world, deltaSeconds);
+
+  assert.equal(getComponent(world, enemy, Component.Acceleration).y < 0, true);
+});
+
+test("enemy ai steers a stray ship back inside the arena", () => {
+  const world = createWorld();
+  world.arena = Object.freeze({ minX: -1000, minY: -1000, maxX: 1000, maxY: 1000 });
+  const enemy = createShip(world, { x: 990, y: 0, faction: FactionId.Hostile });
+  createShip(world, { x: 3000, y: 0, playerControlled: "player-one", faction: FactionId.Player });
+
+  applyEnemyAi(world, deltaSeconds);
+
+  assert.equal(getComponent(world, enemy, Component.Acceleration).x < 0, true);
+});
+
 test("enemy guns automatically fire at opposing ships in range", () => {
   const world = createWorld();
   createShip(world, { x: 0, y: 0, faction: FactionId.Hostile });

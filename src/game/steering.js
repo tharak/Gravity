@@ -30,6 +30,28 @@ export function getSeparationPush(world, entity, position, ships, separation) {
   return push;
 }
 
+export function getArenaLimitedVelocity(position, desired, arena, config) {
+  if (!arena) {
+    return desired;
+  }
+
+  return {
+    x: clampAxis(desired.x, position.x, arena.minX, arena.maxX, config),
+    y: clampAxis(desired.y, position.y, arena.minY, arena.maxY, config)
+  };
+}
+
+function clampAxis(desired, position, min, max, config) {
+  const towardMax = brakeableSpeed(max - config.margin - position, config);
+  const towardMin = -brakeableSpeed(position - (min + config.margin), config);
+  return Math.min(Math.max(desired, towardMin), towardMax);
+}
+
+function brakeableSpeed(distance, config) {
+  const speed = Math.sqrt(2 * config.brakingAcceleration * Math.abs(distance));
+  return distance >= 0 ? speed : -speed;
+}
+
 export function getAvoidancePush(world, entity, position, velocity, ships, avoid) {
   const push = vec2();
 

@@ -5,7 +5,7 @@ import { getComponent, getComponents, queryEntities } from "../ecs/world.js";
 import { SHIP_FACING_UP } from "../game/factory.js";
 import { applyThrusterCommandToShip, createSeekThrusterCommand } from "../game/flightControl.js";
 import { getShipGuns } from "../game/shipParts.js";
-import { getAvoidancePush, getSeparationPush } from "../game/steering.js";
+import { getArenaLimitedVelocity, getAvoidancePush, getSeparationPush } from "../game/steering.js";
 import { findNearestOpposingShip } from "../game/targeting.js";
 
 export function applyEnemyAi(world, deltaSeconds = 0) {
@@ -27,7 +27,12 @@ function steerCombatShip(world, ship, allShips, deltaSeconds) {
   const pursuit = target ? getPursuitVelocity(world, ship, position, target) : vec2();
   const separation = getSeparationPush(world, ship, position, squad, EnemyAiConfig.separation);
   const avoidance = getAvoidancePush(world, ship, position, velocity, allShips, EnemyAiConfig.avoid);
-  const desiredVelocity = add(add(pursuit, separation), avoidance);
+  const desiredVelocity = getArenaLimitedVelocity(
+    position,
+    add(add(pursuit, separation), avoidance),
+    world.arena,
+    EnemyAiConfig.arena
+  );
   const velocityError = subtract(desiredVelocity, velocity);
   const errorSpeed = length(velocityError);
   const settled = errorSpeed <= EnemyAiConfig.settleSpeedError;

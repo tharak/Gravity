@@ -96,6 +96,18 @@ test("escort holds the formation heading when enemies are out of range", () => {
   assert.equal(getComponent(world, member, Component.AngularAcceleration).value, 0);
 });
 
+test("escort steers back inside when its slot lies beyond the arena", () => {
+  const world = createWorld();
+  world.arena = Object.freeze({ minX: -2000, minY: -2000, maxX: 2000, maxY: 2000 });
+  const flagship = createShip(world, { x: 0, y: 1860, playerControlled: "player-one" });
+  const member = createShip(world, { x: 0, y: 2040, fleet: { flagship, slotIndex: 0 } });
+  const input = createPlayerInput();
+
+  applyFleetFormation(world, { "player-one": input }, deltaSeconds);
+
+  assert.equal(getComponent(world, member, Component.Acceleration).y < 0, true);
+});
+
 test("changing the formation order pulls a settled member out of its slot", () => {
   const world = createWorld();
   const { member } = createTestFleet(world, [{ x: 0, y: 180 }]);

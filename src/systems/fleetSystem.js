@@ -6,7 +6,7 @@ import { SHIP_FACING_UP } from "../game/factory.js";
 import { applyThrusterCommandToShip, createSeekThrusterCommand } from "../game/flightControl.js";
 import { getFormationOffset } from "../game/formations.js";
 import { getShipGuns } from "../game/shipParts.js";
-import { getAvoidancePush, getSeparationPush } from "../game/steering.js";
+import { getArenaLimitedVelocity, getAvoidancePush, getSeparationPush } from "../game/steering.js";
 import { findNearestOpposingShip } from "../game/targeting.js";
 
 export function applyFleetFormation(world, inputById, deltaSeconds = 0) {
@@ -48,7 +48,12 @@ function steerFleetMember(world, member, fleet, deltaSeconds) {
   );
   const separation = getSeparationPush(world, member.entity, position, fleet.fleetShips, FleetModelConfig.separation);
   const avoidance = getAvoidancePush(world, member.entity, position, velocity, fleet.allShips, FleetModelConfig.avoid);
-  const desiredVelocity = add(add(add(fleet.flagshipVelocity, catchUp), separation), avoidance);
+  const desiredVelocity = getArenaLimitedVelocity(
+    position,
+    add(add(add(fleet.flagshipVelocity, catchUp), separation), avoidance),
+    world.arena,
+    FleetModelConfig.arena
+  );
   const velocityError = subtract(desiredVelocity, velocity);
   const errorSpeed = length(velocityError);
   const settled = errorSpeed <= FleetModelConfig.settleSpeedError;
