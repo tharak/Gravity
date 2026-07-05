@@ -69,7 +69,8 @@ function tick(timestamp) {
   if (world.spaceMap) {
     renderSpaceMap(context, canvas, world.spaceMap, camera, {
       hoveredRegionIndex,
-      conqueredRegionIndexes: campaign.conqueredRegionIndexes
+      conqueredRegionIndexes: campaign.conqueredRegionIndexes,
+      sectorIntel: world.sectorIntel
     });
   } else {
     renderWorld(context, canvas, world, camera, { lightPosition: sunlight });

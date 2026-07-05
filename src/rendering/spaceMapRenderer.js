@@ -1,3 +1,4 @@
+import { FleetFormationList } from "../config/fleetConfig.js";
 import { LabelConfig } from "../config/labelConfig.js";
 import { SpaceMapViewConfig } from "../config/spaceMapConfig.js";
 import { createRandom } from "../core/random.js";
@@ -13,7 +14,8 @@ export function renderSpaceMap(context, canvas, spaceMap, camera, options = {}) 
   for (const region of spaceMap.regions) {
     drawRegion(context, canvas, camera, region, view, {
       hovered: region.index === options.hoveredRegionIndex,
-      conquered: options.conqueredRegionIndexes?.has(region.index) ?? false
+      conquered: options.conqueredRegionIndexes?.has(region.index) ?? false,
+      intel: options.sectorIntel?.get(region.index)
     });
   }
 }
@@ -73,4 +75,17 @@ function drawRegion(context, canvas, camera, region, view, state) {
   context.textAlign = "center";
   const suffix = state.conquered ? LabelConfig.spaceMap.conqueredSuffix : "";
   context.fillText(`${LabelConfig.spaceMap.regionPrefix}${region.index + 1}${suffix}`, site.x, site.y + view.labelOffsetY);
+
+  if (state.intel) {
+    context.fillStyle = view.intelColor;
+    context.font = view.intelFont;
+    context.fillText(formatSectorIntel(state.intel), site.x, site.y + view.intelOffsetY);
+  }
+}
+
+function formatSectorIntel(intel) {
+  const labels = LabelConfig.spaceMap.intel;
+  const formation = FleetFormationList.find((candidate) => candidate.id === intel.formation)?.label ?? "";
+  const resources = intel.resourcePlanetCount > 0 ? ` ${labels.resources}${intel.resourcePlanetCount}` : "";
+  return `${labels.enemies}${intel.enemyCount} ${formation}${labels.separator}${labels.planets}${intel.planetCount}${resources}`;
 }

@@ -13,7 +13,13 @@ export const LabelConfig = Object.freeze({
   spaceMap: Object.freeze({
     title: "Space Map",
     regionPrefix: "R",
-    conqueredSuffix: " ✓"
+    conqueredSuffix: " ✓",
+    intel: Object.freeze({
+      enemies: "⚔",
+      planets: "●",
+      resources: "✦",
+      separator: " · "
+    })
   }),
   gameOver: Object.freeze({
     title: "Game Over",

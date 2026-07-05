@@ -5,7 +5,7 @@ import { FleetFormation } from "../src/config/fleetConfig.js";
 import { SpaceMapModelConfig } from "../src/config/spaceMapConfig.js";
 import { deriveRegionSeed } from "../src/core/random.js";
 import { BodyKind, FactionId } from "../src/ecs/components.js";
-import { generateBattleMap } from "../src/game/battleMap.js";
+import { generateBattleMap, getBattleIntel } from "../src/game/battleMap.js";
 
 const regionSeeds = Array.from(
   { length: SpaceMapModelConfig.regionCount },
@@ -68,6 +68,21 @@ test("battle maps roll a hostile fleet with a valid formation", () => {
   }
 
   assert.equal(formations.size > 1, true);
+});
+
+test("battle intel summarizes the generated battle", () => {
+  for (const seed of regionSeeds) {
+    const intel = getBattleIntel(seed);
+    const map = generateBattleMap(seed);
+
+    assert.equal(Object.isFrozen(intel), true);
+    assert.equal(intel.enemyCount, map.enemyShips.length);
+    assert.equal(intel.formation, map.enemyFormation);
+    assert.equal(intel.planetCount, map.planets.length);
+    assert.equal(intel.resourcePlanetCount, map.planets.filter((planet) => planet.kind === BodyKind.ResourcePlanet).length);
+  }
+
+  assert.deepEqual(getBattleIntel(regionSeeds[0]), getBattleIntel(regionSeeds[0]));
 });
 
 test("battle map output is frozen", () => {

@@ -205,6 +205,10 @@ test("space map config separates model and view values", () => {
   assert.equal(SpaceMapViewConfig.conqueredFillColor, "#86efac");
   assert.equal(SpaceMapViewConfig.conqueredFillAlpha, 0.32);
   assert.equal(LabelConfig.spaceMap.conqueredSuffix, " ✓");
+  assert.equal(LabelConfig.spaceMap.intel.enemies, "⚔");
+  assert.equal(LabelConfig.spaceMap.intel.planets, "●");
+  assert.equal(LabelConfig.spaceMap.intel.resources, "✦");
+  assert.equal(SpaceMapViewConfig.intelOffsetY, 34);
   assert.equal(LabelConfig.battleWon.title, "Sector Conquered");
   assert.equal(LabelConfig.battleWon.returnToMap, "Return to Map");
   assert.equal(LabelConfig.gameWon.title, "Galaxy Conquered");

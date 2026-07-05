@@ -27,6 +27,9 @@ test("SpaceMap is an empty world carrying a deterministic Voronoi campaign map",
   assert.equal(first.entities.size, 0);
   assert.equal(first.spaceMap.regions.length, SpaceMapModelConfig.regionCount);
   assert.deepEqual(first.spaceMap, second.spaceMap);
+  assert.equal(first.sectorIntel.size, SpaceMapModelConfig.regionCount);
+  assert.equal(first.sectorIntel.get(0).enemyCount > 0, true);
+  assert.deepEqual(first.sectorIntel.get(3), second.sectorIntel.get(3));
   assert.equal(SpaceMapScene.hidesCockpit, true);
   assert.equal(SpaceMapScene.isMenu, undefined);
 });

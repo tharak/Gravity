@@ -5,6 +5,16 @@ import { rotate } from "../core/vector.js";
 import { BodyKind, FactionId } from "../ecs/components.js";
 import { getFormationOffset } from "./formations.js";
 
+export function getBattleIntel(seed, model = BattleModelConfig) {
+  const battleMap = generateBattleMap(seed, model);
+  return Object.freeze({
+    enemyCount: battleMap.enemyShips.length,
+    formation: battleMap.enemyFormation,
+    planetCount: battleMap.planets.length,
+    resourcePlanetCount: battleMap.planets.filter((planet) => planet.kind === BodyKind.ResourcePlanet).length
+  });
+}
+
 export function generateBattleMap(seed, model = BattleModelConfig, view = BattleViewConfig) {
   const random = createRandom(seed);
   const enemyFormation = randomPick(random, Object.values(FleetFormation));
