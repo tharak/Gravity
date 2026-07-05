@@ -134,6 +134,7 @@ test("fleet config exposes formation and steering tuning values", () => {
   assert.equal(FleetModelConfig.speedErrorForFullThrottle, 25);
   assert.equal(FleetModelConfig.settleSpeedError, 3);
   assert.equal(FleetModelConfig.noseAlignmentSpeedError, 30);
+  assert.equal(FleetModelConfig.noseAimRangeRatio, 1);
 });
 
 test("fleet test scene configs separate model and view values", () => {

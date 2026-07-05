@@ -5,7 +5,9 @@ import { addComponent, getComponent, getComponents, queryEntities } from "../ecs
 import { SHIP_FACING_UP } from "../game/factory.js";
 import { applyThrusterCommandToShip, createSeekThrusterCommand } from "../game/flightControl.js";
 import { getFormationOffset } from "../game/formations.js";
+import { getShipGuns } from "../game/shipParts.js";
 import { getAvoidancePush, getSeparationPush } from "../game/steering.js";
+import { findNearestOpposingShip } from "../game/targeting.js";
 
 export function applyFleetFormation(world, inputById, deltaSeconds = 0) {
   const allShips = getAllShips(world);
@@ -51,16 +53,35 @@ function steerFleetMember(world, member, fleet, deltaSeconds) {
   const errorSpeed = length(velocityError);
   const settled = errorSpeed <= FleetModelConfig.settleSpeedError;
   const needsMainBurn = errorSpeed > FleetModelConfig.noseAlignmentSpeedError;
+  const holdAngle = getCombatFacing(world, member.entity, position) ?? fleet.formationHeading;
   const seek = settled
-    ? { directionX: 0, directionY: 0, power: 0, targetAngle: fleet.formationHeading }
+    ? { directionX: 0, directionY: 0, power: 0, targetAngle: holdAngle }
     : {
       directionX: velocityError.x / errorSpeed,
       directionY: velocityError.y / errorSpeed,
       power: clamp01(errorSpeed / FleetModelConfig.speedErrorForFullThrottle),
-      targetAngle: needsMainBurn ? Math.atan2(velocityError.y, velocityError.x) : fleet.formationHeading
+      targetAngle: needsMainBurn ? Math.atan2(velocityError.y, velocityError.x) : holdAngle
     };
 
   applyThrusterCommandToShip(world, member.entity, createSeekThrusterCommand(world, member.entity, seek, deltaSeconds), rotation);
+}
+
+function getCombatFacing(world, ship, position) {
+  if (getComponent(world, ship, Component.Faction) === undefined) {
+    return undefined;
+  }
+
+  const target = findNearestOpposingShip(world, ship, position);
+  if (!target) {
+    return undefined;
+  }
+
+  const range = (getShipGuns(world, ship)[0]?.range ?? 0) * FleetModelConfig.noseAimRangeRatio;
+  if (target.distance > range) {
+    return undefined;
+  }
+
+  return Math.atan2(target.y - position.y, target.x - position.x);
 }
 
 function updateFormationHeading(world, flagship, deltaSeconds) {

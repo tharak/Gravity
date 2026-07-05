@@ -32,5 +32,6 @@ export const FleetModelConfig = Object.freeze({
   headingSmoothingRate: 1.5,
   speedErrorForFullThrottle: 25,
   settleSpeedError: 3,
-  noseAlignmentSpeedError: 30
+  noseAlignmentSpeedError: 30,
+  noseAimRangeRatio: 1
 });

@@ -72,6 +72,30 @@ test("fleet member settled at its slot keeps thrusters off", () => {
   assert.equal(getComponent(world, member, Component.AngularAcceleration).value, 0);
 });
 
+test("escort aims its nose at an enemy inside gun range", () => {
+  const world = createWorld();
+  const flagship = createShip(world, { x: 0, y: 0, playerControlled: "player-one", faction: "player" });
+  const member = createShip(world, { x: 0, y: 180, fleet: { flagship, slotIndex: 0 }, faction: "player" });
+  createShip(world, { x: 400, y: 180, faction: "hostile" });
+  const input = createPlayerInput();
+
+  applyFleetFormation(world, { "player-one": input }, deltaSeconds);
+
+  assert.equal(getComponent(world, member, Component.AngularAcceleration).value > 0, true);
+});
+
+test("escort holds the formation heading when enemies are out of range", () => {
+  const world = createWorld();
+  const flagship = createShip(world, { x: 0, y: 0, playerControlled: "player-one", faction: "player" });
+  const member = createShip(world, { x: 0, y: 180, fleet: { flagship, slotIndex: 0 }, faction: "player" });
+  createShip(world, { x: 2000, y: 180, faction: "hostile" });
+  const input = createPlayerInput();
+
+  applyFleetFormation(world, { "player-one": input }, deltaSeconds);
+
+  assert.equal(getComponent(world, member, Component.AngularAcceleration).value, 0);
+});
+
 test("changing the formation order pulls a settled member out of its slot", () => {
   const world = createWorld();
   const { member } = createTestFleet(world, [{ x: 0, y: 180 }]);
