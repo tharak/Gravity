@@ -246,6 +246,30 @@ test("projectiles damage what they hit and are removed", () => {
   assert.equal(queryEntities(world, [Component.DamagePopup]).length, 1);
 });
 
+test("projectiles damage ships on the shooter's own team", () => {
+  const world = createWorld();
+  const shooter = createShip(world, { x: -200, y: 0, faction: "player" });
+  const ally = createShip(world, { x: 100, y: 0, faction: "player" });
+  const health = getComponent(world, ally, Component.Health);
+  drainShields(world);
+  createProjectile(world, {
+    firedBy: shooter,
+    x: 60,
+    y: 0,
+    vx: 0,
+    vy: 0,
+    mass: 0.05,
+    radius: 3,
+    damage: 8,
+    lifetimeSeconds: 2
+  });
+
+  updateProjectiles(world);
+
+  assert.equal(health.current, health.max - 8);
+  assert.equal(queryEntities(world, [Component.Projectile]).length, 0);
+});
+
 test("projectiles do not hit the ship that fired them", () => {
   const world = createWorld();
   const shooter = createShip(world, { x: 0, y: 0 });

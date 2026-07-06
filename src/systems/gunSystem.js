@@ -150,7 +150,6 @@ function fireProjectile(world, ship, gun, muzzle) {
 
   createProjectile(world, {
     firedBy: ship,
-    faction: getComponent(world, ship, Component.Faction)?.id,
     x: muzzle.x + direction.x * gun.barrelLength,
     y: muzzle.y + direction.y * gun.barrelLength,
     vx: shipVelocity.x + direction.x * gun.projectileSpeed,

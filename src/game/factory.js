@@ -229,7 +229,6 @@ export function createProjectile(world, projectile) {
   const entity = createEntity(world);
   addComponent(world, entity, Component.Projectile, {
     firedBy: projectile.firedBy,
-    faction: projectile.faction,
     damage: projectile.damage,
     createdAt: world.time,
     lifetimeSeconds: projectile.lifetimeSeconds

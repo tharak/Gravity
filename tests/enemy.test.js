@@ -64,14 +64,14 @@ test("enemy ai steers a stray ship back inside the arena", () => {
 
 test("enemy guns automatically fire at opposing ships in range", () => {
   const world = createWorld();
-  createShip(world, { x: 0, y: 0, faction: FactionId.Hostile });
+  const enemy = createShip(world, { x: 0, y: 0, faction: FactionId.Hostile });
   createShip(world, { x: 300, y: 0, playerControlled: "player-one", faction: FactionId.Player });
 
   applyGuns(world, {}, deltaSeconds);
 
   const projectiles = [...getComponents(world, Component.Projectile).values()];
   assert.equal(projectiles.length, 1);
-  assert.equal(projectiles[0].faction, FactionId.Hostile);
+  assert.equal(projectiles[0].firedBy, enemy);
 });
 
 test("fleet escorts automatically engage hostiles", () => {
@@ -82,7 +82,9 @@ test("fleet escorts automatically engage hostiles", () => {
 
   applyGuns(world, {}, deltaSeconds);
 
-  const factions = [...getComponents(world, Component.Projectile).values()].map((projectile) => projectile.faction).sort();
+  const factions = [...getComponents(world, Component.Projectile).values()]
+    .map((projectile) => getComponent(world, projectile.firedBy, Component.Faction).id)
+    .sort();
   assert.deepEqual(factions, [FactionId.Hostile, FactionId.Player]);
 });
 
@@ -96,21 +98,22 @@ test("guns never target ships of the same faction", () => {
   assert.equal(getComponents(world, Component.Projectile).size, 0);
 });
 
-test("projectiles pass through same-faction ships and hit foes", () => {
+test("projectiles hit ships regardless of faction", () => {
   const world = createWorld();
   const friend = createShip(world, { x: 0, y: 0, faction: FactionId.Player });
   const foe = createShip(world, { x: 400, y: 0, faction: FactionId.Hostile });
-  createProjectile(world, { firedBy: 999, faction: FactionId.Player, x: 0, y: 0, vx: 0, vy: 0, mass: 0.05, radius: 3, damage: 8, lifetimeSeconds: 5 });
-  createProjectile(world, { firedBy: 999, faction: FactionId.Player, x: 400, y: 0, vx: 0, vy: 0, mass: 0.05, radius: 3, damage: 8, lifetimeSeconds: 5 });
+  createProjectile(world, { firedBy: 999, x: 0, y: 0, vx: 0, vy: 0, mass: 0.05, radius: 3, damage: 8, lifetimeSeconds: 5 });
+  createProjectile(world, { firedBy: 999, x: 400, y: 0, vx: 0, vy: 0, mass: 0.05, radius: 3, damage: 8, lifetimeSeconds: 5 });
 
   updateProjectiles(world);
 
-  assert.equal(getComponent(world, friend, Component.Health).current, 100);
-  assert.equal(getComponents(world, Component.Projectile).size, 1);
-  const foeShield = queryEntities(world, [Component.Shield, Component.Parent])
-    .filter((entity) => getComponent(world, entity, Component.Parent).entity === foe)
-    .map((entity) => getComponent(world, entity, Component.Shield))[0];
-  assert.equal(foeShield.strength < foeShield.maxStrength, true);
+  assert.equal(getComponents(world, Component.Projectile).size, 0);
+  for (const ship of [friend, foe]) {
+    const shield = queryEntities(world, [Component.Shield, Component.Parent])
+      .filter((entity) => getComponent(world, entity, Component.Parent).entity === ship)
+      .map((entity) => getComponent(world, entity, Component.Shield))[0];
+    assert.equal(shield.strength < shield.maxStrength, true);
+  }
 });
 
 test("destroyed ships are removed together with their parts", () => {
